@@ -1,27 +1,24 @@
 db.Teams.aggregate([
-  { $unwind: "$fifaStats" },
+  { $unwind: "$fifaStats" }, // Unwind the fifaStats array to get individual player stats
   {
     $group: {
-      _id: {
-        team_name: "$team_name",
-        fifa_version: "$fifaStats.fifa_version"
-      },
-      averageOverall: { $avg: "$fifaStats.overall" },
-      maxClubWorth: { $max: "$fifaStats.club_worth_eur" }
+      clubName: "$team_name", // Group by team_name
+      averageOverall: { $avg: "$fifaStats.overall" }, // Calculate average overall rating for each team
+      maxClubWorth: { $max: "$fifaStats.club_worth_eur" } // Max club worth for each team
     }
   },
   {
     $project: {
-      clubName: "$_id.team_name",
-      fifaVersion: "$_id.fifa_version",
+      clubName: "$team_name", // Rename _id to clubName
       averageOverall: 1,
       maxClubWorth: 1,
       _id: 0
     }
   },
-  { $sort: { averageOverall: -1, maxClubWorth: -1 } },
-  { $limit: 10 }
+  { $sort: { averageOverall: -1, maxClubWorth: -1 } }, // Sort by average overall and max club worth
+  { $limit: 10 } // Limit to top 10 results
 ])
+
 
 ______________________________________________________________________________________________
 
@@ -84,33 +81,4 @@ db.Teams.aggregate([
   { $limit: 10 }
 ])
 ______________________________________________________________________________________________
-
-db.Players.aggregate([
-  {
-    $project: {
-      long_name: 1,
-      usage: { $size: "$fifaStats" },
-      maxOverall: { $max: "$fifaStats.overall" },
-      maxValue: { $max: "$fifaStats.value_eur" },
-      fifaVersion: { $max: "$fifaStats.fifa_version" }
-    }
-  },
-  {
-    $sort: {
-      usage: -1,
-      maxOverall: -1,
-      maxValue: -1
-    }
-  },
-  { $limit: 10 },
-  {
-    $project: {
-      long_name: 1,
-      usage: 1,
-      maxOverall: 1,
-      maxValue: 1,
-      fifaVersion: 1
-    }
-  }
-])
-____________________________________________________________________________________
+________________________________________________________________________________

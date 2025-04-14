@@ -5,14 +5,14 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-@Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-public  class ClubAverage {
-    private String clubName;
-    private Double averageOverall;
-    private Long maxClubWorth;
+@Data
+public class DreamTeamPlayer {
+    private String playerName;
+    private int overall;
+    private int fifaVersion;
+    private String position;
 }

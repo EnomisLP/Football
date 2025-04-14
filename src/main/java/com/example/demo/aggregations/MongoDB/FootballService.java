@@ -7,15 +7,19 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.aggregation.Fields;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation.GroupOperationBuilder;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.aggregations.MongoDB.DTO.ClubAverage;
+import com.example.demo.aggregations.MongoDB.DTO.DreamTeamPlayer;
 import com.example.demo.aggregations.MongoDB.DTO.TopPlayersByCoach;
-import com.example.demo.aggregations.MongoDB.DTO.TopUsedPlayers;
+import com.mongodb.BasicDBObject;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FootballService {
@@ -25,18 +29,16 @@ public class FootballService {
 
     /**
      * Return the top 10 clubs by average overall rating,
-     * grouped by club name and FIFA version.
-     */
+     * grouped by club name     */
     public List<ClubAverage> getTopClubsByAverageOverall() {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.unwind("fifaStats"),
-                // Group by team_name and fifa_version, compute average and max club worth
-                Aggregation.group("team_name", "fifaStats.fifa_version")
+                // Group by team_name, compute average and max club worth
+                Aggregation.group("team_name")
                         .avg("fifaStats.overall").as("averageOverall")
-                        .max("fifaStats.club_worth_eur").as("maxClubWorth"),
+                        .avg("fifaStats.club_worth_eur").as("maxClubWorth"),
                 Aggregation.project("averageOverall", "maxClubWorth")
-                        .and("_id.team_name").as("clubName")
-                        .and("_id.fifa_version").as("fifaVersion"),
+                        .and("_id").as("clubName"), // pull team name from _id, i.e. the group key
                 Aggregation.sort(Sort.by(
                         Sort.Order.desc("averageOverall"),
                         Sort.Order.desc("maxClubWorth")
@@ -50,6 +52,7 @@ public class FootballService {
     
         return results.getMappedResults();
     }
+    
     
     
 
@@ -117,37 +120,54 @@ public class FootballService {
         return results.getMappedResults();
     }
     
-
-    /**
-     * Return the top 10 players based on usage, overall, and value,
-     * and include the maximum FIFA version from their fifaStats.
-     * "Usage" is computed as the size of the fifaStats array.
-     */
-    public List<TopUsedPlayers> getTopPlayersByUsageOverallAndValue() {
+    public List<DreamTeamPlayer> getDreamTeam(Integer fifaVersion) {
+        // Define the positions to select 
+        List<String> dreamTeamPositions = Arrays.asList(
+        "GK", "RB", "CB", "LB",  // Defenders
+        "CDM", "CM", "CAM",      // Midfielders
+        "RW", "LW", "ST"         // Attackers
+    );
+    
         Aggregation aggregation = Aggregation.newAggregation(
-            Aggregation.project("long_name", "fifaStats")
-                .andExpression("size(fifaStats)").as("usage")
-                .andExpression("max(fifaStats.overall)").as("maxOverall")
-                .andExpression("max(fifaStats.value_eur)").as("maxValue")
-                .andExpression("max(fifaStats.fifa_version)").as("fifaVersion"),
-            
-            Aggregation.sort(Sort.by(
-                Sort.Order.desc("usage"),
-                Sort.Order.desc("maxOverall"),
-                Sort.Order.desc("maxValue")
-            )),
+            // Step 1: Unwind the fifaStats array to process each player's stats
+            Aggregation.unwind("fifaStats"),
     
-            Aggregation.limit(10),
+            // Step 2: Match based on the fifa_version and only include players with the required positions
+            Aggregation.match(Criteria.where("fifaStats.fifa_version").is(fifaVersion)
+                    .and("fifaStats.player_positions").in(dreamTeamPositions)),
     
-            Aggregation.project("long_name", "usage", "maxOverall", "maxValue", "fifaVersion")
+            // Step 3: Project the necessary fields for each player (name, position, overall, player_id, fifa_version)
+            Aggregation.project("long_name")
+                .and("fifaStats.player_positions").as("position")
+                .and("fifaStats.overall").as("overall")
+                .and("fifaStats.fifa_version").as("fifaVersion")
+                .and("player_id").as("playerId"),
+    
+            // Step 4: Sort by overall rating in descending order (so best players come first)
+            Aggregation.sort(Sort.by(Sort.Direction.DESC, "overall")),
+    
+            // Step 5: Group by position and select the best player for each position
+            Aggregation.group("position")
+                .first("long_name").as("playerName")
+                .first("overall").as("overall")
+                .first("playerId").as("playerId")
+                .first("fifaVersion").as("fifaVersion")
+                .first("position").as("position"),
+    
+            // Step 6: Project the final output with player name, overall, position, and fifaVersion
+            Aggregation.project("playerName", "overall", "fifaVersion", "position")
         );
     
-        AggregationResults<TopUsedPlayers> results = mongoTemplate.aggregate(
-            aggregation, "Players", TopUsedPlayers.class
+        // Execute the aggregation query
+        AggregationResults<DreamTeamPlayer> result = mongoTemplate.aggregate(
+            aggregation, "Players", DreamTeamPlayer.class
         );
     
-        return results.getMappedResults();
+        // Return the list of the best players for the selected positions
+        return result.getMappedResults();
     }
-    
-    
+
 }
+
+
+

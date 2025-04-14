@@ -6,14 +6,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.aggregations.MongoDB.DTO.ClubAverage;
+import com.example.demo.aggregations.MongoDB.DTO.DreamTeamPlayer;
 import com.example.demo.aggregations.MongoDB.DTO.TopPlayersByCoach;
-import com.example.demo.aggregations.MongoDB.DTO.TopUsedPlayers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import java.util.List;
+
 
 @RestController
 public class FootballController {
@@ -40,16 +41,18 @@ public class FootballController {
     })
     public List<TopPlayersByCoach> getTopPlayersByCoach(@PathVariable int coachId) {
     return footballService.getTopPlayersManagedByCoach(coachId);
-    }   
-    @GetMapping("/top-used-players")
-    @Operation(summary = "Get top used players by overall and value")
+    }  
+
+    @GetMapping("/dream-team(4-3-3)/{fifaV}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved top used players"),
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved dream team players"),
+            @ApiResponse(responseCode = "404", description = "FIFA version not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public List<TopUsedPlayers> getTopPlayers() {
-    return footballService.getTopPlayersByUsageOverallAndValue();
+    @Operation(summary = "Get the dream team of players")
+    public List<DreamTeamPlayer> getDreamTeamPlayers(@PathVariable Integer fifaV) {
+        return footballService.getDreamTeam(fifaV);
     }
-
+    
 }
 
