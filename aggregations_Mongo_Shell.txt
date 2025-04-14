@@ -1,44 +1,47 @@
 db.Teams.aggregate([
-  { $unwind: "$fifaStats" }, // Unwind the fifaStats array to get individual player stats
+  { $unwind: "$fifaStats" },
   {
     $group: {
-      clubName: "$team_name", // Group by team_name
-      averageOverall: { $avg: "$fifaStats.overall" }, // Calculate average overall rating for each team
-      maxClubWorth: { $max: "$fifaStats.club_worth_eur" } // Max club worth for each team
+      _id: "$team_name",
+      averageOverall: { $avg: "$fifaStats.overall" },
+      maxClubWorth: { $avg: "$fifaStats.club_worth_eur" }
     }
   },
   {
     $project: {
-      clubName: "$team_name", // Rename _id to clubName
+      clubName: "$_id",
       averageOverall: 1,
-      maxClubWorth: 1,
-      _id: 0
+      maxClubWorth: 1
     }
   },
-  { $sort: { averageOverall: -1, maxClubWorth: -1 } }, // Sort by average overall and max club worth
-  { $limit: 10 } // Limit to top 10 results
+  {
+    $sort: {
+      averageOverall: -1,
+      maxClubWorth: -1
+    }
+  },
+  { $limit: 10 }
 ])
-
-
-______________________________________________________________________________________________
+_______________________________________________________________
 
 db.Teams.aggregate([
   { $unwind: "$fifaStats" },
-  { $match: { "fifaStats.coach_id": YOUR_COACH_ID } },
+  { $match: { "fifaStats.coach_id": COACH_ID_HERE } },
   {
     $project: {
       fifa_version: "$fifaStats.fifa_version",
+      coach_id: "$fifaStats.coach_id",
       team_name: "$fifaStats.team_name",
       player_ids: {
         $concatArrays: [
-          ["$fifaStats.short_free_kick"],
-          ["$fifaStats.long_free_kick"],
-          ["$fifaStats.left_short_free_kick"],
-          ["$fifaStats.right_short_free_kick"],
-          ["$fifaStats.penalties"],
-          ["$fifaStats.left_corner"],
-          ["$fifaStats.right_corner"],
-          ["$fifaStats.captain"]
+          "$fifaStats.short_free_kick",
+          "$fifaStats.long_free_kick",
+          "$fifaStats.left_short_free_kick",
+          "$fifaStats.right_short_free_kick",
+          "$fifaStats.penalties",
+          "$fifaStats.left_corner",
+          "$fifaStats.right_corner",
+          "$fifaStats.captain"
         ]
       }
     }
@@ -55,30 +58,68 @@ db.Teams.aggregate([
   { $unwind: "$player" },
   { $unwind: "$player.fifaStats" },
   {
-    $match: {
-      $expr: { $eq: ["$player.fifaStats.fifa_version", "$fifa_version"] }
-    }
-  },
-  {
     $project: {
-      playerId: "$player.player_id",
       playerName: "$player.long_name",
       overall: "$player.fifaStats.overall",
       fifaVersion: "$player.fifaStats.fifa_version",
-      teamName: "$player.fifaStats.club_name"
+      teamName: "$player.fifaStats.club_name",
+      playerId: "$player.player_id"
     }
   },
   {
     $group: {
       _id: "$playerId",
       playerName: { $first: "$playerName" },
-      overall: { $max: "$overall" },
       fifaVersion: { $first: "$fifaVersion" },
-      teamName: { $first: "$teamName" }
+      teamName: { $first: "$teamName" },
+      overall: { $max: "$overall" }
     }
   },
   { $sort: { overall: -1 } },
   { $limit: 10 }
 ])
-______________________________________________________________________________________________
 ________________________________________________________________________________
+
+db.Players.aggregate([
+  { $unwind: "$fifaStats" },
+  {
+    $match: {
+      "fifaStats.fifa_version": FIFA_VERSION_HERE,
+      "fifaStats.player_positions": {
+        $in: [
+          "GK", "RB", "CB", "LB",
+          "CDM", "CM", "CAM",
+          "RW", "LW", "ST"
+        ]
+      }
+    }
+  },
+  {
+    $project: {
+      long_name: 1,
+      position: "$fifaStats.player_positions",
+      overall: "$fifaStats.overall",
+      fifaVersion: "$fifaStats.fifa_version",
+      playerId: "$player_id"
+    }
+  },
+  { $sort: { overall: -1 } },
+  {
+    $group: {
+      _id: "$position",
+      playerName: { $first: "$long_name" },
+      overall: { $first: "$overall" },
+      playerId: { $first: "$playerId" },
+      fifaVersion: { $first: "$fifaVersion" },
+      position: { $first: "$position" }
+    }
+  },
+  {
+    $project: {
+      playerName: 1,
+      overall: 1,
+      fifaVersion: 1,
+      position: 1
+    }
+  }
+])

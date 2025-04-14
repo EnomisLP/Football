@@ -7,19 +7,15 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.aggregation.Fields;
-import org.springframework.data.mongodb.core.aggregation.GroupOperation.GroupOperationBuilder;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.aggregations.MongoDB.DTO.ClubAverage;
 import com.example.demo.aggregations.MongoDB.DTO.DreamTeamPlayer;
 import com.example.demo.aggregations.MongoDB.DTO.TopPlayersByCoach;
-import com.mongodb.BasicDBObject;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Service
 public class FootballService {
