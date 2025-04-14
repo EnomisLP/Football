@@ -1,0 +1,116 @@
+db.Teams.aggregate([
+  { $unwind: "$fifaStats" },
+  {
+    $group: {
+      _id: {
+        team_name: "$team_name",
+        fifa_version: "$fifaStats.fifa_version"
+      },
+      averageOverall: { $avg: "$fifaStats.overall" },
+      maxClubWorth: { $max: "$fifaStats.club_worth_eur" }
+    }
+  },
+  {
+    $project: {
+      clubName: "$_id.team_name",
+      fifaVersion: "$_id.fifa_version",
+      averageOverall: 1,
+      maxClubWorth: 1,
+      _id: 0
+    }
+  },
+  { $sort: { averageOverall: -1, maxClubWorth: -1 } },
+  { $limit: 10 }
+])
+
+______________________________________________________________________________________________
+
+db.Teams.aggregate([
+  { $unwind: "$fifaStats" },
+  { $match: { "fifaStats.coach_id": YOUR_COACH_ID } },
+  {
+    $project: {
+      fifa_version: "$fifaStats.fifa_version",
+      team_name: "$fifaStats.team_name",
+      player_ids: {
+        $concatArrays: [
+          ["$fifaStats.short_free_kick"],
+          ["$fifaStats.long_free_kick"],
+          ["$fifaStats.left_short_free_kick"],
+          ["$fifaStats.right_short_free_kick"],
+          ["$fifaStats.penalties"],
+          ["$fifaStats.left_corner"],
+          ["$fifaStats.right_corner"],
+          ["$fifaStats.captain"]
+        ]
+      }
+    }
+  },
+  { $unwind: "$player_ids" },
+  {
+    $lookup: {
+      from: "Players",
+      localField: "player_ids",
+      foreignField: "player_id",
+      as: "player"
+    }
+  },
+  { $unwind: "$player" },
+  { $unwind: "$player.fifaStats" },
+  {
+    $match: {
+      $expr: { $eq: ["$player.fifaStats.fifa_version", "$fifa_version"] }
+    }
+  },
+  {
+    $project: {
+      playerId: "$player.player_id",
+      playerName: "$player.long_name",
+      overall: "$player.fifaStats.overall",
+      fifaVersion: "$player.fifaStats.fifa_version",
+      teamName: "$player.fifaStats.club_name"
+    }
+  },
+  {
+    $group: {
+      _id: "$playerId",
+      playerName: { $first: "$playerName" },
+      overall: { $max: "$overall" },
+      fifaVersion: { $first: "$fifaVersion" },
+      teamName: { $first: "$teamName" }
+    }
+  },
+  { $sort: { overall: -1 } },
+  { $limit: 10 }
+])
+______________________________________________________________________________________________
+
+db.Players.aggregate([
+  {
+    $project: {
+      long_name: 1,
+      usage: { $size: "$fifaStats" },
+      maxOverall: { $max: "$fifaStats.overall" },
+      maxValue: { $max: "$fifaStats.value_eur" },
+      fifaVersion: { $max: "$fifaStats.fifa_version" }
+    }
+  },
+  {
+    $sort: {
+      usage: -1,
+      maxOverall: -1,
+      maxValue: -1
+    }
+  },
+  { $limit: 10 },
+  {
+    $project: {
+      long_name: 1,
+      usage: 1,
+      maxOverall: 1,
+      maxValue: 1,
+      fifaVersion: 1
+    }
+  }
+])
+____________________________________________________________________________________

@@ -5,6 +5,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
+import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,7 @@ import com.example.demo.aggregations.MongoDB.DTO.ClubAverage;
 import com.example.demo.aggregations.MongoDB.DTO.TopPlayersByCoach;
 import com.example.demo.aggregations.MongoDB.DTO.TopUsedPlayers;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -56,23 +59,64 @@ public class FootballService {
      */
     public List<TopPlayersByCoach> getTopPlayersManagedByCoach(int coachId) {
         Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("coach_id").is(coachId)),
-                Aggregation.project("long_name")
-                        .and("fifaStats.overall").as("overall")
-                        .and("fifaStats.coach_id").as("coachId")
-                        .and("fifaStats.fifa_version").as("fifaVersion")
-                        .and("long_name").as("playerName"),
-                Aggregation.sort(Sort.by(
-                        Sort.Order.desc("overall")
-                )),
-                Aggregation.limit(10)
+            // Step 1: Unwind fifaStats to filter by coach
+            Aggregation.unwind("fifaStats"),
+    
+            // Step 2: Match only entries with the given coach
+            Aggregation.match(Criteria.where("fifaStats.coach_id").is(coachId)),
+    
+            // Step 3: Create player_ids array from role fields
+            Aggregation.project("fifaStats.fifa_version", "fifaStats.coach_id", "fifaStats.team_name")
+                .and(ArrayOperators.ConcatArrays.arrayOf(
+                    Arrays.asList(
+                        Fields.field("fifaStats.short_free_kick"),
+                        Fields.field("fifaStats.long_free_kick"),
+                        Fields.field("fifaStats.left_short_free_kick"),
+                        Fields.field("fifaStats.right_short_free_kick"),
+                        Fields.field("fifaStats.penalties"),
+                        Fields.field("fifaStats.left_corner"),
+                        Fields.field("fifaStats.right_corner"),
+                        Fields.field("fifaStats.captain")
+                    )
+                )).as("player_ids")
+                .and("fifaStats.fifa_version").as("fifa_version")
+                .and("fifaStats.team_name").as("team_name"),
+    
+            // Step 4: Unwind player_ids to access each player
+            Aggregation.unwind("player_ids"),
+    
+            // Step 5: Lookup in Players collection
+            Aggregation.lookup("Players", "player_ids", "player_id", "player"),
+    
+            Aggregation.unwind("player"),
+            Aggregation.unwind("player.fifaStats"),
+    
+            // Step 6: Create flattened result for scoring
+            Aggregation.project()
+                .and("player.long_name").as("playerName")
+                .and("player.fifaStats.overall").as("overall")
+                .and("player.fifaStats.fifa_version").as("fifaVersion")
+                .and("player.fifaStats.club_name").as("teamName")
+                .and("player.player_id").as("playerId"),
+    
+            // Step 7: Group by playerId to get max overall per player
+            Aggregation.group("playerId")
+                .first("playerName").as("playerName")
+                .first("fifaVersion").as("fifaVersion")
+                .first("teamName").as("teamName")
+                .max("overall").as("overall"),
+    
+            // Step 8: Sort & Limit
+            Aggregation.sort(Sort.by(Sort.Order.desc("overall"))),
+            Aggregation.limit(10)
         );
-
+    
         AggregationResults<TopPlayersByCoach> results = mongoTemplate.aggregate(
-                aggregation, "Teams", TopPlayersByCoach.class
+            aggregation, "Teams", TopPlayersByCoach.class
         );
         return results.getMappedResults();
     }
+    
 
     /**
      * Return the top 10 players based on usage, overall, and value,

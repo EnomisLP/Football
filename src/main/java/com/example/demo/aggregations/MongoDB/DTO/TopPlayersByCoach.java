@@ -1,5 +1,4 @@
 package com.example.demo.aggregations.MongoDB.DTO;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -14,8 +13,6 @@ import lombok.Setter;
 public class TopPlayersByCoach {
     private String playerName;
     private Integer overall;
-    private Integer coachId;
     private Integer fifaVersion;
-
-    // Constructors, Getters, Setters
+    private String teamName;
 }

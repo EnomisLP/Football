@@ -16,7 +16,6 @@ public class TopUsedPlayers {
     private String long_name;
 
     private Integer usage;
-
     private Double maxOverall;
     private Double maxValue;
     private Integer fifaVersion;
