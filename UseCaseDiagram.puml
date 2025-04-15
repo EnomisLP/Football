@@ -1,0 +1,101 @@
+@startuml
+actor "Registered User" as RegisteredUser
+actor "Unregistered User" as UnregisteredUser
+actor "Logged User" as LoggedUser
+actor "Admin" as Admin
+
+RegisteredUser --> (Sign in)
+UnregisteredUser --> (Sign Up)
+
+RegisteredUser -->(Search)
+UnregisteredUser -->(Search)
+Admin -->(Search)
+Admin -->(Create Team)
+Admin -->(Create Player)
+Admin -->(Create Coach)
+Admin -->(Update Team)
+Admin -->(Update Player)
+Admin -->(Update Coach)
+Admin -->(Delete Team)
+Admin -->(Delete Player)
+Admin -->(Delete Coach)
+
+LoggedUser --> (Search)
+
+LoggedUser --> (Show my articles)
+LoggedUser --> (List my following)
+LoggedUser --> (List my followers)
+LoggedUser --> (List my Team Players)
+LoggedUser --> (Add in Team)
+LoggedUser --> (Remove from Team)
+LoggedUser --> (Like Coach)
+LoggedUser --> (Like Team)
+LoggedUser --> (Unlike Coach)
+LoggedUser --> (Unlike Team)
+LoggedUser --> (Change password)
+LoggedUser --> (Log out)
+
+
+
+(List my Team Players) <..(view Player) : extends
+
+
+(Show my articles) ..> (View article) : includes
+(View article) <.. (Create new article) : extends
+(View article) <.. (Update article) : extends
+(View article) <.. (Delete new article) : extends
+
+
+(List my following) ..> (view user) : includes
+(List my followers) ..> (view user) : includes
+(view user) <.. (Unfollow user) : extends
+(view user) <.. (Follow user) : extends
+
+(Search) ..> (view Team) : includes
+(view Team) <.. (Like Team) : extends
+(view Team) <.. (Unlike Team) : extends
+(view Team) <.. (show stats): extends
+(view Team) <.. (show Fifa Formation): extends
+(view Team) <.. (show current Formation): extends
+(view Team) <.. (show Fifa coach) : extends
+(view Team) <.. (show current coach) : extends
+(view Team) <.. (Delete Team) : extends
+(view Team) <.. (Update Team) : extends
+
+(show Fifa Formation) <.. (view Player) :extends
+(show Fifa Formation) <.. (view Coach) :extends
+(show current Formation) <.. (view Player) :extends
+(show current Formation) <.. (view Coach) :extends
+(show stats) <.. (view Player) :extends
+(show stats) <.. (view Coach) :extends
+
+(Search) ..> (view Player) : includes
+(view Player) <.. (Add in Team) : extends
+(view Player) <.. (Remove from Team) : extends
+(view Player) <.. (show last year stats) : extends
+(view Player) <.. (show Fifa stats) : extends
+(view Player) <.. (show Fifa Team) : extends
+(view Player) <.. (show current Team) : extends
+(view Player) <.. (Delete Player) : extends
+(view Player) <.. (Update Player) : extends
+
+(show Fifa stats) <.. (view Team) : extends
+(show Fifa Team) <.. (view Team) : extends
+(show current Team) <.. (view Team) : extends
+
+(Search) ..> (view Coach) : includes
+(view Coach) <.. (Like Coach): extends
+(view Coach) <.. (Unlike Coach): extends
+(view Coach) <.. (show current Training) :extends
+(view Coach) <.. (show Fifa Training) :extends
+(view Coach) <.. (show History Training) :extends
+(view Coach) <.. (Delete Coach) : extends
+(view Coach) <.. (Update Coach) : extends
+
+
+(show current Training) <..(view Team):extends
+(show Fifa Training) <..(view Team):extends
+(show History Training) <..(view Team):extends
+
+(Search) ..> (view Registered users): includes
+@enduml
