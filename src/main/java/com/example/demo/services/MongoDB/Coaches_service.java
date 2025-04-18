@@ -2,8 +2,6 @@ package com.example.demo.services.MongoDB;
 import java.util.Optional;
 
 import javax.management.RuntimeErrorException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -15,16 +13,22 @@ import com.example.demo.models.Neo4j.CoachesNode;
 import com.example.demo.repositories.MongoDB.Coaches_repository;
 import com.example.demo.repositories.Neo4j.Coaches_node_rep;
 import com.example.demo.services.Neo4j.Coaches_node_service;
-
+import com.example.demo.requets.updateCoach;
 import jakarta.transaction.Transactional;
 
 
 @Service
 public class Coaches_service {
-    @Autowired
+    
     private  Coaches_repository CMr;
     private Coaches_node_rep Cmr;
     private Coaches_node_service CMs;
+
+    public Coaches_service(Coaches_repository CMr, Coaches_node_rep Cmr, Coaches_node_service CMs) {
+        this.CMr = CMr;
+        this.Cmr = Cmr;
+        this.CMs = CMs;
+    }
 
     
     //READ
@@ -57,22 +61,19 @@ public class Coaches_service {
 
      //UPDATE
      @Transactional
-     public Coaches updateCoach(String id, Coaches coachDetails) {
+     public Coaches updateCoach(String id, updateCoach coachDetails) {
         Optional<Coaches> optionalCoach = CMr.findById(id);
         if (optionalCoach.isPresent()) {
             Coaches existingCoach = optionalCoach.get();
             Optional<CoachesNode> optionalCoachNode = Cmr.findByMongoId(id);
             if(optionalCoachNode.isPresent()){
                 CoachesNode existingCoachNode = optionalCoachNode.get();
-                existingCoach.setCoach_id(coachDetails.getCoach_id());
                 existingCoach.setLong_name(coachDetails.getLong_name());
                 existingCoach.setShort_name(coachDetails.getShort_name());
-                existingCoach.setNationality_name(coachDetails.getNationality_name());
                 existingCoach.setGender(coachDetails.getGender());
             
-                existingCoachNode.setCoachId(coachDetails.getCoach_id());
+                
                 existingCoachNode.setLongName(coachDetails.getLong_name());
-                existingCoachNode.setNationalityName(coachDetails.getNationality_name());
                 existingCoachNode.setGender(coachDetails.getGender());
 
                 Cmr.save(existingCoachNode);

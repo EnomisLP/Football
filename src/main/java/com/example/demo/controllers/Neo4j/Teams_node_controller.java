@@ -29,7 +29,7 @@ public class Teams_node_controller {
     }
 
     // READ: Get all teams by gender
-    @GetMapping("/byGender/{gender}")
+    @GetMapping("/admin/byGender/{gender}")
     @Operation(summary = "READ: Get all teams for a specific gender with pagination")
     public Page<TeamsNode> getAllTeams(@RequestParam(defaultValue = "0") int page,
                                    @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {

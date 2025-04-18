@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.management.RuntimeErrorException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -18,11 +17,12 @@ import com.example.demo.repositories.MongoDB.Coaches_repository;
 import com.example.demo.repositories.MongoDB.Players_repository;
 import com.example.demo.repositories.MongoDB.Teams_repository;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
+import com.example.demo.requets.updateTeam;
 
 import jakarta.transaction.Transactional;
 @Service
 public class Teams_service {
-    @Autowired
+    
     private final Teams_repository TMr;
     private final Teams_node_rep Tmr;
     private static final Integer CURRENT_YEAR = 24;
@@ -66,20 +66,14 @@ public class Teams_service {
 
     //UPDATE
     @Transactional
-    public Teams updateTeam(String id, Teams teamsDetails) {
+    public Teams updateTeam(String id, updateTeam teamsDetails) {
         Optional<Teams> optionalTeam = TMr.findById(id);
         if (optionalTeam.isPresent()) {
             Teams existingTeam = optionalTeam.get();
             Optional<TeamsNode> optionalTeamNode = Tmr.findByMongoId(existingTeam.get_id());
             if(optionalTeamNode.isPresent()){
                 TeamsNode existingTeamNode = optionalTeamNode.get();
-                existingTeam.setTeam_id(teamsDetails.getTeam_id());
-                existingTeam.setTeam_name(teamsDetails.getTeam_name());
-                existingTeam.setFifaStats(teamsDetails.getFifaStats());
                 existingTeam.setGender(teamsDetails.getGender());
-
-                existingTeamNode.setTeamId(teamsDetails.getTeam_id());
-                existingTeamNode.setTeamName(teamsDetails.getTeam_name());
                 existingTeamNode.setGender(teamsDetails.getGender());
                
 

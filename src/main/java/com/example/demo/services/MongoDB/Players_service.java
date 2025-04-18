@@ -1,13 +1,9 @@
 package com.example.demo.services.MongoDB;
 
-
-
 import java.util.List;
 import java.util.Optional;
 
 import javax.management.RuntimeErrorException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -18,17 +14,23 @@ import com.example.demo.models.Neo4j.PlayersNode;
 import com.example.demo.repositories.MongoDB.Players_repository;
 import com.example.demo.repositories.Neo4j.Players_node_rep;
 import com.example.demo.services.Neo4j.Players_node_service;
+import com.example.demo.requets.updatePlayer;
 
 import jakarta.transaction.Transactional;
 @Service
 public class Players_service {
 
-    @Autowired
+    
     private  Players_repository PMr;
     private Players_node_rep Pmr;
     private Players_node_service PMs;
     private static final Integer CURRENT_YEAR = 24;
 
+    public Players_service(Players_repository PMr, Players_node_rep Pmr, Players_node_service PMs) {
+        this.PMr = PMr;
+        this.Pmr = Pmr;
+        this.PMs = PMs;
+    }
     
     //READ
    public Players getPlayer(String id){
@@ -64,26 +66,22 @@ public class Players_service {
 
     //UPDATE
     @Transactional
-    public Players updatePlayer(String id, Players playerDetails) {
+    public Players updatePlayer(String id, updatePlayer playerDetails) {
         Optional<Players> optionalPlayer = PMr.findById(id);
         if (optionalPlayer.isPresent()) {
             Players existingPlayer = optionalPlayer.get();
             Optional<PlayersNode> optionalPlayerNode = Pmr.findByMongoId(existingPlayer.get_id());
             if(optionalPlayerNode.isPresent()){
                 PlayersNode existingPlayerNode = optionalPlayerNode.get();
-                existingPlayer.setPlayer_id(playerDetails.getPlayer_id());
                 existingPlayer.setAge(playerDetails.getAge());
                 existingPlayer.setDob(playerDetails.getDob());
                 existingPlayer.setLong_name(playerDetails.getLong_name());
                 existingPlayer.setShort_name(playerDetails.getShort_name());
-                existingPlayer.setNationality_id(playerDetails.getNationality_id());
                 existingPlayer.setNationality_name(playerDetails.getNationality_name());
                 existingPlayer.setHeight_cm(playerDetails.getHeight_cm());
                 existingPlayer.setWeight_kg(playerDetails.getWeight_kg());
-                existingPlayer.setFifaStats(playerDetails.getFifaStats());
                 existingPlayer.setGender(playerDetails.getGender());
             
-                existingPlayerNode.setPlayerId(playerDetails.getPlayer_id());
                 existingPlayerNode.setAge(playerDetails.getAge());
                 existingPlayerNode.setLongName(playerDetails.getLong_name());
                 existingPlayerNode.setNationalityName(playerDetails.getNationality_name());
@@ -120,13 +118,13 @@ public class Players_service {
     }
 
     //OPERATIONS TO SHOW PLAYER STATS
-    public FifaStatsPlayer showLastYearStats(Long playerId){
+    public FifaStatsPlayer showCurrentYear(Long playerId){
         Optional<Players> optionalPlayer = PMr.findByPlayerId(playerId);
         if(optionalPlayer.isPresent()){
             Players existingPlayer = optionalPlayer.get();
             Optional<FifaStatsPlayer> optionalFifaStats = existingPlayer.getFifaStats().
             stream().filter(fifaStat -> fifaStat.getFifa_version().
-            equals(CURRENT_YEAR-1)).findFirst();
+            equals(CURRENT_YEAR)).findFirst();
             if(optionalFifaStats.isPresent()){
                 return optionalFifaStats.get();
             }

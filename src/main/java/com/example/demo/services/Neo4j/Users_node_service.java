@@ -7,8 +7,6 @@ import java.util.Optional;
 
 
 import javax.management.RuntimeErrorException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,13 +36,12 @@ import jakarta.transaction.Transactional;
 @Service
 public class Users_node_service {
 
-    @Autowired
+    
     private final Users_node_rep Unr;
     private final Users_repository Ur;
     private final Players_node_rep PMNr;
     private final Players_repository PMr;
     private static final Integer MAX_NUMBER_TEAM = 11;
-    //private static final Integer CURRENT_YEAR = 24;
     private final Teams_node_rep TMn;
     private final Coaches_node_rep CMn;
 

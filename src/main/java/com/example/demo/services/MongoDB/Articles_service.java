@@ -9,7 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.MongoDB.Articles;
-
+import com.example.demo.requets.updateArticle;
 import com.example.demo.repositories.MongoDB.Articles_repository;
 
 import jakarta.transaction.Transactional;
@@ -46,14 +46,13 @@ public class Articles_service {
 
     //UPDATE
     @Transactional
-    public Articles updateArticle(String id, Articles articleDetails){
+    public Articles updateArticle(String id, updateArticle articleDetails){
         Optional<Articles> optionalArticle = Ar.findById(id);
         if(optionalArticle.isPresent()){
             Articles existingArticle = optionalArticle.get();
             existingArticle.setAuthor(articleDetails.getAuthor());
             existingArticle.setContent(articleDetails.getAuthor());
             existingArticle.setTitle(articleDetails.getTitle());
-            existingArticle.setPublish_time(articleDetails.getPublish_time());
             return Ar.save(existingArticle);
         }
         else{

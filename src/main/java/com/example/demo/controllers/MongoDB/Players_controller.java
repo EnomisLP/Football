@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.MongoDB.Players;
 import com.example.demo.services.MongoDB.Players_service;
-
+import com.example.demo.requets.updatePlayer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -31,7 +31,7 @@ public class Players_controller {
     }
 
     // READ: Get all players by gender with pagination
-    @GetMapping("/byGender/{gender}")
+    @GetMapping("/admin/byGender/{gender}")
     @Operation(summary = "READ: Get all players for a specific gender with pagination")
     public Page<Players> getAllPlayers(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {
@@ -49,7 +49,7 @@ public class Players_controller {
     // UPDATE: Update an existing player
     @PutMapping("/admin/{_id}")
     @Operation(summary = "UPDATE: Update an existing player by its ID")
-    public Players updatePlayer(@PathVariable String _id, @RequestBody Players playerDetails) {
+    public Players updatePlayer(@PathVariable String _id, @RequestBody updatePlayer playerDetails) {
         return playersMService.updatePlayer(_id, playerDetails);
     }
 
@@ -65,7 +65,7 @@ public class Players_controller {
     @GetMapping("/{playerId}/lastYearStats")
     @Operation(summary = "READ: Get the stats of the player for the last year")
     public FifaStatsPlayer getLastYearStats(@PathVariable Long playerId) {
-        return playersMService.showLastYearStats(playerId);
+        return playersMService.showCurrentYear(playerId);
     }
 
     // READ: Get specific year stats of the player

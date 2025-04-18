@@ -3,7 +3,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.example.demo.requets.updateArticle;
 import com.example.demo.models.MongoDB.Articles;
 import com.example.demo.services.MongoDB.Articles_service;
 
@@ -21,14 +21,14 @@ public class Articles_controller {
     }
 
     // READ: Get a specific article by ID
-    @GetMapping("/user/{id}")
+    @GetMapping("/{id}")
     @Operation(summary = "READ: Get an article by ID")
     public Articles getArticle(@PathVariable String id) {
         return articlesService.getArticle(id);
     }
 
     // READ: Get all articles with pagination
-    @GetMapping("/user")
+    @GetMapping("/admin")
     @Operation(summary = "READ: Get all articles with pagination")
     public Page<Articles> getAllArticles(@RequestParam(defaultValue = "0") int page,
                                          @RequestParam(defaultValue = "50") int size) {
@@ -46,7 +46,7 @@ public class Articles_controller {
     // UPDATE: Update an existing article by ID
     @PutMapping("/admin/{id}")
     @Operation(summary = "UPDATE: Update an existing article")
-    public Articles updateArticle(@PathVariable String id, @RequestBody Articles details) {
+    public Articles updateArticle(@PathVariable String id, @RequestBody updateArticle details) {
         return articlesService.updateArticle(id, details);
     }
 

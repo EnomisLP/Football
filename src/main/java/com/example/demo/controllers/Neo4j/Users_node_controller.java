@@ -53,7 +53,7 @@ public class Users_node_controller {
         return Uns.getUsers(id);
     }
 
-    @GetMapping("/user")
+    @GetMapping("/admin")
     @Operation(summary = "READ: get all Users_node")
     public <Pageable> Page<UsersNode> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                               @RequestParam(defaultValue = "50") int size) {

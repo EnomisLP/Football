@@ -30,7 +30,7 @@ public class Players_node_controller {
     }
 
     // READ: Get all players by gender
-    @GetMapping("/byGender/{gender}")
+    @GetMapping("/admin/byGender/{gender}")
     @Operation(summary = "READ: Get all players for a specific gender with pagination")
     public Page<PlayersNode> getAllPlayers(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {

@@ -20,8 +20,6 @@ import com.example.demo.requets.createUserRequest;
 import com.example.demo.services.Neo4j.Users_node_service;
 
 import jakarta.transaction.Transactional;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -31,7 +29,6 @@ public class Users_service {
     private final Users_repository Ur;
     private final Users_node_rep UNr;
     private final Users_node_service UNs;
-    @Autowired
     private final PasswordEncoder passwordEncoder;
     private final Articles_repository Ar;
 
@@ -48,13 +45,13 @@ public class Users_service {
         return Ur.findAll(page);
     }
     
-    public Users getUserById(String id) {
-        Optional<Users> user = Ur.findById(id);
+    public Users getUserByUsername(String username) {
+        Optional<Users> user = Ur.findByUsername(username);
         if(user.isPresent()){
             return user.get();
         }
         else{
-            throw new RuntimeErrorException(null, "User not found with id: " + id);
+            throw new RuntimeErrorException(null, "User not found with username: " + username);
         }
     }
     @Transactional

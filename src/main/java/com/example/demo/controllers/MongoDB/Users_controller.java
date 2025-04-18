@@ -32,7 +32,7 @@ public class Users_controller {
     @Autowired
     private Users_service usersService;
 
-    @GetMapping("/user")
+    @GetMapping("/admin")
     @Operation(summary = "READ: get all Users")
     public <Pageable> Page<Users> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                               @RequestParam(defaultValue = "50") int size) {
@@ -40,10 +40,10 @@ public class Users_controller {
         return usersService.getAllUsers(pageable);
     }
 
-    @GetMapping("/user/{id}")
-    @Operation(summary = "READ operation - Get user by ID")
-    public Users getUserById(@PathVariable String id) {
-        return usersService.getUserById(id);
+    @GetMapping("/{id}")
+    @Operation(summary = "READ operation - Get user by Username")
+    public Users getUserById(@PathVariable String username) {
+        return usersService.getUserByUsername(username);
     }
 
     @PostMapping("/admin")

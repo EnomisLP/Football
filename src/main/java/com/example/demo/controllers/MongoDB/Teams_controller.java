@@ -10,7 +10,7 @@ import com.example.demo.models.MongoDB.Coaches;
 import com.example.demo.models.MongoDB.Players;
 import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.services.MongoDB.Teams_service;
-
+import com.example.demo.requets.updateTeam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -33,7 +33,7 @@ public class Teams_controller {
     }
 
     // READ: Get all teams by gender with pagination
-    @GetMapping("/byGender/{gender}")
+    @GetMapping("/admin/byGender/{gender}")
     @Operation(summary = "READ: Get all teams for a specific gender with pagination")
     public Page<Teams> getAllTeams(@RequestParam(defaultValue = "0") int page,
                                    @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {
@@ -79,7 +79,7 @@ public class Teams_controller {
     // UPDATE: Update an existing team
     @PutMapping("/admin/{_id}")
     @Operation(summary = "UPDATE: Update an existing team by its ID")
-    public Teams updateTeam(@PathVariable String _id, @RequestBody Teams teamDetails) {
+    public Teams updateTeam(@PathVariable String _id, @RequestBody updateTeam teamDetails) {
         return teamsMService.updateTeam(_id, teamDetails);
     }
 

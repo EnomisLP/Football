@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.models.MongoDB.Coaches;
 import com.example.demo.services.MongoDB.Coaches_service;
-
+import com.example.demo.requets.updateCoach;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -21,14 +21,14 @@ public class Coaches_controller {
     }
 
     // READ: Get coach by ID
-    @GetMapping("/user/{_id}")
+    @GetMapping("/{_id}")
     @Operation(summary = "READ: Get a coach by ID")
     public Coaches getCoach(@PathVariable String _id) {
         return coachesMservice.getCoach(_id);
     }
 
     // READ: Get all coaches by gender with pagination
-    @GetMapping("/user/byGender/{gender}")
+    @GetMapping("/admin/byGender/{gender}")
     @Operation(summary = "READ: Get all coaches by gender with pagination")
     public Page<Coaches> getAllCoaches(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size, 
@@ -47,7 +47,7 @@ public class Coaches_controller {
     // UPDATE: Update an existing coach by ID
     @PutMapping("/admin/{_id}")
     @Operation(summary = "UPDATE: Update an existing coach by ID")
-    public Coaches updateCoach(@PathVariable String _id, @RequestBody Coaches coachDetails) {
+    public Coaches updateCoach(@PathVariable String _id, @RequestBody updateCoach coachDetails) {
         return coachesMservice.updateCoach(_id, coachDetails);
     }
 

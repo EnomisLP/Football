@@ -33,7 +33,7 @@ public class Coaches_node_controller{
         return coachesMNodeService.getCoach(id);
     }
 
-    @GetMapping("/user/byGender/{gender}")
+    @GetMapping("/admin/user/byGender/{gender}")
     @Operation(summary = "READ: Get all coaches by gender with pagination")
     public Page<CoachesNode> getAllCoaches(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size, 
