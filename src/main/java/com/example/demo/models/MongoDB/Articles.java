@@ -27,7 +27,7 @@ public class Articles {
     private String content;
     @Field(name = "publish_time")
     private String publish_time;
-    @Field(name = "tilte")
+    @Field(name = "title")
     private String title;
 
     

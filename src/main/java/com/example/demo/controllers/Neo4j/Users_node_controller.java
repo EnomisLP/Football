@@ -2,7 +2,10 @@ package com.example.demo.controllers.Neo4j;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.Neo4j.UsersNode;
@@ -51,9 +54,11 @@ public class Users_node_controller {
     }
 
     @GetMapping("/user")
-    @Operation(summary = "READ: get all Users node")
-    public List<UsersNode> getAllUsers() {
-        return Uns.getAllUsers();
+    @Operation(summary = "READ: get all Users_node")
+    public <Pageable> Page<UsersNode> getAllUsers(@RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "50") int size) {
+        PageRequest pageable = PageRequest.of(page, size);
+        return Uns.getAllUsers(pageable);
     }
 
     @GetMapping("/user/fifaMStats")

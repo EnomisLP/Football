@@ -6,7 +6,8 @@ import java.util.Optional;
 
 import javax.management.RuntimeErrorException;
 
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
@@ -47,8 +48,8 @@ public class Players_node_service {
         }
     }
 
-     public List<PlayersNode> getAllPlayers( String gender){
-        return PMn.findAllByGender(gender);
+     public Page<PlayersNode> getAllPlayers( String gender, PageRequest page){
+        return PMn.findAllByGenderWithPagination(gender, page);
     }
 
     // UPDATE

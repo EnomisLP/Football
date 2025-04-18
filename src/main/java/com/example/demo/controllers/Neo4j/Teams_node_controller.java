@@ -1,10 +1,8 @@
 package com.example.demo.controllers.Neo4j;
-
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
-
 import com.example.demo.models.Neo4j.TeamsNode;
 import com.example.demo.services.Neo4j.Teams_node_service;
 
@@ -32,9 +30,11 @@ public class Teams_node_controller {
 
     // READ: Get all teams by gender
     @GetMapping("/byGender/{gender}")
-    @Operation(summary = "READ operation: Get all Team nodes by gender")
-    public List<TeamsNode> getAllTeamsByGender(@PathVariable String gender) {
-        return teamsNodeService.getAllTeams(gender);
+    @Operation(summary = "READ: Get all teams for a specific gender with pagination")
+    public Page<TeamsNode> getAllTeams(@RequestParam(defaultValue = "0") int page,
+                                   @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {
+        PageRequest pageable = PageRequest.of(page, size);
+        return teamsNodeService.getAllTeams(gender, pageable);
     }
 
     // MAP: Map all teams from MongoDB to Neo4j

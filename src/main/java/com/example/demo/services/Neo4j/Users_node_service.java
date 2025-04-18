@@ -9,6 +9,8 @@ import java.util.Optional;
 import javax.management.RuntimeErrorException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -68,8 +70,8 @@ public class Users_node_service {
             throw new RuntimeErrorException(null, "User not found with id: " + id);
         }
     }
-       public List<UsersNode> getAllUsers(){
-        return Unr.findAll();
+    public Page<UsersNode> getAllUsers(PageRequest page){
+        return Unr.findAll(page);
     }
 
     // UPDATE

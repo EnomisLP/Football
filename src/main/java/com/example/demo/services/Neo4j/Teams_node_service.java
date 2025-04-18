@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.management.RuntimeErrorException;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.MongoDB.Teams;
@@ -38,8 +41,8 @@ public class Teams_node_service {
     }
 
        
-    public List<TeamsNode> getAllTeams( String gender){
-        return TMn.findAllByGender(gender);
+    public Page<TeamsNode> getAllTeams(String gender, PageRequest page){
+        return TMn.findAllByGenderWithPagination(gender, page);
     }
 
     // UPDATE

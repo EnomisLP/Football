@@ -6,7 +6,8 @@ import java.util.Optional;
 
 import javax.management.RuntimeErrorException;
 
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.MongoDB.Coaches;
@@ -47,8 +48,8 @@ public class Coaches_node_service {
         }
     }
 
-      public List<CoachesNode> getAllCoaches(String gender){
-        return CMn.findAllByGender(gender);
+    public Page<CoachesNode> getAllCoaches(PageRequest page, String gender){
+        return CMn.findAllByGenderWithPagination(gender, page);
     }
 
     // UPDATE

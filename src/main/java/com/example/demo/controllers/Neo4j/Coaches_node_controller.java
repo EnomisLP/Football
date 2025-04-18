@@ -1,7 +1,9 @@
 package com.example.demo.controllers.Neo4j;
 import java.util.List;
-import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.Neo4j.CoachesNode;
 import com.example.demo.relationships.manages_team;
 import com.example.demo.services.Neo4j.Coaches_node_service;
@@ -31,10 +33,13 @@ public class Coaches_node_controller{
         return coachesMNodeService.getCoach(id);
     }
 
-    @GetMapping("/byGender/{gender}")
-    @Operation(summary ="READ: get all Coaches node")
-    public List<CoachesNode> getAllCoaches(@PathVariable String gender){
-        return coachesMNodeService.getAllCoaches(gender);
+    @GetMapping("/user/byGender/{gender}")
+    @Operation(summary = "READ: Get all coaches by gender with pagination")
+    public Page<CoachesNode> getAllCoaches(@RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "50") int size, 
+                                       @PathVariable String gender) {
+        PageRequest pageable = PageRequest.of(page, size);
+        return coachesMNodeService.getAllCoaches(pageable, gender);
     }
 
     @GetMapping("/{coachId1}/history")

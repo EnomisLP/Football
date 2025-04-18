@@ -23,9 +23,14 @@ Admin -->(Delete Coach)
 LoggedUser --> (Search)
 
 LoggedUser --> (Show my articles)
+LoggedUser --> (Create new article)
+LoggedUser --> (Delete article)
+LoggedUser --> (Update article)
 LoggedUser --> (List my following)
 LoggedUser --> (List my followers)
 LoggedUser --> (List my Team Players)
+LoggedUser --> (List Liked Coach)
+LoggedUser --> (List Liked Team)
 LoggedUser --> (Add in Team)
 LoggedUser --> (Remove from Team)
 LoggedUser --> (Like Coach)
@@ -38,18 +43,24 @@ LoggedUser --> (Log out)
 
 
 (List my Team Players) <..(view Player) : extends
-
+(Show my articles)<..(view article) : extends
+(List Liked Coach) <..(view Coach) : extends
+(List Liked Team) <..(view Team) : extends
 
 (Show my articles) ..> (View article) : includes
 (View article) <.. (Create new article) : extends
 (View article) <.. (Update article) : extends
-(View article) <.. (Delete new article) : extends
+(View article) <.. (Delete article) : extends
 
 
 (List my following) ..> (view user) : includes
 (List my followers) ..> (view user) : includes
 (view user) <.. (Unfollow user) : extends
 (view user) <.. (Follow user) : extends
+(view user) <.. (Show my articles) : extends
+(view user) <.. (List my following) : extends
+(view user) <.. (List my followers) : extends
+(view user) <.. (List my Team Players) : extends
 
 (Search) ..> (view Team) : includes
 (view Team) <.. (Like Team) : extends

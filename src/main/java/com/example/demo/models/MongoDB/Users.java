@@ -26,6 +26,5 @@ public class Users {
     private String username;
     private String password;
     private List<ROLES> roles;
-    private List<Articles> articles;
 
 }

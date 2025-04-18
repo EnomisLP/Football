@@ -262,3 +262,39 @@ db.articles.aggregate([
   }
 ])
 
+_____________________________________________________________________________________________
+
+// Function to generate a random alphanumeric password
+function generateRandomPassword(length = 12) {
+    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let password = "";
+    for (let i = 0; i < length; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+}
+
+// Retrieve all distinct authors from the Articles collection
+const authors = db.Articles.distinct("author");
+
+// Iterate over each author to create a corresponding user
+authors.forEach(author => {
+    // Skip entries where the author field is null or empty
+    if (!author || author.trim() === "") {
+        return;
+    }
+
+    // Check if a user with the same username already exists
+    if (db.Users.findOne({ username: author })) {
+        return;
+    }
+
+    // Create the user document with username, random password, and role
+    db.Users.insertOne({
+        username: author,
+        password: generateRandomPassword(), // Note: This is plaintext; consider hashing
+        roles: ["ROLE_USER"]
+    });
+});
+
+

@@ -1,9 +1,10 @@
 package com.example.demo.controllers.Neo4j;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+
 import com.example.demo.models.Neo4j.PlayersNode;
 import com.example.demo.relationships.plays_in_team;
 import com.example.demo.services.Neo4j.Players_node_service;
@@ -30,9 +31,11 @@ public class Players_node_controller {
 
     // READ: Get all players by gender
     @GetMapping("/byGender/{gender}")
-    @Operation(summary = "READ operation: Get all Player nodes by gender")
-    public List<PlayersNode> getAllPlayersByGender(@PathVariable String gender) {
-        return playersNodeService.getAllPlayers(gender);
+    @Operation(summary = "READ: Get all players for a specific gender with pagination")
+    public Page<PlayersNode> getAllPlayers(@RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {
+        PageRequest pageable = PageRequest.of(page, size);
+        return playersNodeService.getAllPlayers(gender, pageable);
     }
 
     // READ: Show the current team a player plays in

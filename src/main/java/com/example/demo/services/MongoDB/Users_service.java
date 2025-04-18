@@ -1,5 +1,4 @@
 package com.example.demo.services.MongoDB;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -135,8 +134,6 @@ public class Users_service {
             Date publishTime = new Date();
             newArticle.setPublish_time(publishTime.toString());
             Articles savedArticle = Ar.save(newArticle);
-            existiUsers.getArticles().add(savedArticle);
-            Ur.save(existiUsers);
             return savedArticle;
         }else{
             throw new RuntimeErrorException(null, "User not found with username: " + username);
@@ -146,7 +143,11 @@ public class Users_service {
         Optional<Users> optionalUser = Ur.findByUsername(username);
         if(optionalUser.isPresent()){
             Users existiUsers = optionalUser.get();
-            return existiUsers.getArticles();
+            List<Articles> articles = Ar.findByAuthor(existiUsers.getUsername());
+            if(articles.isEmpty()){
+                throw new RuntimeErrorException(null, "User not found with username: " + username + " or no articles found for this user");
+            }
+            return articles;
         }
         else{
             throw new RuntimeErrorException(null, "User not found with username: " + username);
@@ -154,11 +155,16 @@ public class Users_service {
     }
     public Articles showUserArticle(String username,String articleId){
         Optional<Users> optionalUser = Ur.findByUsername(username);
-        Optional<Articles> optionalArticle = optionalUser.flatMap(user -> user.getArticles().stream()
-        .filter(article -> article.get_id().equals(articleId))
-        .findFirst());
+        Optional<Articles> optionalArticle = Ar.findById(articleId);
         if(optionalUser.isPresent() && optionalArticle.isPresent()){
-            return optionalArticle.get();
+            Articles existingArticle = optionalArticle.get();
+            Users existingUser = optionalUser.get();
+            if(existingArticle.getAuthor().equals(existingUser.getUsername())){
+                return existingArticle;
+            }
+            else{
+                throw new RuntimeErrorException(null, "User not found with username: " + username+" or Article not present with id:" + articleId);
+            }
         }
         else{
             throw new RuntimeErrorException(null, "User not found with username: " + username+" or Article not present with id:" + articleId);
@@ -167,19 +173,25 @@ public class Users_service {
     @Transactional
     public Articles modifyArticle(String username, String articleId, createArticleRequest request){
         Optional<Users> optionalUser = Ur.findByUsername(username);
-        Optional<Articles> optionalArticle = optionalUser.flatMap(user -> user.getArticles().stream()
-        .filter(article -> article.get_id().equals(articleId)).findFirst());
+        Optional<Articles> optionalArticle = Ar.findById(articleId);
         if(optionalUser.isPresent() && optionalArticle.isPresent()){
             Articles existingArticle = optionalArticle.get();
-            existingArticle.setContent(request.getContent());
-            existingArticle.setTitle(articleId);
-            Date newPublishTime = new Date();
-            existingArticle.setPublish_time(newPublishTime.toString());
-            return Ar.save(existingArticle);
+            Users existingUser = optionalUser.get();
+            if(existingArticle.getAuthor().equals(existingUser.getUsername())){
+                existingArticle.setContent(request.getContent());
+                existingArticle.setTitle(request.getTitle());
+                Date newPublishTime = new Date();
+                existingArticle.setPublish_time(newPublishTime.toString());
+                return Ar.save(existingArticle);
+            }
+            else{
+                throw new RuntimeErrorException(null, "User not found with username: " + username+" or Article not present with id:" + articleId);
+            }
         }
         else{
             throw new RuntimeErrorException(null, "User not found with username: " + username+" or Article not present with id:" + articleId);
         }
+        
     }
     //OPERATIONS TO MANAGE AUTHENTICATION
     @Transactional
