@@ -1,36 +1,24 @@
 package com.example.demo.controllers.Neo4j;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.Neo4j.UsersNode;
 import com.example.demo.projections.UsersNodeProjection;
 import com.example.demo.relationships.has_in_F_team;
 import com.example.demo.relationships.has_in_M_team;
-import com.example.demo.requets.AddPlayerToTeamRequest;
-import com.example.demo.requets.FollowRequest;
-import com.example.demo.requets.LikeRequest;
 import com.example.demo.services.Neo4j.Users_node_service;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
-
-
 
 @RestController
 @RequestMapping("/api/v1/Users_Node")
@@ -55,8 +43,8 @@ public class Users_node_controller {
 
     @GetMapping("/admin")
     @Operation(summary = "READ: get all Users_node")
-    public <Pageable> Page<UsersNode> getAllUsers(@RequestParam(defaultValue = "0") int page,
-                                              @RequestParam(defaultValue = "50") int size) {
+    public Page<UsersNode> getAllUsers(@RequestParam(defaultValue = "0") int page,
+                                       @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
         return Uns.getAllUsers(pageable);
     }
@@ -110,45 +98,45 @@ public class Users_node_controller {
     }
 
     // FOLLOW / UNFOLLOW
-    @PutMapping("/user/follow")
-    public void FOLLOW(@RequestBody FollowRequest request) {
-        Uns.FOLLOW(request.getFollower(), request.getFollowee());
+    @PutMapping("/user/follow/{logged}/{target}")
+    public void FOLLOW(@PathVariable String logged, @PathVariable String target) {
+        Uns.FOLLOW(logged, target);
     }
 
-    @DeleteMapping("/user/unfollow")
-    public void UNFOLLOW(@RequestBody FollowRequest request) {
-        Uns.UNFOLLOW(request.getFollower(), request.getFollowee());
+    @DeleteMapping("/user/unfollow/{logged}/{target}")
+    public void UNFOLLOW(@PathVariable String logged, @PathVariable String target) {
+        Uns.UNFOLLOW(logged, target);
     }
 
     // ADD TO TEAM
-    @PostMapping("/user/MaleTeam")
-    public String add_in_M_Team(@RequestBody AddPlayerToTeamRequest request, Authentication auth) {
-        return Uns.addInMTeam(auth.getName(), request.getPlayerId(), request.getFifaValue());
+    @PostMapping("/user/MaleTeam/{playerId}/{fifaValue}")
+    public String add_in_M_Team(@PathVariable Long playerId, @PathVariable int fifaValue, Authentication auth) {
+        return Uns.addInMTeam(auth.getName(), playerId, fifaValue);
     }
 
-    @PostMapping("/user/FemaleTeam")
-    public String add_in_F_Team(@RequestBody AddPlayerToTeamRequest request, Authentication auth) {
-        return Uns.addInFTeam(auth.getName(), request.getPlayerId(), request.getFifaValue());
+    @PostMapping("/user/FemaleTeam/{playerId}/{fifaValue}")
+    public String add_in_F_Team(@PathVariable Long playerId, @PathVariable int fifaValue, Authentication auth) {
+        return Uns.addInFTeam(auth.getName(), playerId, fifaValue);
     }
 
     // LIKES
-    @PostMapping("/user/like/team")
-    public String teamLIKE(@RequestBody LikeRequest request, Authentication auth) {
-        return Uns.team_LIKE(auth.getName(), request.getTargetId());
+    @PostMapping("/user/like/team/{targetId}")
+    public String teamLIKE(@PathVariable Long targetId, Authentication auth) {
+        return Uns.team_LIKE(auth.getName(), targetId);
     }
 
-    @DeleteMapping("/user/unlike/team")
-    public String teamUNLIKE(@RequestBody LikeRequest request, Authentication auth) {
-        return Uns.team_UNLIKE(auth.getName(), request.getTargetId());
+    @DeleteMapping("/user/unlike/team/{targetId}")
+    public String teamUNLIKE(@PathVariable Long targetId, Authentication auth) {
+        return Uns.team_UNLIKE(auth.getName(), targetId);
     }
 
-    @PostMapping("/user/like/coach")
-    public String coachLIKE(@RequestBody LikeRequest request, Authentication auth) {
-        return Uns.coach_LIKE(auth.getName(), request.getTargetId().intValue());
+    @PostMapping("/user/like/coach/{targetId}")
+    public String coachLIKE(@PathVariable Long targetId, Authentication auth) {
+        return Uns.coach_LIKE(auth.getName(), targetId.intValue());
     }
 
-    @DeleteMapping("/user/unlike/coach")
-    public String coachUNLIKE(@RequestBody LikeRequest request, Authentication auth) {
-        return Uns.coach_UNLIKE(auth.getName(), request.getTargetId().intValue());
+    @DeleteMapping("/user/unlike/coach/{targetId}")
+    public String coachUNLIKE(@PathVariable Long targetId, Authentication auth) {
+        return Uns.coach_UNLIKE(auth.getName(), targetId.intValue());
     }
 }

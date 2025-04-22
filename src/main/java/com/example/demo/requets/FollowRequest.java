@@ -8,8 +8,8 @@ import lombok.Setter;
 @Setter
 public class FollowRequest {
     @NotBlank
-    private String follower;
+    private String logged;
 
     @NotBlank
-    private String followee;
+    private String target;
 }
