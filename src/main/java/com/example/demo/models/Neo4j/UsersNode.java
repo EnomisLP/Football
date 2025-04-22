@@ -52,5 +52,8 @@ public class UsersNode {
     @Relationship(type = "LIKES_COACH", direction = Relationship.Direction.OUTGOING)
     private List<CoachesNode> coachesNodes = new ArrayList<>();
 
+    @Relationship(type = "LIKES_PLAYER", direction = Relationship.Direction.OUTGOING)
+    private List<PlayersNode> playerNodes = new ArrayList<>();
+
     
 }

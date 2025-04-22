@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.aggregations.MongoDB.DTO.ClubAverage;
-import com.example.demo.aggregations.MongoDB.DTO.DreamTeamPlayer;
-import com.example.demo.aggregations.MongoDB.DTO.TopPlayersByCoach;
+import com.example.demo.aggregations.DTO.ClubAverage;
+import com.example.demo.aggregations.DTO.DreamTeamPlayer;
+import com.example.demo.aggregations.DTO.TopPlayersByCoach;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

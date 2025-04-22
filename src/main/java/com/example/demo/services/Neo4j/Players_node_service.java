@@ -171,7 +171,7 @@ public class Players_node_service {
     }
     
     //OPERATIONS TO MANAGE TEAM
-    public plays_in_team showCurrentTeam(Long playerId){
+    public plays_in_team showCurrentTeam(Integer playerId){
         Optional<PlayersNode> optionalPlayerNode = PMn.findByPlayerId(playerId);
         Optional<plays_in_team> optionalTeam = optionalPlayerNode.flatMap(playerNode -> 
         playerNode.getTeamMNodes().stream().filter(teamNode -> teamNode.getFifaV()
@@ -186,7 +186,7 @@ public class Players_node_service {
         }
     }
 
-    public plays_in_team showSpecificTeam(Long playerId, Integer fifaVersion){
+    public plays_in_team showSpecificTeam(Integer playerId, Integer fifaVersion){
         Optional<PlayersNode> optionalPlayerNode = PMn.findByPlayerId(playerId);
         Optional<plays_in_team> optionalTeam = optionalPlayerNode.flatMap(playerNode -> 
         playerNode.getTeamMNodes().stream().filter(teamNode -> teamNode.getFifaV()

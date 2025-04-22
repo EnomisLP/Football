@@ -27,7 +27,7 @@ public class Players {
     @GeneratedValue
     private String _id;
     @Field("player_id")
-    private Long player_id;
+    private Integer player_id;
     @Field("short_name")
     private  String short_name;
     @Field("long_name")

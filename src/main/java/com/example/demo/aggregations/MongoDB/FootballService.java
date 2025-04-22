@@ -10,9 +10,10 @@ import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.aggregations.MongoDB.DTO.ClubAverage;
-import com.example.demo.aggregations.MongoDB.DTO.DreamTeamPlayer;
-import com.example.demo.aggregations.MongoDB.DTO.TopPlayersByCoach;
+import com.example.demo.aggregations.DTO.ClubAverage;
+import com.example.demo.aggregations.DTO.DreamTeamPlayer;
+import com.example.demo.aggregations.DTO.TopPlayersByCoach;
+
 import java.util.Arrays;
 import java.util.List;
 

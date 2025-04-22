@@ -1,4 +1,4 @@
-package com.example.demo.aggregations.MongoDB.DTO;
+package com.example.demo.aggregations.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

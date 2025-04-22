@@ -16,7 +16,7 @@ public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
 
     boolean existsByMongoId(String mongoId);
     Optional<PlayersNode> findByMongoId(String get_id);
-    Optional<PlayersNode> findByPlayerId(Long playerId);
+    Optional<PlayersNode> findByPlayerId(Integer playerId);
     @Query(
     value = "MATCH (p:PlayersNode {gender: $gender}) " +
             "OPTIONAL MATCH (p)-[:PLAYS_IN_TEAM]->(t:TeamsNode) " +

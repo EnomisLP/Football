@@ -129,7 +129,7 @@ public class Users_node_service {
 
     //OPERATIONS TO MANAGE PLAYERS IN THE TEAM OF A USER
     
-    /*CHECKED*/public String addInMTeam(String username, Long playerId, Integer fifaVersion) {
+    /*CHECKED*/public String addInMTeam(String username, Integer playerId, Integer fifaVersion) {
     Optional<UsersNode> userNodeOpt = Unr.findByUserName(username);
     Optional<PlayersNode> playerNodeOpt = PMNr.findByPlayerId(playerId);
 
@@ -185,7 +185,7 @@ public class Users_node_service {
         throw new IllegalArgumentException("FIFA version " + fifaVersion + " not found for Player ID: " + playerId);
     }
 
-    /*CHECKED*/public String addInFTeam(String username, Long playerId, Integer fifaVersion) {
+    /*CHECKED*/public String addInFTeam(String username, Integer playerId, Integer fifaVersion) {
     Optional<UsersNode> userNodeOpt = Unr.findByUserName(username);
     Optional<PlayersNode> playerNodeOpt = PMNr.findByPlayerId(playerId);
 
@@ -321,7 +321,7 @@ public class Users_node_service {
         }
     }
 
-    /*CHECKED*/public void removePlayerMTeam(String username, Long playerId) {
+    /*CHECKED*/public void removePlayerMTeam(String username, Integer playerId) {
         Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
         Optional<PlayersNode> optionalPlayerNode = PMNr.findByPlayerId(playerId);
         
@@ -343,7 +343,7 @@ public class Users_node_service {
         }
     }
       
-    /*CHECKED*/public void removePlayerFTeam(String username, Long playerId){
+    /*CHECKED*/public void removePlayerFTeam(String username, Integer playerId){
         Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
         Optional<PlayersNode> optionalPlayerNode = PMNr.findByPlayerId(playerId);
         if (optionalUserNode.isPresent() && optionalPlayerNode.isPresent()) {
@@ -497,6 +497,43 @@ public class Users_node_service {
             throw new RuntimeException("User: " + username + " or Coach with id: " + coachId + " not found");
         }
     }
+    
+    /*CHECKED*/public String player_LIKE(String username, Integer playerId) {
+        System.out.println("Attempting to find user: " + username);
+        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
+        Optional<PlayersNode> optionalPlayerNode = PMNr.findByPlayerId(playerId);
+    
+        if (optionalUserNode.isPresent() && optionalPlayerNode.isPresent()) {
+            UsersNode usersNode = optionalUserNode.get();
+            PlayersNode playerNode = optionalPlayerNode.get();
+    
+            usersNode.getPlayerNodes().add(playerNode);
+            Unr.save(usersNode);
+    
+            return "User: " + username + " now likes player with id: " + playerId;
+        } else {
+            throw new RuntimeException("User: " + username + " or Player with id: " + playerId + " not found");
+        }
+    }
+    
+    /*CHECKED*/public String player_UNLIKE(String username, Integer playerId) {
+        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
+        Optional<PlayersNode> optionalPlayerNode = PMNr.findByPlayerId(playerId);
+    
+        if (optionalUserNode.isPresent() && optionalPlayerNode.isPresent()) {
+            UsersNode existingUsersNode = optionalUserNode.get();
+            PlayersNode existingPlayersNode = optionalPlayerNode.get();
+    
+            
+            existingUsersNode.getPlayerNodes().remove(existingPlayersNode);
+            Unr.save(existingUsersNode);
+    
+            return "User: " + username + " is not liking player with id: " + playerId + " anymore";
+        } else {
+            throw new RuntimeException("User: " + username + " or Player with id: " + playerId + " not found");
+        }
+    }
+
     
      public static String getLoggedInUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();

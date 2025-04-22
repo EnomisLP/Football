@@ -88,12 +88,12 @@ public class Users_node_controller {
 
     // DELETE PLAYERS
     @DeleteMapping("/user/Mplayers/{playerId}")
-    public void removeMPlayer(@PathVariable Long playerId, Authentication auth) {
+    public void removeMPlayer(@PathVariable Integer playerId, Authentication auth) {
         Uns.removePlayerMTeam(auth.getName(), playerId);
     }
 
     @DeleteMapping("/user/Fplayers/{playerId}")
-    public void removeFPlayer(@PathVariable Long playerId, Authentication auth) {
+    public void removeFPlayer(@PathVariable Integer playerId, Authentication auth) {
         Uns.removePlayerFTeam(auth.getName(), playerId);
     }
 
@@ -110,12 +110,12 @@ public class Users_node_controller {
 
     // ADD TO TEAM
     @PostMapping("/user/MaleTeam/{playerId}/{fifaValue}")
-    public String add_in_M_Team(@PathVariable Long playerId, @PathVariable int fifaValue, Authentication auth) {
+    public String add_in_M_Team(@PathVariable Integer playerId, @PathVariable int fifaValue, Authentication auth) {
         return Uns.addInMTeam(auth.getName(), playerId, fifaValue);
     }
 
     @PostMapping("/user/FemaleTeam/{playerId}/{fifaValue}")
-    public String add_in_F_Team(@PathVariable Long playerId, @PathVariable int fifaValue, Authentication auth) {
+    public String add_in_F_Team(@PathVariable Integer playerId, @PathVariable int fifaValue, Authentication auth) {
         return Uns.addInFTeam(auth.getName(), playerId, fifaValue);
     }
 
@@ -128,6 +128,16 @@ public class Users_node_controller {
     @DeleteMapping("/user/unlike/team/{targetId}")
     public String teamUNLIKE(@PathVariable Long targetId, Authentication auth) {
         return Uns.team_UNLIKE(auth.getName(), targetId);
+    }
+
+    @PostMapping("/user/like/player/{playerId}")
+    public String playerLIKE(@PathVariable Integer playerId, Authentication auth) {
+        return Uns.player_LIKE(auth.getName(), playerId);
+    }
+
+    @DeleteMapping("/user/unlike/player/{playerId}")
+    public String playerUNLIKE(@PathVariable Integer playerId, Authentication auth) {
+        return Uns.player_UNLIKE(auth.getName(), playerId);
     }
 
     @PostMapping("/user/like/coach/{targetId}")

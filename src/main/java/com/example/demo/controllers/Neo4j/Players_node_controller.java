@@ -41,14 +41,14 @@ public class Players_node_controller {
     // READ: Show the current team a player plays in
     @GetMapping("/{playerId}/current-team")
     @Operation(summary = "READ: Show the team a player is currently playing in")
-    public plays_in_team showCurrentTeam(@PathVariable Long playerId) {
+    public plays_in_team showCurrentTeam(@PathVariable Integer playerId) {
         return playersNodeService.showCurrentTeam(playerId);
     }
 
     // READ: Show a specific team a player played in with a certain FIFA version
     @GetMapping("/{playerId}/team/{fifaV}")
     @Operation(summary = "READ: Show a team a player played in for a specific FIFA version")
-    public plays_in_team showSpecificTeam(@PathVariable Long playerId, @PathVariable Integer fifaV) {
+    public plays_in_team showSpecificTeam(@PathVariable Integer playerId, @PathVariable Integer fifaV) {
         return playersNodeService.showSpecificTeam(playerId, fifaV);
     }
 

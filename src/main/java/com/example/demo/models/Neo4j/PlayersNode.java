@@ -35,7 +35,7 @@ public class PlayersNode{
     private String mongoId;
     
     @Property(name = "playerId")
-    private Long playerId;
+    private Integer playerId;
 
     @Property(name = "longName")
     private String longName;
