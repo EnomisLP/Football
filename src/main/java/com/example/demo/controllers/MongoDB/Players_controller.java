@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.MongoDB.Players;
 import com.example.demo.services.MongoDB.Players_service;
+import com.example.demo.requets.updateFifaPlayer;
 import com.example.demo.requets.updatePlayer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,6 +54,14 @@ public class Players_controller {
         return playersMService.updatePlayer(_id, playerDetails);
     }
 
+    // UPDATE: Update FIFA version of a player
+    @PutMapping("/admin/{_id}/fifaVersion/{fifaV}")
+    @Operation(summary = "UPDATE: Update a specific FIFA version of a player by its ID")
+    public Players updateFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV,
+                                      @RequestBody updateFifaPlayer playerDetails) {
+        return playersMService.updateFifaPlayer(_id, fifaV, playerDetails);
+    }
+
     // DELETE: Delete a player by ID
     @DeleteMapping("/admin/{_id}")
     @Operation(summary = "DELETE: Delete a player by its ID")
@@ -61,17 +70,25 @@ public class Players_controller {
         return ResponseEntity.noContent().build();
     }
 
+    //DELETE: Delete fifaVersion of a player by ID
+    @DeleteMapping("/admin/{_id}/fifaVersion/{fifaV}")
+    @Operation(summary = "DELETE: Delete a specific FIFA version of a player by its ID")
+    public ResponseEntity<Void> deleteFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV) {
+        playersMService.deleteFifaPlayer(_id, fifaV);
+        return ResponseEntity.noContent().build();
+    }
+
     // READ: Get the last year stats of the player
     @GetMapping("/{playerId}/lastYearStats")
     @Operation(summary = "READ: Get the stats of the player for the last year")
-    public FifaStatsPlayer getLastYearStats(@PathVariable Long playerId) {
+    public FifaStatsPlayer getLastYearStats(@PathVariable Integer playerId) {
         return playersMService.showCurrentYear(playerId);
     }
 
     // READ: Get specific year stats of the player
     @GetMapping("/{playerId}/stats/{fifaV}")
     @Operation(summary = "READ: Get the stats of the player for a specific FIFA version")
-    public FifaStatsPlayer getSpecificYearStats(@PathVariable Long playerId, @PathVariable Integer fifaV) {
+    public FifaStatsPlayer getSpecificYearStats(@PathVariable Integer playerId, @PathVariable Integer fifaV) {
         return playersMService.showSpecificStats(playerId, fifaV);
     }
 }

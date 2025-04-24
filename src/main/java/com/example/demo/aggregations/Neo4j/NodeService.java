@@ -18,7 +18,7 @@ public class NodeService {
     public NodeService(Neo4jClient neo4jClient) {
         this.neo4jClient = neo4jClient;
     }
-    // Method to find the most famous team based on the number of likes from users and the FIFA version
+    // Method to find the most famous team based on the number of likes from users to players of specific FIFA version
     public Collection<TopTeam> findMostFamousTeam(int fifaVersion) {
         return this.neo4jClient.query(
             "MATCH (p:PlayersNode)-[r:PLAYS_IN_TEAM]->(t:TeamsNode) " +

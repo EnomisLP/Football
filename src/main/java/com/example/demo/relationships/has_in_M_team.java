@@ -48,4 +48,9 @@ public class has_in_M_team{
     }
     else return false;
    }
+
+   public void setFifaV(Integer fifa_version) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'setFifaV'");
+   }
 }

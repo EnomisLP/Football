@@ -13,4 +13,6 @@ import lombok.Setter;
 @Setter
 public class updateTeam {
     private String gender;
+    private String team_name;
+    private Long team_id;
 }

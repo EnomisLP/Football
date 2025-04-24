@@ -49,6 +49,10 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
        "RETURN u, collect(related) AS relatedNodes")
     List<UsersNode> findUserWithAllRelationships(@Param("username") String username);
 
-  
+  @Query("MATCH (u:UsersNode) -[r:HAS_IN_M_TEAM|HAS_IN_F_TEAM]->(p:PlayersNode ) "+
+  "WHERE r.fifaVersion = $fifaV " +
+  "AND p.playerId = $playerId " +
+  "RETURN u")
+  List<UsersNode> findUsersByPlayerIdAndFifaVersion(@Param("playerId") Integer playerId, @Param("fifaV") Integer fifaV);
 
 }

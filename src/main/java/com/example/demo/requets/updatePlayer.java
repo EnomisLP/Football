@@ -13,11 +13,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class updatePlayer {
-    private  String short_name;
+    private String short_name;
     private String long_name;
     private Integer age;
     private Date dob;
-    private String nationality_name;
     private Integer height_cm;
     private Integer weight_kg;
     private String gender;

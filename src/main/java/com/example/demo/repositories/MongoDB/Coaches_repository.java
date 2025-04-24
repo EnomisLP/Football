@@ -18,7 +18,7 @@ import java.util.List;
 public interface Coaches_repository extends MongoRepository<Coaches,String>{
 
     @Query("{ 'coach_id' : ?0 }")
-    Optional<Coaches> findByCoachId(Long coach_id);
+    Optional<Coaches> findByCoachId(Integer id);
     @Query("{ 'gender' : ?0 }")
     List<Coaches> findByGender(String gender);
     @Query("{ 'gender' : ?0 }")

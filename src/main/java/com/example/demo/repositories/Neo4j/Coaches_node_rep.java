@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 
 import com.example.demo.models.Neo4j.CoachesNode;
+import com.example.demo.relationships.manages_team;
 @Repository
 public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
 
@@ -26,4 +27,10 @@ public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
     )
     Page<CoachesNode> findAllByGenderWithPagination(String gender, PageRequest page);
     List<CoachesNode> findAllByGender(String gender);
+
+    @Query("MATCH (c:CoachesNode) -[r:MANAGES_TEAM]-> (t:TeamsNode) " +
+    "WHERE r.fifaVersion = $fifaV " +
+    "AND t.teamId = $teamId " +
+    "RETURN r")
+    manages_team findFifaVersionByTeamIdAndFifaV(Long teamId, Integer fifaV);
 }

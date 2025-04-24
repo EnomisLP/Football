@@ -42,5 +42,8 @@ public class manages_team {
         }
         else return false;
     }
+    public void setFifaV(Integer fifaV){
+        this.fifaVersion = fifaV;
+    }
    
 }

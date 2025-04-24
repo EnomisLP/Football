@@ -19,9 +19,20 @@ public interface Players_repository extends MongoRepository<Players,String>{
     @Query("{ 'gender' : ?0 }")
     List<Players> findByGender(String gender);
     @Query("{ 'player_id' : ?0 }")
-    Optional<Players> findByPlayerId(Long playerId);
+    Optional<Players> findByPlayerId(Integer playerId);
 
     @Query("{ 'gender' : ?0 }")
     Page<Players> findAllByGender(String gender, PageRequest page);
     
+    @Query("""
+    {
+        "fifaStats": {
+            "$elemMatch": {
+                "club_team_id": ?0
+            }
+        }
+    }
+    """)
+    List<Players> findByClubTeamIdInFifaStats(Long clubTeamId);
+
 }

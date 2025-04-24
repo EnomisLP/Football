@@ -47,14 +47,14 @@ public class Coaches_controller {
     // UPDATE: Update an existing coach by ID
     @PutMapping("/admin/{_id}")
     @Operation(summary = "UPDATE: Update an existing coach by ID")
-    public Coaches updateCoach(@PathVariable String _id, @RequestBody updateCoach coachDetails) {
+    public Coaches updateCoach(@PathVariable Integer _id, @RequestBody updateCoach coachDetails) {
         return coachesMservice.updateCoach(_id, coachDetails);
     }
 
     // DELETE: Delete a coach by ID
     @DeleteMapping("/admin/{_id}")
     @Operation(summary = "DELETE: Delete a coach by ID")
-    public ResponseEntity<Void> deleteCoach(@PathVariable String _id) {
+    public ResponseEntity<Void> deleteCoach(@PathVariable Integer _id) {
         coachesMservice.deleteCoach(_id);
         return ResponseEntity.noContent().build();
     }

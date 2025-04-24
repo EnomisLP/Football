@@ -9,8 +9,9 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
-
+import com.example.demo.models.Neo4j.CoachesNode;
 import com.example.demo.models.Neo4j.TeamsNode;
+import com.example.demo.relationships.manages_team;
 @Repository
 public interface Teams_node_rep extends Neo4jRepository<TeamsNode,Long>{
     boolean existsByMongoId(String valueOf);
@@ -26,5 +27,4 @@ public interface Teams_node_rep extends Neo4jRepository<TeamsNode,Long>{
 )
     Page<TeamsNode> findAllByGenderWithPagination(String gender, PageRequest pageRequest);
     List<TeamsNode> findAllByGender(String gender);
-
 }

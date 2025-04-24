@@ -10,6 +10,7 @@ import com.example.demo.models.MongoDB.Coaches;
 import com.example.demo.models.MongoDB.Players;
 import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.services.MongoDB.Teams_service;
+import com.example.demo.requets.updateFifaTeam;
 import com.example.demo.requets.updateTeam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -83,11 +84,26 @@ public class Teams_controller {
         return teamsMService.updateTeam(_id, teamDetails);
     }
 
+    // UPDATE: Update a fifa version of a team
+    @PutMapping("/admin/{_id}/fifaV/{fifaV}")
+    @Operation(summary = "UPDATE: Update a FIFA version of a team")
+    public Teams updateFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateFifaTeam teamDetails) {
+        return teamsMService.updateFifaTeam(_id, fifaV, teamDetails);
+    }
+
     // DELETE: Delete a team by ID
     @DeleteMapping("/admin/{_id}")
     @Operation(summary = "DELETE: Delete a team by its ID")
     public ResponseEntity<Void> deleteTeam(@PathVariable String _id) {
         teamsMService.deleteTeam(_id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // DELETE: Delete a team by ID and FIFA version
+    @DeleteMapping("/admin/{_id}/fifaV/{fifaV}")
+    @Operation(summary = "DELETE: Delete a team by its ID and FIFA version")
+    public ResponseEntity<Void> deleteTeamByFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV) {
+        teamsMService.deleteFifaTeam(_id, fifaV);
         return ResponseEntity.noContent().build();
     }
 }
