@@ -44,8 +44,7 @@ public class plays_in_team {
     else return false;
    }
    public void setFifaV(Integer fifa_version) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'setFifaV'");
+    this.fifaVersion = fifa_version;
    }
    
 }
