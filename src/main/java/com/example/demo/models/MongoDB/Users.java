@@ -5,8 +5,9 @@ package com.example.demo.models.MongoDB;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
-
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 
 import lombok.AllArgsConstructor;
@@ -23,7 +24,10 @@ public class Users {
     @GeneratedValue
 
     private String _id;
+    @Indexed(unique = true)
+    @Field("username")
     private String username;
+    @Field("password")
     private String password;
     private List<ROLES> roles;
 

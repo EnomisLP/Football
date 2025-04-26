@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -27,6 +28,7 @@ public class Players {
     @GeneratedValue
     private String _id;
     @Field("player_id")
+    @Indexed(unique = true)
     private Integer player_id;
     @Field("short_name")
     private  String short_name;
@@ -47,6 +49,7 @@ public class Players {
     
     private List<FifaStatsPlayer> fifaStats;
     @Field("gender")
+    @Indexed
     private String gender;
 
     //Cunstructors, Getters, Setters automatically generated

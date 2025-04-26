@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
@@ -14,26 +15,26 @@ import com.example.demo.relationships.manages_team;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 @Getter
 @Setter
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Node(labels = "CoachesNode")
 public class CoachesNode {
-
-    public CoachesNode() {
-        // Default constructor
-    }
 
     @Id
     @GeneratedValue
     private Long _id;
 
     @Property(name = "mongoId")
+    @Indexed(unique = true)
     private String mongoId;
 
     @Property(name = "coachId")
+    @Indexed(unique = true)
     private Integer coachId;
 
     @Property(name = "longName")
@@ -43,6 +44,7 @@ public class CoachesNode {
     private String nationalityName;
 
     @Property(name = "gender")
+    @Indexed
     private String gender;
 
     @Relationship(type = "MANAGES_TEAM", direction = Relationship.Direction.OUTGOING)

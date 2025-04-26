@@ -1,6 +1,7 @@
 package com.example.demo.models.MongoDB;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -28,6 +29,7 @@ public class Articles {
     @Field(name = "publish_time")
     private String publish_time;
     @Field(name = "title")
+    @Indexed
     private String title;
 
     

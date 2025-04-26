@@ -1,6 +1,7 @@
 package com.example.demo.models.MongoDB;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -22,6 +23,7 @@ public class Coaches{
     @GeneratedValue
     private String _id;
     @Field("coach_id")
+    @Indexed(unique = true)
     private Integer coach_id;
     @Field("long_name")
     private String long_name;
@@ -30,6 +32,7 @@ public class Coaches{
     @Field("nationality_name")
     private String nationality_name;
     @Field("gender")
+    @Indexed
     private String gender;
     //Constructors, Getters and Setters automatically Generated
 }
