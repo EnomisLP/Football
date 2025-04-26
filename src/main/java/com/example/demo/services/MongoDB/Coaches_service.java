@@ -67,20 +67,18 @@ public class Coaches_service {
 
      //UPDATE
      @Transactional
-     public Coaches updateCoach(Integer id, updateCoach coachDetails) {
-        Optional<Coaches> optionalCoach = CMr.findByCoachId(id);
+     public Coaches updateCoach(String id, updateCoach coachDetails) {
+        Optional<Coaches> optionalCoach = CMr.findById(id);
         if (optionalCoach.isPresent()) {
             Coaches existingCoach = optionalCoach.get();
-            Optional<CoachesNode> optionalCoachNode = Cmr.findByCoachId(id);
+            Optional<CoachesNode> optionalCoachNode = Cmr.findByMongoId(id);
             if(optionalCoachNode.isPresent()){
                 CoachesNode existingCoachNode = optionalCoachNode.get();
                 //Checking if the coach_id was changed in the request
                 if(!coachDetails.getCoach_id().equals(existingCoach.getCoach_id())){
                     //if it was changed, we need to update the coach_id in the Neo4j database 
                     //and change all coach_id instances in the teams
-                    existingCoach.setCoach_id(coachDetails.getCoach_id());
-                    existingCoachNode.setCoachId(coachDetails.getCoach_id());
-                    List<Teams> teams = TMs.findByCoachId(id);
+                    List<Teams> teams = TMs.findByCoachId(existingCoachNode.getCoachId());
                     if(!teams.isEmpty()){
                         for(Teams team : teams){
                             for(FifaStatsTeam stats : team.getFifaStats()){
@@ -89,6 +87,8 @@ public class Coaches_service {
                             }
                         }
                     }
+                    existingCoach.setCoach_id(coachDetails.getCoach_id());
+                    existingCoachNode.setCoachId(coachDetails.getCoach_id());
                 }
                 // Update the other fields of the coach
                 existingCoach.setLong_name(coachDetails.getLong_name());
@@ -114,14 +114,13 @@ public class Coaches_service {
     }
     //DELETE
     @Transactional
-    public void deleteCoach(Integer id){
-        Optional<Coaches> coach = CMr.findByCoachId(id);
-        Optional<CoachesNode> coachNode = Cmr.findByCoachId(id);
-        if(coach.isPresent()){
-            // Delete the coach from MongoDB
-            CMr.deleteById(coach.get().get_id());
+    public void deleteCoach(String id){
+        Optional<Coaches> coach = CMr.findById(id);
+        Optional<CoachesNode> coachNode = Cmr.findByMongoId(id);
+        if(coach.isPresent() && coachNode.isPresent()){
             // Delete the coach_id istances
-            List<Teams> teams = TMs.findByCoachId(id);
+            CoachesNode existing = coachNode.get();
+            List<Teams> teams = TMs.findByCoachId(existing.getCoachId());
             if(!teams.isEmpty()){
                 for(Teams team : teams){
                     for(FifaStatsTeam stats : team.getFifaStats()){
@@ -130,18 +129,13 @@ public class Coaches_service {
                     }
                 }
             }
-        }
-        else{
-            throw new RuntimeErrorException(null, "Coach not found with id: " + id);
-        }
-        if(coachNode.isPresent()){
-            CoachesNode existing = coachNode.get();
+            // Delete the coach from MongoDB and Neo4j
             CMs.deleteCoach(existing.get_id());
+            CMr.deleteById(coach.get().get_id());
         }
         else{
             throw new RuntimeErrorException(null, "Coach not found with id: " + id);
-        }
-        
+        } 
     }
 
 }
