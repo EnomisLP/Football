@@ -50,7 +50,6 @@ public class has_in_M_team{
    }
 
    public void setFifaV(Integer fifa_version) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'setFifaV'");
+    this.fifaVersion = fifa_version;
    }
 }
