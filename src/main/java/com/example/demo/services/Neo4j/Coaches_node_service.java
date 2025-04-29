@@ -6,8 +6,10 @@ import java.util.Optional;
 
 import javax.management.RuntimeErrorException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.MongoDB.Coaches;
@@ -29,6 +31,9 @@ public class Coaches_node_service {
     private final Teams_node_rep TMn;
     private final Teams_repository TMr;
     private static final Integer CURRENT_YEAR = 24;
+
+    @Autowired
+    private Neo4jClient neo4jClient;
 
     public Coaches_node_service(Coaches_node_rep cmn, Coaches_repository CMR,
                                   Teams_node_rep TMN, Teams_repository TMR) {
@@ -79,7 +84,22 @@ public class Coaches_node_service {
         }
     }
 
+    private void ensureCoachNodeIndexes() {
+        neo4jClient.query("""
+            CREATE INDEX mongoId IF NOT EXISTS FOR (c:CoachesNode) ON (c.mongoId)
+        """).run();
+        
+        neo4jClient.query("""
+            CREATE INDEX coachId IF NOT EXISTS FOR (c:CoachesNode) ON (c.coachId)
+        """).run();
+        
+        neo4jClient.query("""
+            CREATE INDEX gender IF NOT EXISTS FOR (c:CoachesNode) ON (c.gender)
+        """).run();
+    }
     public String MapAllTheNodes() {
+        // Ensure indexes are created before mapping nodes
+        ensureCoachNodeIndexes();
         List<Coaches> Allcoaches = Cmr.findAll();
         List<CoachesNode> nodeToInsert = new ArrayList<>();
         System.out.println("Coaches found :" + Allcoaches.size());

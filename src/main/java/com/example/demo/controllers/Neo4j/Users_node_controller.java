@@ -1,6 +1,7 @@
 package com.example.demo.controllers.Neo4j;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -98,14 +99,14 @@ public class Users_node_controller {
     }
 
     // FOLLOW / UNFOLLOW
-    @PutMapping("/user/follow/{logged}/{target}")
-    public void FOLLOW(@PathVariable String logged, @PathVariable String target) {
-        Uns.FOLLOW(logged, target);
+    @PutMapping("/user/follow/{target}")
+    public CompletableFuture<String> FOLLOW(Authentication auth, @PathVariable String target) {
+        return Uns.FOLLOW(auth.getName(), target);
     }
 
-    @DeleteMapping("/user/unfollow/{logged}/{target}")
-    public void UNFOLLOW(@PathVariable String logged, @PathVariable String target) {
-        Uns.UNFOLLOW(logged, target);
+    @DeleteMapping("/user/unfollow/{target}")
+    public CompletableFuture<String> UNFOLLOW(Authentication auth, @PathVariable String target) {
+        return Uns.UNFOLLOW(auth.getName(), target);
     }
 
     // ADD TO TEAM
@@ -121,32 +122,32 @@ public class Users_node_controller {
 
     // LIKES
     @PostMapping("/user/like/team/{targetId}")
-    public String teamLIKE(@PathVariable Long targetId, Authentication auth) {
+    public CompletableFuture<String> teamLIKE(@PathVariable Long targetId, Authentication auth) {
         return Uns.team_LIKE(auth.getName(), targetId);
     }
 
     @DeleteMapping("/user/unlike/team/{targetId}")
-    public String teamUNLIKE(@PathVariable Long targetId, Authentication auth) {
+    public CompletableFuture<String> teamUNLIKE(@PathVariable Long targetId, Authentication auth) {
         return Uns.team_UNLIKE(auth.getName(), targetId);
     }
 
     @PostMapping("/user/like/player/{playerId}")
-    public String playerLIKE(@PathVariable Integer playerId, Authentication auth) {
+    public CompletableFuture<String> playerLIKE(@PathVariable Integer playerId, Authentication auth) {
         return Uns.player_LIKE(auth.getName(), playerId);
     }
 
     @DeleteMapping("/user/unlike/player/{playerId}")
-    public String playerUNLIKE(@PathVariable Integer playerId, Authentication auth) {
+    public CompletableFuture<String> playerUNLIKE(@PathVariable Integer playerId, Authentication auth) {
         return Uns.player_UNLIKE(auth.getName(), playerId);
     }
 
     @PostMapping("/user/like/coach/{targetId}")
-    public String coachLIKE(@PathVariable Long targetId, Authentication auth) {
+    public CompletableFuture<String> coachLIKE(@PathVariable Long targetId, Authentication auth) {
         return Uns.coach_LIKE(auth.getName(), targetId.intValue());
     }
 
     @DeleteMapping("/user/unlike/coach/{targetId}")
-    public String coachUNLIKE(@PathVariable Long targetId, Authentication auth) {
+    public CompletableFuture<String> coachUNLIKE(@PathVariable Long targetId, Authentication auth) {
         return Uns.coach_UNLIKE(auth.getName(), targetId.intValue());
     }
 }

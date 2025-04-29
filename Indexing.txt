@@ -1,0 +1,20 @@
+// For 'users' collection
+db.users.createIndex({ userName: 1 }, { unique: true });
+
+// For 'players' collection
+db.players.createIndex({ playerId: 1 }, { unique: true });
+db.players.createIndex({ mongoId: 1 });
+db.players.createIndex({ gender: 1 });
+
+// For 'teams' collection
+db.teams.createIndex({ teamId: 1 }, { unique: true });
+db.teams.createIndex({ name: 1 });
+
+// For 'coaches' collection
+db.coaches.createIndex({ coachId: 1 }, { unique: true });
+
+// Add compound index example
+db.users.createIndex({ userName: 1, "playersMNodes.fifaV": 1 });
+
+// Add full-text index example (e.g., player name)
+db.players.createIndex({ name: "text" });

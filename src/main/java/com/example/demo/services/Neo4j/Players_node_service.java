@@ -6,8 +6,10 @@ import java.util.Optional;
 
 import javax.management.RuntimeErrorException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
@@ -29,6 +31,8 @@ public class Players_node_service {
     private final Teams_repository TMr;
     private final Teams_node_rep TMn;
     private final static Integer CURRENT_YEAR = 24;
+    @Autowired
+    private Neo4jClient neo4jClient;
 
     public Players_node_service(Players_node_rep pmn, Players_repository pmr,
                                   Teams_repository TMR, Teams_node_rep TMN) {
@@ -80,8 +84,23 @@ public class Players_node_service {
             throw new RuntimeErrorException(null, "Player with id: " + id + " not correctly mapped on MongoDB or Neo4j");
         }
     }
+    private void ensurePlayerNodeIndexes() {
+        neo4jClient.query("""
+            CREATE INDEX mongoId IF NOT EXISTS FOR (p:PlayersNode) ON (p.mongoId)
+        """).run();
+        
+        neo4jClient.query("""
+            CREATE INDEX playerId IF NOT EXISTS FOR (p:PlayersNode) ON (p.playerId)
+        """).run();
+        
+        neo4jClient.query("""
+            CREATE INDEX gender IF NOT EXISTS FOR (p:PlayersNode) ON (p.gender)
+        """).run();
+    }
 
     public String MapAllTheNodes() {
+        // Ensure indexes are created
+        ensurePlayerNodeIndexes();
         List<Players> Allplayers = PMr.findAll();
         List<PlayersNode> nodeToInsert = new ArrayList<>();
         System.out.println("Players found :" + Allplayers.size());

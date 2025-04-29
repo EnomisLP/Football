@@ -1,6 +1,7 @@
 package com.example.demo.controllers.MongoDB;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -69,7 +70,7 @@ public class Users_controller {
 
     @PostMapping("/user/articles")
     @Operation(summary = "CREATE: create an article of a user")
-    public Articles createArticle(@RequestBody createArticleRequest request, Authentication auth) {
+    public CompletableFuture<Articles> createArticle(@RequestBody createArticleRequest request, Authentication auth) {
         return usersService.createArticle(auth.getName(), request);
     }
 
@@ -87,7 +88,7 @@ public class Users_controller {
 
     @PutMapping("/user/articles/{articleId}")
     @Operation(summary = "UPDATE: modify a specific User Article")
-    public Articles modifyArticle(@PathVariable Long articleId,
+    public CompletableFuture<Articles> modifyArticle(@PathVariable Long articleId,
                                   @RequestBody createArticleRequest request,
                                   Authentication auth) {
         return usersService.modifyArticle(auth.getName(), auth.getName(), request);
@@ -101,7 +102,7 @@ public class Users_controller {
 
     @PostMapping("/user/password/change")
     @Operation(summary = "Change password")
-    public String changePassword(@RequestBody ChangePasswordRequest request, Authentication auth) {
+    public CompletableFuture<String> changePassword(@RequestBody ChangePasswordRequest request, Authentication auth) {
         return usersService.changePassword(auth.getName(), request.getOldPassword(), request.getNewPassword());
     }
 }

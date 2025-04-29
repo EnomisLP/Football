@@ -2,6 +2,7 @@ package com.example.demo.services.MongoDB;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import javax.management.RuntimeErrorException;
 
@@ -22,6 +23,9 @@ import com.example.demo.services.Neo4j.Users_node_service;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
 
 @Service
 public class Users_service {
@@ -119,8 +123,14 @@ public class Users_service {
        
     }
     //ARTICLES OPERATIONS
+    @Async("customAsyncExecutor")
     @Transactional
-    public Articles createArticle(String username, createArticleRequest request){
+    @Retryable(
+        value = { Exception.class },
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public CompletableFuture<Articles> createArticle(String username, createArticleRequest request){
         Optional<Users> optionalUser = Ur.findByUsername(username);
         if(optionalUser.isPresent()){
             Users existiUsers = optionalUser.get();
@@ -131,7 +141,7 @@ public class Users_service {
             Date publishTime = new Date();
             newArticle.setPublish_time(publishTime.toString());
             Articles savedArticle = Ar.save(newArticle);
-            return savedArticle;
+            return CompletableFuture.completedFuture(savedArticle);
         }else{
             throw new RuntimeErrorException(null, "User not found with username: " + username);
         }
@@ -167,8 +177,14 @@ public class Users_service {
             throw new RuntimeErrorException(null, "User not found with username: " + username+" or Article not present with id:" + articleId);
         }
     }
+    @Async("customAsyncExecutor")
     @Transactional
-    public Articles modifyArticle(String username, String articleId, createArticleRequest request){
+    @Retryable(
+        value = { Exception.class },
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public CompletableFuture<Articles> modifyArticle(String username, String articleId, createArticleRequest request){
         Optional<Users> optionalUser = Ur.findByUsername(username);
         Optional<Articles> optionalArticle = Ar.findById(articleId);
         if(optionalUser.isPresent() && optionalArticle.isPresent()){
@@ -179,7 +195,7 @@ public class Users_service {
                 existingArticle.setTitle(request.getTitle());
                 Date newPublishTime = new Date();
                 existingArticle.setPublish_time(newPublishTime.toString());
-                return Ar.save(existingArticle);
+                return CompletableFuture.completedFuture(Ar.save(existingArticle));
             }
             else{
                 throw new RuntimeErrorException(null, "User not found with username: " + username+" or Article not present with id:" + articleId);
@@ -200,15 +216,21 @@ public class Users_service {
         );
         return createUser(request);
     }
+    @Async("customAsyncExecutor")
     @Transactional
-    public String changePassword(String username,String oldPassword, String newPassword){
+    @Retryable(
+        value = { Exception.class },
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public CompletableFuture<String> changePassword(String username,String oldPassword, String newPassword){
         Optional<Users> optional = Ur.findByUsername(username);
         if(optional.isPresent()){
             Users existing = optional.get();
             if(passwordEncoder.matches(oldPassword, existing.getPassword())){
                 existing.setPassword(passwordEncoder.encode(newPassword));
                 Ur.save(existing);
-                return "Password Changed Correctly!";
+                return CompletableFuture.completedFuture("Password Changed Correctly!");
             }
             else{
                 throw new RuntimeErrorException(null, "Wrong Password, try again!");
