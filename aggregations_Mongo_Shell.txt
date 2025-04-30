@@ -9,6 +9,7 @@ db.Teams.aggregate([
   },
   {
     $project: {
+      _id: 0,
       clubName: "$_id",
       averageOverall: 1,
       maxClubWorth: 1
@@ -22,6 +23,7 @@ db.Teams.aggregate([
   },
   { $limit: 10 }
 ])
+
 _______________________________________________________________
 
 db.Teams.aggregate([
@@ -30,18 +32,13 @@ db.Teams.aggregate([
   {
     $project: {
       fifa_version: "$fifaStats.fifa_version",
-      coach_id: "$fifaStats.coach_id",
       team_name: "$fifaStats.team_name",
       player_ids: {
         $concatArrays: [
-          "$fifaStats.short_free_kick",
-          "$fifaStats.long_free_kick",
-          "$fifaStats.left_short_free_kick",
-          "$fifaStats.right_short_free_kick",
-          "$fifaStats.penalties",
-          "$fifaStats.left_corner",
-          "$fifaStats.right_corner",
-          "$fifaStats.captain"
+          ["$fifaStats.short_free_kick", "$fifaStats.long_free_kick"],
+          ["$fifaStats.left_short_free_kick", "$fifaStats.right_short_free_kick"],
+          ["$fifaStats.penalties", "$fifaStats.left_corner"],
+          ["$fifaStats.right_corner", "$fifaStats.captain"]
         ]
       }
     }
@@ -59,11 +56,11 @@ db.Teams.aggregate([
   { $unwind: "$player.fifaStats" },
   {
     $project: {
+      playerId: "$player.player_id",
       playerName: "$player.long_name",
       overall: "$player.fifaStats.overall",
       fifaVersion: "$player.fifaStats.fifa_version",
-      teamName: "$player.fifaStats.club_name",
-      playerId: "$player.player_id"
+      teamName: "$player.fifaStats.club_name"
     }
   },
   {
@@ -78,6 +75,7 @@ db.Teams.aggregate([
   { $sort: { overall: -1 } },
   { $limit: 10 }
 ])
+
 ________________________________________________________________________________
 
 db.Players.aggregate([
@@ -86,17 +84,13 @@ db.Players.aggregate([
     $match: {
       "fifaStats.fifa_version": FIFA_VERSION_HERE,
       "fifaStats.player_positions": {
-        $in: [
-          "GK", "RB", "CB", "LB",
-          "CDM", "CM", "CAM",
-          "RW", "LW", "ST"
-        ]
+        $in: ["GK", "RB", "CB", "LB", "RWB", "CDM", "CM", "CAM", "RW", "LW", "ST"]
       }
     }
   },
   {
     $project: {
-      long_name: 1,
+      playerName: "$long_name",
       position: "$fifaStats.player_positions",
       overall: "$fifaStats.overall",
       fifaVersion: "$fifaStats.fifa_version",
@@ -107,7 +101,7 @@ db.Players.aggregate([
   {
     $group: {
       _id: "$position",
-      playerName: { $first: "$long_name" },
+      playerName: { $first: "$playerName" },
       overall: { $first: "$overall" },
       playerId: { $first: "$playerId" },
       fifaVersion: { $first: "$fifaVersion" },
@@ -116,6 +110,7 @@ db.Players.aggregate([
   },
   {
     $project: {
+      _id: 0,
       playerName: 1,
       overall: 1,
       fifaVersion: 1,

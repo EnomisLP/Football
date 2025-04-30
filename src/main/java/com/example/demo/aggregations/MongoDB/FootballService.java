@@ -120,7 +120,7 @@ public class FootballService {
     public List<DreamTeamPlayer> getDreamTeam(Integer fifaVersion) {
         // Define the positions to select 
         List<String> dreamTeamPositions = Arrays.asList(
-        "GK", "RB", "CB", "LB",  // Defenders
+        "GK", "RB", "CB", "LB", "RWB",  // Defenders
         "CDM", "CM", "CAM",      // Midfielders
         "RW", "LW", "ST"         // Attackers
     );
