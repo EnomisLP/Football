@@ -20,6 +20,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PostMapping;
+
 
 @RestController
 @RequestMapping("/api/v1/Users_Node")
@@ -150,4 +152,11 @@ public class Users_node_controller {
     public CompletableFuture<String> coachUNLIKE(@PathVariable Long targetId, Authentication auth) {
         return Uns.coach_UNLIKE(auth.getName(), targetId.intValue());
     }
+
+    //TEST to compare speed of follow method
+    @PutMapping("/user/test/follow/{target}")
+    public String follow(@PathVariable String target, Authentication auth) {
+        return Uns.follow(auth.getName(), target).toString();
+    }
+    
 }

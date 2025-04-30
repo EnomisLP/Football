@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.management.RuntimeErrorException;
 
@@ -50,6 +51,8 @@ public class Users_node_service {
     private static final Integer MAX_NUMBER_TEAM = 11;
     private final Teams_node_rep TMn;
     private final Coaches_node_rep CMn;
+    private static final AtomicInteger interactionCounter = new AtomicInteger(0);
+
     @Autowired
     private Neo4jClient neo4jClient;
 
@@ -334,7 +337,12 @@ public class Users_node_service {
     )
     public CompletableFuture<String> FOLLOW(String Username, String targetUsername) {
     if (Username.equals(targetUsername)) return CompletableFuture.completedFuture("You cannot follow yourself.");
-
+    long startTime = System.currentTimeMillis(); // Start timer
+    System.out.println("FOLLOW request started: "+ Username +" -> " + targetUsername);
+    //Log to see which thread is executing the request
+    // This will help in debugging and understanding the flow of execution
+    System.out.println("Running in thread: " + Thread.currentThread().getName());
+    interactionCounter.incrementAndGet(); // Count interaction
     Optional<UsersNode> Opt = Unr.findByUserName(Username);
     Optional<UsersNode> targetOpt = Unr.findByUserName(targetUsername);
 
@@ -351,6 +359,8 @@ public class Users_node_service {
 
         Unr.save(user); 
         Unr.createFollowRelation(user.getUserName(), target.getUserName());
+        long endTime = System.currentTimeMillis(); // End timer
+        System.out.println("FOLLOW completed in " + (endTime - startTime) +" ms. Total calls: "+ interactionCounter.get());
         return CompletableFuture.completedFuture("User: " + Username + " now follows user: " + targetUsername);
     } else {
         throw new RuntimeException("User(s) not found");
@@ -572,6 +582,7 @@ public class Users_node_service {
     }
 
     public String mapAllUsersToNeo4j() {
+        ensureUserNodeIndexes(); // Ensure indexes are created before mapping users
         List<Users> AllUsers = Ur.findAll();
         List<UsersNode> usersToAdd = new ArrayList<>();
         System.out.println("Users found :" + AllUsers.size());
@@ -588,5 +599,43 @@ public class Users_node_service {
         Unr.saveAll(usersToAdd);
         return "The amount of UsersNode created are: " + usersToAdd.size();
     }
+
+    //------------------------SPEED TEST------------------------
+    //Exactly same service of follow but without async and retryable
+    // This is to see the difference in speed between the two methods
+    @Transactional
+    public String follow(String Username, String targetUsername) {
+    long startTime = System.currentTimeMillis(); // Start timer
+    System.out.println("FOLLOW request started: "+ Username +" -> " + targetUsername);
+
+    interactionCounter.incrementAndGet(); // Count interaction
+
+    if (Username.equals(targetUsername)) return "You cannot follow yourself.";
+
+    Optional<UsersNode> Opt = Unr.findByUserName(Username);
+    Optional<UsersNode> targetOpt = Unr.findByUserName(targetUsername);
+
+    if (Opt.isPresent() && targetOpt.isPresent()) {
+        UsersNode user = Opt.get();
+        UsersNode target = targetOpt.get();
+
+        if (!user.getFollowings().contains(target)) {
+            user.getFollowings().add(target);
+        }
+        if (!target.getFollowers().contains(user)) {
+            target.getFollowers().add(user);
+        }
+
+        Unr.save(user); 
+        Unr.createFollowRelation(user.getUserName(), target.getUserName());
+
+        long endTime = System.currentTimeMillis(); // End timer
+        System.out.println("FOLLOW completed in " + (endTime - startTime) +" ms. Total calls: "+ interactionCounter.get());
+
+        return "User: " + Username + " now follows user: " + targetUsername;
+    } else {
+        throw new RuntimeException("User(s) not found");
+    }
+}
 }
 

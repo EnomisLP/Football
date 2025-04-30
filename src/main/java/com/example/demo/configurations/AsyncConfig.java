@@ -38,6 +38,7 @@ public class AsyncConfig {
 
     static class SecurityContextTaskDecorator implements TaskDecorator {
 
+        @SuppressWarnings("null")
         @Override
         public Runnable decorate(Runnable runnable) {
             final SecurityContext context = SecurityContextHolder.getContext();
