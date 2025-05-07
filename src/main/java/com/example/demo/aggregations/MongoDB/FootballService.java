@@ -7,12 +7,15 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.aggregation.Fields;
+import org.springframework.data.mongodb.core.aggregation.StringOperators;
+import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.aggregations.DTO.ClubAverage;
 import com.example.demo.aggregations.DTO.DreamTeamPlayer;
 import com.example.demo.aggregations.DTO.TopPlayersByCoach;
+import com.example.demo.aggregations.DTO.monthSummary;
 
 import java.util.Arrays;
 import java.util.List;
@@ -158,6 +161,40 @@ public class FootballService {
         // Execute the aggregation query
         AggregationResults<DreamTeamPlayer> result = mongoTemplate.aggregate(
             aggregation, "Players", DreamTeamPlayer.class
+        );
+    
+        // Return the list of the best players for the selected positions
+        return result.getMappedResults();
+    }
+    
+    public List<monthSummary> getSubscriptionYearSummary(Integer year){
+        
+        Aggregation aggregation = Aggregation.newAggregation(
+            //step 1 match by year
+            Aggregation.match(Criteria.where("signup_date").regex(year.toString())),
+                   
+            //step 2 add field and split the string date
+            AddFieldsOperation.builder()
+                .addField("dateTokens")
+                .withValue(StringOperators.Split.valueOf("signup_date").split("/"))
+                .build(),
+            
+            //create a new field which is the signup month
+            AddFieldsOperation.builder()
+            .addField("signup_month")
+            .withValue(ArrayOperators.ArrayElemAt.arrayOf("dateTokens").elementAt(1))
+            .build(),
+                   
+            //stage 3 group by month and count new subscribers
+            Aggregation.group("signup_month").count().as("new_users"),
+            
+            //sort by month
+            Aggregation.sort(Sort.by(Sort.Direction.ASC, "_id"))
+           );
+                   
+        // Execute the aggregation query
+        AggregationResults<monthSummary> result = mongoTemplate.aggregate(
+            aggregation, "Users", monthSummary.class
         );
     
         // Return the list of the best players for the selected positions
