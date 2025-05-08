@@ -58,5 +58,9 @@ public class UsersNode {
     @Relationship(type = "LIKES_PLAYER", direction = Relationship.Direction.OUTGOING)
     private List<PlayersNode> playerNodes = new ArrayList<>();
 
-    
+    @Relationship(type = "WROTE", direction = Relationship.Direction.OUTGOING)
+    private List<ArticlesNode> articlesNodes = new ArrayList<>();
+
+    @Relationship(type = "LIKES_ARTICLE", direction = Relationship.Direction.OUTGOING)
+    private List<ArticlesNode> likedArticlesNodes = new ArrayList<>();
 }

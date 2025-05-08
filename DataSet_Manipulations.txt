@@ -52,6 +52,31 @@ CODE
 _____________________________________________________________________________________
 db.male_players.aggregate([
   {
+    $lookup: {
+      from: "male_teams",
+      let: { clubId: "$club_team_id", clubName: "$club_name" },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $and: [
+                { $eq: ["$team_id", "$$clubId"] },
+                { $eq: ["$team_name", "$$clubName"] }
+              ]
+            }
+          }
+        }
+      ],
+      as: "team_info"
+    }
+  },
+  {
+    $unwind: {
+      path: "$team_info",
+      preserveNullAndEmptyArrays: true
+    }
+  },
+  {
     $group: {
       _id: "$player_id",
       original_id: { $first: "$_id" },
@@ -65,7 +90,7 @@ db.male_players.aggregate([
       preferred_foot: { $first: "$preferred_foot" },
       nationality_id: { $first: "$nationality_id" },
       nationality_name: { $first: "$nationality_name" },
-      gender: { $first: "male" }, 
+      gender: { $first: "male" },
       fifaStats: {
         $push: {
           fifa_version: "$fifa_version",
@@ -74,8 +99,6 @@ db.male_players.aggregate([
           potential: "$potential",
           value_eur: "$value_eur",
           wage_eur: "$wage_eur",
-          club_team_id: "$club_team_id",
-          club_name: "$club_name",
           club_position: "$club_position",
           club_jersey_number: "$club_jersey_number",
           club_contract_valid_until_year: "$club_contract_valid_until_year",
@@ -85,6 +108,11 @@ db.male_players.aggregate([
           nation_position: "$nation_position",
           nation_jersey_number: "$nation_jersey_number",
           release_clause_eur: "$release_clause_eur",
+          team: {
+            team_mongo_id: "$team_info._id",
+            team_id: "$team_info.team_id",
+            team_name: "$team_info.team_name"
+          },
           pace: "$pace",
           shooting: "$shooting",
           passing: "$passing",
@@ -150,14 +178,44 @@ _____________________________________________________________________________
 
 db.male_coaches.aggregate([
   {
+    $lookup: {
+      from: "male_teams",
+      let: { coachId: "$coach_id" },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: ["$coach_id", "$$coachId"]
+            }
+          }
+        }
+      ],
+      as: "team_info"
+    }
+  },
+  {
+    $unwind: {
+      path: "$team_info",
+      preserveNullAndEmptyArrays: true
+    }
+  },
+  {
     $group: {
       _id: "$coach_id",
       original_id: { $first: "$_id" },
       coach_id: { $first: "$coach_id" },
       short_name: { $first: "$short_name" },
-      long_name: { $first: "$long_name"},
+      long_name: { $first: "$long_name" },
       nationality_name: { $first: "$nationality_name" },
-      gender: {$first: "male"}
+      gender: { $first: "male" },
+      team: {
+        $push: {
+          team_mongo_id: "$team_info._id",
+          team_id: "$team_info.team_id",
+          team_name: "$team_info.team_name",
+          fifa_version: "$team_info.fifa_version"
+        }
+      }
     }
   },
   {
@@ -176,8 +234,23 @@ db.male_coaches.aggregate([
     }
   }
 ])
+
 _____________________________________________________________________________________________
 db.male_teams.aggregate([
+  {
+    $lookup: {
+      from: "male_coaches",
+      localField: "coach_id",
+      foreignField: "coach_id",
+      as: "coach_info"
+    }
+  },
+  {
+    $unwind: {
+      path: "$coach_info",
+      preserveNullAndEmptyArrays: true
+    }
+  },
   {
     $group: {
       _id: "$team_id",
@@ -187,7 +260,11 @@ db.male_teams.aggregate([
       gender: { $first: "male" },
       fifaStats: {
         $push: {
-          coach_id: "$coach_id",
+          coach: {
+            coach_mongo_id: "$coach_info._id",
+            coach_id: "$coach_id",
+            coach_name: "$coach_info.long_name"
+          },
           fifa_version: "$fifa_version",
           league_id: "$league_id",
           league_name: "$league_name",
@@ -232,6 +309,7 @@ db.male_teams.aggregate([
   }
 ])
 
+
 ________________________________________________________________________________________________________________________________________
 
 db.articles.aggregate([
@@ -264,6 +342,15 @@ db.articles.aggregate([
 
 _____________________________________________________________________________________________
 
+//Function for hashing the password
+const crypto = require('crypto');
+
+function createSHA256Hash(inputString) {
+    const hash = crypto.createHash('sha256');
+    hash.update(inputString);
+    return hash.digest('hex');
+}
+
 // Function to generate a random alphanumeric password
 function generateRandomPassword(length = 12) {
     const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -271,28 +358,79 @@ function generateRandomPassword(length = 12) {
     for (let i = 0; i < length; i++) {
         password += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return password;
+    return createSHA256Hash(password);
+}
+
+//Function to generate random signup date
+const startDate= new Date(2019,1,1);
+const endDate= new Date(2022,12,31);
+function generateRandomDate(startDate, endDate) {
+  // Check if the input dates are valid
+  if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
+    console.error("Invalid input: Both startDate and endDate must be Date objects.");
+    return null;
+  }
+
+  // Check if startDate is before endDate
+  if (startDate > endDate) {
+    console.error("Invalid input: startDate must be before endDate.");
+    return null;
+  }
+
+  // Calculate the time difference in milliseconds
+  const startTime = startDate.getTime();
+  const endTime = endDate.getTime();
+  const timeDifference = endTime - startTime;
+
+  // Generate a random time within the range
+  const randomTime = Math.random() * timeDifference;
+
+  // Create a new Date object with the random time
+  const randomDate = new Date(startTime + randomTime);
+
+  // Return a new Date object with only the year, month, and day.
+  const year = randomDate.getFullYear();
+  const month = randomDate.getMonth();
+  const day = randomDate.getDate();
+  return new Date(year, month, day).toLocaleDateString();
 }
 
 // Retrieve all distinct authors from the Articles collection
-const authors = db.Articles.distinct("author");
+const articles = db.Articles.find();
+const authorPatterns = [" / Author","By "," and ","GFFN | "];
 
 // Iterate over each author to create a corresponding user
-authors.forEach(author => {
-    // Skip entries where the author field is null or empty
-    if (!author || author.trim() === "") {
+articles.forEach(article => {
+    // Skip entries where the author field and publish time , null or empty
+    //also some articles don't have an author correctly set
+    //instead they have a long phrase
+    //if the string is longer than 5 words
+
+    let varAuthor=article.author;
+    
+
+    if (!varAuthor || varAuthor.length==0 || varAuthor.split(" ").length>5) {
         return;
     }
+    
+
+    //removing if present some string patterns
+    authorPatterns.forEach(pattern => {
+    	if (varAuthor.includes(pattern)) {
+		varAuthor=varAuthor.replace(pattern,"");
+    	}
+    });
 
     // Check if a user with the same username already exists
-    if (db.Users.findOne({ username: author })) {
+    if (db.Users.findOne({ username: varAuthor })) {
         return;
     }
-
+    
     // Create the user document with username, random password, and role
     db.Users.insertOne({
-        username: author,
-        password: generateRandomPassword(), // Note: This is plaintext; consider hashing
+        username: varAuthor,
+        password: generateRandomPassword(),
+	signup_date:generateRandomDate(startDate,endDate),
         roles: ["ROLE_USER"]
     });
 });

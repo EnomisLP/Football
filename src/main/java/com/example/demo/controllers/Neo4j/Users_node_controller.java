@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
+import com.example.demo.models.Neo4j.ArticlesNode;
 import com.example.demo.models.Neo4j.UsersNode;
 import com.example.demo.projections.UsersNodeProjection;
 import com.example.demo.relationships.has_in_F_team;
@@ -50,6 +51,21 @@ public class Users_node_controller {
                                        @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
         return Uns.getAllUsers(pageable);
+    }
+
+    @GetMapping("/user/{username}/articles")
+    @Operation(summary = "READ: get all articles of a user")
+    public Page<ArticlesNode> getUserArticles(@PathVariable String username,
+                                           @RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "50") int size) {
+        PageRequest pageable = PageRequest.of(page, size);
+        return Uns.getUserArticles(username, pageable);
+    }
+
+    @GetMapping("/user/{username}/articles/{articleId}")
+    @Operation(summary = "READ: get a specific article of a user")
+    public ArticlesNode getUserArticle(@PathVariable String username, @PathVariable Long articleId) {
+        return Uns.getSpecificUserArticle(username, articleId);
     }
 
     @GetMapping("/user/fifaMStats")
@@ -111,6 +127,17 @@ public class Users_node_controller {
         return Uns.UNFOLLOW(auth.getName(), target);
     }
 
+    //LIKE / UNLIKE ARTICLES
+    @PostMapping("/user/like/article/{articleId}")
+    public CompletableFuture<String> articleLIKE(@PathVariable Long articleId, Authentication auth) {
+        return Uns.LIKE_ARTICLE(auth.getName(), articleId);
+    }
+
+    @DeleteMapping("/user/unlike/article/{articleId}")
+    public CompletableFuture<String> articleUNLIKE(@PathVariable Long articleId, Authentication auth) {
+        return Uns.UNLIKE_ARTICLE(auth.getName(), articleId);
+    }
+    
     // ADD TO TEAM
     @PostMapping("/user/MaleTeam/{playerId}/{fifaValue}")
     public String add_in_M_Team(@PathVariable Integer playerId, @PathVariable int fifaValue, Authentication auth) {
@@ -151,12 +178,6 @@ public class Users_node_controller {
     @DeleteMapping("/user/unlike/coach/{targetId}")
     public CompletableFuture<String> coachUNLIKE(@PathVariable Long targetId, Authentication auth) {
         return Uns.coach_UNLIKE(auth.getName(), targetId.intValue());
-    }
-
-    //TEST to compare speed of follow method
-    @PutMapping("/user/test/follow/{target}")
-    public String follow(@PathVariable String target, Authentication auth) {
-        return Uns.follow(auth.getName(), target).toString();
     }
     
 }

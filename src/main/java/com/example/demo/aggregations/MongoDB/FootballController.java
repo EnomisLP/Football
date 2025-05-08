@@ -22,7 +22,7 @@ public class FootballController {
     @Autowired
     private FootballService footballService;
 
-    @GetMapping("/top-clubs")
+   /*  @GetMapping("/top-clubs")
     @Operation(summary = "Get top clubs by average overall rating")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved top clubs"),
@@ -31,7 +31,7 @@ public class FootballController {
     public List<ClubAverage> getTopClubs() {
         return footballService.getTopClubsByAverageOverall();
     }
-
+    */
     @GetMapping("/coach/{coachId}/top-players")
     @Operation(summary = "Get top players managed by a specific coach")
     @ApiResponses(value = {

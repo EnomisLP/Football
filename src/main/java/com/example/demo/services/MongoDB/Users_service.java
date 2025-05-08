@@ -12,9 +12,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.example.demo.models.MongoDB.Articles;
 import com.example.demo.models.MongoDB.ROLES;
 import com.example.demo.models.MongoDB.Users;
+import com.example.demo.models.Neo4j.ArticlesNode;
 import com.example.demo.models.Neo4j.UsersNode;
 import com.example.demo.repositories.MongoDB.Articles_repository;
 import com.example.demo.repositories.MongoDB.Users_repository;
+import com.example.demo.repositories.Neo4j.Articles_node_rep;
 import com.example.demo.repositories.Neo4j.Users_node_rep;
 import com.example.demo.requets.createArticleRequest;
 import com.example.demo.requets.createUserRequest;
@@ -35,14 +37,16 @@ public class Users_service {
     private final Users_node_service UNs;
     private final PasswordEncoder passwordEncoder;
     private final Articles_repository Ar;
+    private final Articles_node_rep AR;
 
     public Users_service(Users_repository ur, Users_node_rep UNR, PasswordEncoder pe,
-    Articles_repository ar, Users_node_service uns){
+    Articles_repository ar, Users_node_service uns, Articles_node_rep articleNode) {
         this.Ur = ur;
         this.UNr = UNR;
         this.passwordEncoder=pe;
         this.Ar = ar;
         this.UNs = uns;
+        this.AR = articleNode;
     }
     
     public Page<Users> getAllUsers(PageRequest page){
@@ -64,9 +68,11 @@ public class Users_service {
         if(!optionalUser.isPresent()){
             Users userNew = new Users();
             UsersNode userNode = new UsersNode();
+            Date signUpDate = new Date();
             
             userNew.setUsername(request.getUsername());
             userNew.setRoles(request.getRoles());
+            userNew.setSignup_date(signUpDate.toString());
             // Hash the password using BCrypt
             String hashedPassword = passwordEncoder.encode(request.getPassword());
             userNew.setPassword(hashedPassword);
@@ -132,49 +138,27 @@ public class Users_service {
     )
     public CompletableFuture<Articles> createArticle(String username, createArticleRequest request){
         Optional<Users> optionalUser = Ur.findByUsername(username);
-        if(optionalUser.isPresent()){
+        Optional<UsersNode> optionalUserNode = UNr.findByUserName(username);
+        if(optionalUser.isPresent() && optionalUserNode.isPresent()){
             Users existiUsers = optionalUser.get();
+            UsersNode existiUsersNode = optionalUserNode.get();
             Articles newArticle = new Articles();
+            ArticlesNode articleNode = new ArticlesNode();
             newArticle.setAuthor(existiUsers.getUsername());
             newArticle.setTitle(request.getTitle());
             newArticle.setContent(request.getContent());
             Date publishTime = new Date();
             newArticle.setPublish_time(publishTime.toString());
             Articles savedArticle = Ar.save(newArticle);
+            articleNode.setMongoId(savedArticle.get_id());
+            articleNode.setTitle(savedArticle.getTitle());
+            articleNode.setAuthor(existiUsers.getUsername());
+            AR.save(articleNode);
+            existiUsersNode.getArticlesNodes().add(articleNode);
+            UNr.save(existiUsersNode);
             return CompletableFuture.completedFuture(savedArticle);
         }else{
             throw new RuntimeErrorException(null, "User not found with username: " + username);
-        }
-    }
-    public List<Articles> showUserArticles(String username){
-        Optional<Users> optionalUser = Ur.findByUsername(username);
-        if(optionalUser.isPresent()){
-            Users existiUsers = optionalUser.get();
-            List<Articles> articles = Ar.findByAuthor(existiUsers.getUsername());
-            if(articles.isEmpty()){
-                throw new RuntimeErrorException(null, "User not found with username: " + username + " or no articles found for this user");
-            }
-            return articles;
-        }
-        else{
-            throw new RuntimeErrorException(null, "User not found with username: " + username);
-        }
-    }
-    public Articles showUserArticle(String username,String articleId){
-        Optional<Users> optionalUser = Ur.findByUsername(username);
-        Optional<Articles> optionalArticle = Ar.findById(articleId);
-        if(optionalUser.isPresent() && optionalArticle.isPresent()){
-            Articles existingArticle = optionalArticle.get();
-            Users existingUser = optionalUser.get();
-            if(existingArticle.getAuthor().equals(existingUser.getUsername())){
-                return existingArticle;
-            }
-            else{
-                throw new RuntimeErrorException(null, "User not found with username: " + username+" or Article not present with id:" + articleId);
-            }
-        }
-        else{
-            throw new RuntimeErrorException(null, "User not found with username: " + username+" or Article not present with id:" + articleId);
         }
     }
     @Async("customAsyncExecutor")
@@ -187,12 +171,16 @@ public class Users_service {
     public CompletableFuture<Articles> modifyArticle(String username, String articleId, createArticleRequest request){
         Optional<Users> optionalUser = Ur.findByUsername(username);
         Optional<Articles> optionalArticle = Ar.findById(articleId);
-        if(optionalUser.isPresent() && optionalArticle.isPresent()){
+        Optional<ArticlesNode> optionalArticleNode = AR.findByMongoId(articleId);
+        if(optionalUser.isPresent() && optionalArticle.isPresent() && optionalArticleNode.isPresent()){
             Articles existingArticle = optionalArticle.get();
             Users existingUser = optionalUser.get();
-            if(existingArticle.getAuthor().equals(existingUser.getUsername())){
+            ArticlesNode existingArticleNode = optionalArticleNode.get();
+            if(existingArticle.getAuthor().equals(existingUser.getUsername()) && existingArticleNode.getAuthor().equals(existingUser.getUsername())){
                 existingArticle.setContent(request.getContent());
                 existingArticle.setTitle(request.getTitle());
+                existingArticleNode.setTitle(request.getTitle());
+                AR.save(existingArticleNode);
                 Date newPublishTime = new Date();
                 existingArticle.setPublish_time(newPublishTime.toString());
                 return CompletableFuture.completedFuture(Ar.save(existingArticle));
@@ -205,6 +193,38 @@ public class Users_service {
             throw new RuntimeErrorException(null, "User not found with username: " + username+" or Article not present with id:" + articleId);
         }
         
+    }
+    
+    @Async("customAsyncExecutor")
+    @Transactional
+    @Retryable(
+        value = { Exception.class },
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public CompletableFuture<String> deleteArticle(String username, String articleId){
+        Optional<Users> optionalUser = Ur.findByUsername(username);
+        Optional<Articles> optionalArticle = Ar.findById(articleId);
+        Optional<ArticlesNode> optionalArticleNode = AR.findByMongoId(articleId);
+        Optional<UsersNode> optionalUserNode = UNr.findByUserName(username);
+        if(optionalUser.isPresent() && optionalArticle.isPresent() && optionalArticleNode.isPresent() && optionalUserNode.isPresent()){
+            Articles existingArticle = optionalArticle.get();
+            Users existingUser = optionalUser.get();
+            ArticlesNode existingArticleNode = optionalArticleNode.get();
+            UsersNode existingUserNode = optionalUserNode.get();
+            if(existingArticle.getAuthor().equals(existingUser.getUsername()) && existingArticleNode.getAuthor().equals(existingUserNode.getUserName())){
+                Ar.deleteById(articleId);
+                AR.delete(existingArticleNode);
+                UNr.save(existingUserNode);
+                return CompletableFuture.completedFuture("Article deleted correctly!");
+            }
+            else{
+                throw new RuntimeErrorException(null, "User not found with username: " + username+" or Article not present with id:" + articleId);
+            }
+        }
+        else{
+            throw new RuntimeErrorException(null, "User not found with username: " + username+" or Article not present with id:" + articleId);
+        }
     }
     //OPERATIONS TO MANAGE AUTHENTICATION
     @Transactional

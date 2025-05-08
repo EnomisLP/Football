@@ -1,5 +1,7 @@
 package com.example.demo.models.MongoDB;
 
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -34,5 +36,6 @@ public class Coaches{
     @Field("gender")
     @Indexed
     private String gender;
+    private List<TeamObj> teams;
     //Constructors, Getters and Setters automatically Generated
 }

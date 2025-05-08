@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.MongoDB.Coaches;
 import com.example.demo.services.MongoDB.Coaches_service;
 import com.example.demo.requets.updateCoach;
+import com.example.demo.requets.updateTeamCoach;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -49,6 +51,20 @@ public class Coaches_controller {
     @Operation(summary = "UPDATE: Update an existing coach by ID")
     public Coaches updateCoach(@PathVariable String _id, @RequestBody updateCoach coachDetails) {
         return coachesMservice.updateCoach(_id, coachDetails);
+    }
+
+    // UPDATE: update team of an existing coach by ID
+    @PutMapping("/admin/updateTeam/{_id}/{fifaV}")
+    @Operation(summary = "UPDATE: update team of an existing coach by ID")
+    public Coaches updateTeam(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateTeamCoach coachDetails) {
+        return coachesMservice.updateTeamCoach(_id, fifaV, coachDetails);
+    }
+
+    // UPDATE: Update FIFA version of a coach by ID
+    @PutMapping("/admin/{_id}/{oldFifa}/{newFifa}/fifaVersion/{fifaV}")
+    @Operation(summary = "UPDATE: Update FIFA version of a coach by ID")
+    public Coaches updateFifaVersion(@PathVariable String _id, @PathVariable Integer oldFifa, @PathVariable Integer newFifa, @PathVariable Integer fifaV) {
+        return coachesMservice.updateFifaCoach(_id, oldFifa, newFifa);
     }
 
     // DELETE: Delete a coach by ID

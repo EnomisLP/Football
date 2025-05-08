@@ -36,25 +36,4 @@ public class Articles_controller {
         return articlesService.getAllArticles(pageable);
     }
 
-    // CREATE: Create a new article
-    @PostMapping("/admin")
-    @Operation(summary = "CREATE: Create a new article")
-    public Articles createArticle(@RequestBody Articles article) {
-        return articlesService.createArticle(article);
-    }
-
-    // UPDATE: Update an existing article by ID
-    @PutMapping("/admin/{id}")
-    @Operation(summary = "UPDATE: Update an existing article")
-    public Articles updateArticle(@PathVariable String id, @RequestBody updateArticle details) {
-        return articlesService.updateArticle(id, details);
-    }
-
-    // DELETE: Delete an article by ID
-    @DeleteMapping("/admin/{id}")
-    @Operation(summary = "DELETE: Delete an article by ID")
-    public ResponseEntity<Void> deleteArticle(@PathVariable String id) {
-        articlesService.deleteArticle(id);
-        return ResponseEntity.noContent().build();
-    }
 }

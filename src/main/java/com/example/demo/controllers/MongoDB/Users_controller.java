@@ -74,18 +74,6 @@ public class Users_controller {
         return usersService.createArticle(auth.getName(), request);
     }
 
-    @GetMapping("/user/articles")
-    @Operation(summary = "READ: show all User Articles")
-    public List<Articles> getAllArticles(Authentication auth) {
-        return usersService.showUserArticles(auth.getName());
-    }
-
-    @GetMapping("/user/articles/{articleId}")
-    @Operation(summary = "READ: show a specific User Article")
-    public Articles getArticle(@PathVariable String articleId, Authentication auth) {
-        return usersService.showUserArticle(auth.getName(), articleId);
-    }
-
     @PutMapping("/user/articles/{articleId}")
     @Operation(summary = "UPDATE: modify a specific User Article")
     public CompletableFuture<Articles> modifyArticle(@PathVariable Long articleId,
@@ -94,6 +82,12 @@ public class Users_controller {
         return usersService.modifyArticle(auth.getName(), auth.getName(), request);
     }
 
+    @DeleteMapping("/user/articles/{articleId}")
+    @Operation(summary = "DELETE: delete a specific User Article")
+    public CompletableFuture<String> deleteArticle(@PathVariable String articleId, Authentication auth) {
+        return usersService.deleteArticle(auth.getName(), articleId);
+    }
+    
     @PostMapping("/registration")
     @Operation(summary = "Register a new User")
     public Users register(@RequestBody RegisterUserRequest request) {

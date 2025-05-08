@@ -24,6 +24,7 @@ import com.example.demo.models.MongoDB.FifaStatsPlayer;
 
 import com.example.demo.models.MongoDB.Players;
 import com.example.demo.models.MongoDB.Users;
+import com.example.demo.models.Neo4j.ArticlesNode;
 import com.example.demo.models.Neo4j.CoachesNode;
 import com.example.demo.models.Neo4j.PlayersNode;
 import com.example.demo.models.Neo4j.TeamsNode;
@@ -33,6 +34,7 @@ import com.example.demo.relationships.has_in_F_team;
 import com.example.demo.relationships.has_in_M_team;
 import com.example.demo.repositories.MongoDB.Players_repository;
 import com.example.demo.repositories.MongoDB.Users_repository;
+import com.example.demo.repositories.Neo4j.Articles_node_rep;
 import com.example.demo.repositories.Neo4j.Coaches_node_rep;
 import com.example.demo.repositories.Neo4j.Players_node_rep;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
@@ -52,19 +54,21 @@ public class Users_node_service {
     private final Teams_node_rep TMn;
     private final Coaches_node_rep CMn;
     private static final AtomicInteger interactionCounter = new AtomicInteger(0);
+    private final Articles_node_rep AR;
 
     @Autowired
     private Neo4jClient neo4jClient;
 
 
     public Users_node_service(Users_node_rep unr, Users_repository ur, Players_node_rep pmnr,
-        Teams_node_rep tmn, Players_repository pmr, Coaches_node_rep cmn) {
+        Teams_node_rep tmn, Players_repository pmr, Coaches_node_rep cmn, Articles_node_rep ar) {
         this.Unr = unr;
         this.Ur = ur;
         this.PMNr = pmnr;
         this.PMr = pmr;
         this.TMn = tmn;
         this.CMn = cmn;
+        this.AR = ar;
     }
 
 
@@ -171,6 +175,35 @@ public class Users_node_service {
     
     public List<UsersNodeProjection> getFollowedBy(String username) {
         return Unr.findFollowersByUserName(username);
+    }
+    
+    public Page<ArticlesNode> getUserArticles(String username, PageRequest page){
+        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
+        if(optionalUserNode.isPresent()){
+            UsersNode existingUsersNode = optionalUserNode.get();
+            return AR.findAllByUsersNode(existingUsersNode, page);
+        }
+        else{
+            throw new RuntimeException("User with id: " + username + " not found");
+        }
+    }
+    
+    public ArticlesNode getSpecificUserArticle(String username, Long articleId){
+        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
+        Optional<ArticlesNode> optionalArticleNode = AR.findByMongoId(String.valueOf(articleId));
+        if(optionalUserNode.isPresent() && optionalArticleNode.isPresent()){
+            UsersNode existingUsersNode = optionalUserNode.get();
+            ArticlesNode existingArticlesNode = optionalArticleNode.get();
+            if(existingUsersNode.getArticlesNodes().contains(existingArticlesNode)){
+                return existingArticlesNode;
+            }
+            else{
+                throw new RuntimeException("Article with id: " + articleId + " not found for user: " + username);
+            }
+        }
+        else{
+            throw new RuntimeException("User with id: " + username + " or Article with id: " + articleId + " not found");
+        }
     }
     //OPERATIONS TO MANAGE PLAYERS IN THE TEAM OF A USER
     @Transactional
@@ -328,6 +361,57 @@ public class Users_node_service {
     }
 
     //----------------USER INTERACTIONS------------------
+    @Async("customAsyncExecutor")
+    @Transactional
+    @Retryable(
+        value = { Exception.class },
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public CompletableFuture<String> LIKE_ARTICLE(String username, Long articleId) {
+        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
+        Optional<ArticlesNode> optionalArticleNode = AR.findByMongoId(String.valueOf(articleId));
+    
+        if (optionalUserNode.isPresent() && optionalArticleNode.isPresent()) {
+            UsersNode usersNode = optionalUserNode.get();
+            ArticlesNode articlesNode = optionalArticleNode.get();
+    
+            // Add the article to the user's liked articles
+            usersNode.getArticlesNodes().add(articlesNode);
+            Unr.save(usersNode);
+    
+            return CompletableFuture.completedFuture("User: " + username + " now likes article with id: " + articleId);
+        } else {
+            throw new RuntimeException("User: " + username + " or Article with id: " + articleId + " not found");
+        }
+    }
+
+
+    @Async("customAsyncExecutor")
+    @Transactional
+    @Retryable(
+        value = { Exception.class },
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public CompletableFuture<String> UNLIKE_ARTICLE(String username, Long articleId) {
+        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
+        Optional<ArticlesNode> optionalArticleNode = AR.findByMongoId(String.valueOf(articleId));
+    
+        if (optionalUserNode.isPresent() && optionalArticleNode.isPresent()) {
+            UsersNode existingUsersNode = optionalUserNode.get();
+            ArticlesNode existingArticlesNode = optionalArticleNode.get();
+    
+            // Remove the article from the user's liked articles
+            existingUsersNode.getArticlesNodes().remove(existingArticlesNode);
+            Unr.save(existingUsersNode);
+    
+            return CompletableFuture.completedFuture("User: " + username + " is not liking article with id: " + articleId + " anymore");
+        } else {
+            throw new RuntimeException("User: " + username + " or Article with id: " + articleId + " not found");
+        }
+    }
+
     @Async("customAsyncExecutor")
     @Transactional
     @Retryable(
@@ -600,42 +684,5 @@ public class Users_node_service {
         return "The amount of UsersNode created are: " + usersToAdd.size();
     }
 
-    //------------------------SPEED TEST------------------------
-    //Exactly same service of follow but without async and retryable
-    // This is to see the difference in speed between the two methods
-    @Transactional
-    public String follow(String Username, String targetUsername) {
-    long startTime = System.currentTimeMillis(); // Start timer
-    System.out.println("FOLLOW request started: "+ Username +" -> " + targetUsername);
-
-    interactionCounter.incrementAndGet(); // Count interaction
-
-    if (Username.equals(targetUsername)) return "You cannot follow yourself.";
-
-    Optional<UsersNode> Opt = Unr.findByUserName(Username);
-    Optional<UsersNode> targetOpt = Unr.findByUserName(targetUsername);
-
-    if (Opt.isPresent() && targetOpt.isPresent()) {
-        UsersNode user = Opt.get();
-        UsersNode target = targetOpt.get();
-
-        if (!user.getFollowings().contains(target)) {
-            user.getFollowings().add(target);
-        }
-        if (!target.getFollowers().contains(user)) {
-            target.getFollowers().add(user);
-        }
-
-        Unr.save(user); 
-        Unr.createFollowRelation(user.getUserName(), target.getUserName());
-
-        long endTime = System.currentTimeMillis(); // End timer
-        System.out.println("FOLLOW completed in " + (endTime - startTime) +" ms. Total calls: "+ interactionCounter.get());
-
-        return "User: " + Username + " now follows user: " + targetUsername;
-    } else {
-        throw new RuntimeException("User(s) not found");
-    }
-}
 }
 

@@ -12,7 +12,6 @@ import lombok.Setter;
 public class FifaStatsTeam {
   
     private Integer fifa_version;
-    private Integer coach_id;
     private Long league_id;
     private String league_name;
     private Integer league_level;
@@ -35,6 +34,6 @@ public class FifaStatsTeam {
     private Integer off_players_in_box;
     private Integer off_corners;
     private Integer off_free_kicks;
-    
+    private CoachObj coach;
     //Constructor, Getters and Setters automatically generated
 }

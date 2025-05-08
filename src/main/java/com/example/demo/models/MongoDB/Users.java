@@ -29,6 +29,8 @@ public class Users {
     private String username;
     @Field("password")
     private String password;
+    @Field("signup_date")
+    private String signup_date;
     private List<ROLES> roles;
 
 }

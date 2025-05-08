@@ -10,6 +10,7 @@ import com.example.demo.models.MongoDB.Coaches;
 import com.example.demo.models.MongoDB.Players;
 import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.services.MongoDB.Teams_service;
+import com.example.demo.requets.updateCoachTeam;
 import com.example.demo.requets.updateFifaTeam;
 import com.example.demo.requets.updateTeam;
 import io.swagger.v3.oas.annotations.Operation;
@@ -89,6 +90,13 @@ public class Teams_controller {
     @Operation(summary = "UPDATE: Update a FIFA version of a team")
     public Teams updateFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateFifaTeam teamDetails) {
         return teamsMService.updateFifaTeam(_id, fifaV, teamDetails);
+    }
+
+    //UPDATE : Update a coach of a team
+    @PutMapping("/admin/{_id}/{fifaV}/coach/{fifaV}")
+    @Operation(summary = "UPDATE: Update a coach of a team")
+    public Teams updateCoach(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateCoachTeam coachDetails) {
+        return teamsMService.updateCoachTeam(_id, fifaV, coachDetails);
     }
 
     // DELETE: Delete a team by ID

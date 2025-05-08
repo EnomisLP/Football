@@ -21,7 +21,7 @@ public interface Teams_repository extends MongoRepository<Teams,String>{
     @Query("{ 'gender' : ?0 }")
     Page<Teams> findAllByGender(String gender, PageRequest page);
     
-    @Query("{ 'fifaStats.coach_id' : ?0 }")
+    @Query("{ 'fifaStats.coach.coach_id' : ?0 }")
     List<Teams> findByCoachId(Integer coach_id);
 
     @Query("""
@@ -43,4 +43,5 @@ public interface Teams_repository extends MongoRepository<Teams,String>{
         }
     """)
     List<Teams> findTeamsByPlayerIdInFifaStats(Integer playerId);
+    Optional<Teams> findByTeamName(String team_name);
 }

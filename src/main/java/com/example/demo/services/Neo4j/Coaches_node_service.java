@@ -57,32 +57,6 @@ public class Coaches_node_service {
         return CMn.findAllByGenderWithPagination(gender, page);
     }
 
-    // UPDATE
-    public CoachesNode updateCoach(Long id, CoachesNode coachDetails) {
-        Optional<CoachesNode> optionalCoachNode = CMn.findById(id);
-        Optional<Coaches> optionalCoach = optionalCoachNode.flatMap(c -> Cmr.findById(c.getMongoId()));
-        if (optionalCoachNode.isPresent() && optionalCoach.isPresent()) {
-            CoachesNode existingCoachNode = optionalCoachNode.get();
-            Coaches existingCoach = optionalCoach.get();
-
-            // Update Neo4j node
-            existingCoachNode.setCoachId(coachDetails.getCoachId());
-            existingCoachNode.setLongName(coachDetails.getLongName());
-            existingCoachNode.setNationalityName(coachDetails.getNationalityName());
-            existingCoachNode.setGender(coachDetails.getGender());
-
-            // Update MongoDB document
-            existingCoach.setCoach_id(coachDetails.getCoachId());
-            existingCoach.setLong_name(coachDetails.getLongName());
-            existingCoach.setNationality_name(coachDetails.getNationalityName());
-            existingCoach.setGender(coachDetails.getGender());
-
-            Cmr.save(existingCoach);
-            return CMn.save(existingCoachNode);
-        } else {
-            throw new RuntimeErrorException(null, "Coach with id: " + id + " not correctly mapped on MongoDB or Neo4j");
-        }
-    }
 
     private void ensureCoachNodeIndexes() {
         neo4jClient.query("""
@@ -147,18 +121,12 @@ public class Coaches_node_service {
                 System.err.println("Team with id: " + teamNode.getMongoId() + " not correctly mapped in MongoDB");
                 continue;
             }
-    
             Teams existingTeam = optionalTeam.get();
-            //List<FifaStatsTeam> fifaStats = existingTeam.getFifaStatsT();
-            //if (fifaStats.isEmpty()) {
-            //    System.err.println("Team with id: " + teamNode.getMongoId() + " without stats");
-            //    continue;
-           // }
     
             for (FifaStatsTeam fifaStat : existingTeam.getFifaStats()) {
-                Optional<Coaches> optionalCoach = Cmr.findByCoachId(fifaStat.getCoach_id());
+                Optional<Coaches> optionalCoach = Cmr.findByCoachId(fifaStat.getCoach().getCoach_id());
                 if (optionalCoach.isEmpty()) {
-                    System.err.println("Coach with id: " + fifaStat.getCoach_id() + " not correctly mapped in MongoDB");
+                    System.err.println("Coach with id: " + fifaStat.getCoach().getCoach_id() + " not correctly mapped in MongoDB");
                     continue;
                 }
     

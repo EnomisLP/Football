@@ -26,7 +26,7 @@ public class FootballService {
 
     /**
      * Return the top 10 clubs by average overall rating,
-     * grouped by club name     */
+     * grouped by club name     
     public List<ClubAverage> getTopClubsByAverageOverall() {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.unwind("fifaStats"),
@@ -50,7 +50,7 @@ public class FootballService {
         return results.getMappedResults();
     }
     
-    
+    */
     
 
     /**
