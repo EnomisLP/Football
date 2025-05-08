@@ -61,9 +61,9 @@ public class Coaches_controller {
     }
 
     // UPDATE: Update FIFA version of a coach by ID
-    @PutMapping("/admin/{_id}/{oldFifa}/{newFifa}/fifaVersion/{fifaV}")
+    @PutMapping("/admin/{_id}/{oldFifa}/{newFifa}/fifaVersion")
     @Operation(summary = "UPDATE: Update FIFA version of a coach by ID")
-    public Coaches updateFifaVersion(@PathVariable String _id, @PathVariable Integer oldFifa, @PathVariable Integer newFifa, @PathVariable Integer fifaV) {
+    public Coaches updateFifaVersion(@PathVariable String _id, @PathVariable Integer oldFifa, @PathVariable Integer newFifa) {
         return coachesMservice.updateFifaCoach(_id, oldFifa, newFifa);
     }
 

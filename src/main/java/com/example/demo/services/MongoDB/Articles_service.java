@@ -9,21 +9,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.MongoDB.Articles;
-import com.example.demo.models.Neo4j.ArticlesNode;
-import com.example.demo.requets.updateArticle;
 import com.example.demo.repositories.MongoDB.Articles_repository;
 
-import jakarta.transaction.Transactional;
+
 
 @Service
 public class Articles_service {
     
     private final Articles_repository Ar;
-    private final ArticlesNode articleNode;
+    
 
-    public Articles_service(Articles_repository ar, ArticlesNode articleNode) {
+    public Articles_service(Articles_repository ar ) {
         this.Ar = ar;
-        this.articleNode = articleNode;
+        
     }
 
     //READ

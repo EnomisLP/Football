@@ -181,7 +181,7 @@ public class Users_node_service {
         Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
         if(optionalUserNode.isPresent()){
             UsersNode existingUsersNode = optionalUserNode.get();
-            return AR.findAllByUsersNode(existingUsersNode, page);
+            return AR.findAllByAuthor(existingUsersNode.getUserName(), page);
         }
         else{
             throw new RuntimeException("User with id: " + username + " not found");
@@ -396,7 +396,7 @@ public class Users_node_service {
     )
     public CompletableFuture<String> UNLIKE_ARTICLE(String username, Long articleId) {
         Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<ArticlesNode> optionalArticleNode = AR.findByMongoId(String.valueOf(articleId));
+        Optional<ArticlesNode> optionalArticleNode = AR.findById(articleId);
     
         if (optionalUserNode.isPresent() && optionalArticleNode.isPresent()) {
             UsersNode existingUsersNode = optionalUserNode.get();

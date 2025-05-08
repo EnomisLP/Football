@@ -86,14 +86,14 @@ public class Teams_controller {
     }
 
     // UPDATE: Update a fifa version of a team
-    @PutMapping("/admin/{_id}/fifaV/{fifaV}")
+    @PutMapping("/admin/{_id}/FifaTeam/{fifaV}")
     @Operation(summary = "UPDATE: Update a FIFA version of a team")
     public Teams updateFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateFifaTeam teamDetails) {
         return teamsMService.updateFifaTeam(_id, fifaV, teamDetails);
     }
 
     //UPDATE : Update a coach of a team
-    @PutMapping("/admin/{_id}/{fifaV}/coach/{fifaV}")
+    @PutMapping("/admin/{_id}/{fifaV}/coach")
     @Operation(summary = "UPDATE: Update a coach of a team")
     public Teams updateCoach(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateCoachTeam coachDetails) {
         return teamsMService.updateCoachTeam(_id, fifaV, coachDetails);
@@ -108,7 +108,7 @@ public class Teams_controller {
     }
 
     // DELETE: Delete a team by ID and FIFA version
-    @DeleteMapping("/admin/{_id}/fifaV/{fifaV}")
+    @DeleteMapping("/admin/{_id}/FifaTeam/{fifaV}")
     @Operation(summary = "DELETE: Delete a team by its ID and FIFA version")
     public ResponseEntity<Void> deleteTeamByFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV) {
         teamsMService.deleteFifaTeam(_id, fifaV);

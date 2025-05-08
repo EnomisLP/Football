@@ -43,5 +43,6 @@ public interface Teams_repository extends MongoRepository<Teams,String>{
         }
     """)
     List<Teams> findTeamsByPlayerIdInFifaStats(Integer playerId);
+    @Query("{ 'team_name' : ?0 }")
     Optional<Teams> findByTeamName(String team_name);
 }
