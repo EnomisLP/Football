@@ -23,6 +23,8 @@ import com.example.demo.repositories.MongoDB.Teams_repository;
 import com.example.demo.repositories.Neo4j.Coaches_node_rep;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class Coaches_node_service {
 
@@ -71,9 +73,9 @@ public class Coaches_node_service {
             CREATE INDEX gender IF NOT EXISTS FOR (c:CoachesNode) ON (c.gender)
         """).run();
     }
-    public String MapAllTheNodes() {
-        // Ensure indexes are created before mapping nodes
-        ensureCoachNodeIndexes();
+
+    @Transactional
+    public String doMapAllTheNodes(){
         List<Coaches> Allcoaches = Cmr.findAll();
         List<CoachesNode> nodeToInsert = new ArrayList<>();
         System.out.println("Coaches found :" + Allcoaches.size());
@@ -94,6 +96,12 @@ public class Coaches_node_service {
         }
         CMn.saveAll(nodeToInsert);
         return "The amount of CoachesNode created are: " + nodeToInsert.size();
+    }
+    public String MapAllTheNodes() {
+        // Ensure indexes are created before mapping nodes
+        ensureCoachNodeIndexes();
+        return doMapAllTheNodes();
+        
     }
     // DELETE
     public void deleteCoach(Long id) {

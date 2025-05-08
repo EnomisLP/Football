@@ -10,9 +10,11 @@ import com.example.demo.aggregations.DTO.MostEngaggedPlayer;
 import com.example.demo.aggregations.DTO.TopTeam;
 import com.example.demo.aggregations.DTO.UserInterestDiversity;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/Neo4jAggregations")
+@RequestMapping("/api/v1/Neo4j Aggregations")
+@Tag(name = "Neo4j Aggregations", description = "Aggregations for Neo4j")
 public class NodeController {
 
     private final NodeService teamsNodeService;

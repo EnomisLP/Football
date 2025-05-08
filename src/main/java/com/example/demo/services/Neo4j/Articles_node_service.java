@@ -70,18 +70,17 @@ public class Articles_node_service {
         """).run();
     }
     @Transactional
-    public String MappAllArticles(){
+    public String doMappAllArticles(){
         int count = 0;
-        ensureArticlesNodeIndexes();
         List<Articles> articles = ArM.findAll();
         List<ArticlesNode> articlesNodes = new ArrayList<>();
         for (Articles article : articles) {
-            ArticlesNode articleNode = new ArticlesNode();
             Optional<ArticlesNode> existingArticle = Ar.findByMongoId(article.get_id());
             if(existingArticle.isPresent()){
                 continue;
             }
             else{
+                ArticlesNode articleNode = new ArticlesNode();
                 articleNode.setTitle(article.getTitle());
                 articleNode.setAuthor(article.getAuthor());
                 articleNode.setMongoId(article.get_id());
@@ -92,5 +91,10 @@ public class Articles_node_service {
         }
         Ar.saveAll(articlesNodes);
         return "Mapped " + count + " articles successfully.";
+    }
+    
+    public String MappAllArticles(){
+        ensureArticlesNodeIndexes();
+        return doMappAllArticles();
     }
 }

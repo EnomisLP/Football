@@ -53,19 +53,19 @@ public class Users_node_controller {
         return Uns.getAllUsers(pageable);
     }
 
-    @GetMapping("/user/{username}/articles")
+    @GetMapping("/user/articles")
     @Operation(summary = "READ: get all articles of a user")
-    public Page<ArticlesNode> getUserArticles(@PathVariable String username,
+    public Page<ArticlesNode> getUserArticles(Authentication auth,
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
-        return Uns.getUserArticles(username, pageable);
+        return Uns.getUserArticles(auth.getName(), pageable);
     }
 
-    @GetMapping("/user/{username}/articles/{articleId}")
+    @GetMapping("/user/articles/{articleId}")
     @Operation(summary = "READ: get a specific article of a user")
-    public ArticlesNode getUserArticle(@PathVariable String username, @PathVariable Long articleId) {
-        return Uns.getSpecificUserArticle(username, articleId);
+    public ArticlesNode getUserArticle(Authentication auth, @PathVariable Long articleId) {
+        return Uns.getSpecificUserArticle(auth.getName(), articleId);
     }
 
     @GetMapping("/user/fifaMStats")

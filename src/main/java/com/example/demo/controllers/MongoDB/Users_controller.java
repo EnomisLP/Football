@@ -76,10 +76,10 @@ public class Users_controller {
 
     @PutMapping("/user/articles/{articleId}")
     @Operation(summary = "UPDATE: modify a specific User Article")
-    public CompletableFuture<Articles> modifyArticle(@PathVariable Long articleId,
+    public CompletableFuture<Articles> modifyArticle(@PathVariable String articleId,
                                   @RequestBody createArticleRequest request,
                                   Authentication auth) {
-        return usersService.modifyArticle(auth.getName(), auth.getName(), request);
+        return usersService.modifyArticle(auth.getName(), articleId, request);
     }
 
     @DeleteMapping("/user/articles/{articleId}")

@@ -23,6 +23,8 @@ import com.example.demo.repositories.MongoDB.Teams_repository;
 import com.example.demo.repositories.Neo4j.Players_node_rep;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class Players_node_service {
 
@@ -101,6 +103,11 @@ public class Players_node_service {
     public String MapAllTheNodes() {
         // Ensure indexes are created
         ensurePlayerNodeIndexes();
+        return doMapAllTheNodes();
+        
+    }
+    @Transactional
+    public String doMapAllTheNodes(){
         List<Players> Allplayers = PMr.findAll();
         List<PlayersNode> nodeToInsert = new ArrayList<>();
         System.out.println("Players found :" + Allplayers.size());
@@ -123,7 +130,6 @@ public class Players_node_service {
         PMn.saveAll(nodeToInsert);
         return "The amount of PlayersNode created are: " + nodeToInsert.size();
     }
-
     public String MapAllPlaysInTeamRel(String gender) {
         int counter = 0;
         List<PlayersNode> list = PMn.findAllByGender(gender);

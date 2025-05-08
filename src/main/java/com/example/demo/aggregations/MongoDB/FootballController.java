@@ -3,6 +3,7 @@ package com.example.demo.aggregations.MongoDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.aggregations.DTO.ClubAverage;
@@ -12,11 +13,14 @@ import com.example.demo.aggregations.DTO.TopPlayersByCoach;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
 
 @RestController
+@RequestMapping("/api/v1/MongoDB Aggregations")
+@Tag(name = "Football Aggregations", description = "Football Aggregations API")
 public class FootballController {
 
     @Autowired

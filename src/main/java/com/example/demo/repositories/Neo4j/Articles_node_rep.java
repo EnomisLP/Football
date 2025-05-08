@@ -19,5 +19,4 @@ public interface Articles_node_rep extends Neo4jRepository<ArticlesNode, Long> {
 
     Page<ArticlesNode> findAllByAuthor(String userName, PageRequest page);
     
-
 }

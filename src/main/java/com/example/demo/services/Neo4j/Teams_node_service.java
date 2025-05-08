@@ -18,6 +18,8 @@ import com.example.demo.models.Neo4j.TeamsNode;
 import com.example.demo.repositories.MongoDB.Teams_repository;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class Teams_node_service {
 
@@ -86,9 +88,8 @@ public class Teams_node_service {
             CREATE INDEX gender IF NOT EXISTS FOR (t:TeamsNode) ON (t.gender)
         """).run();
     }
-    public String MapAllTheNodes() {
-        // Ensure indexes are created
-        ensureTeamNodeIndexes();
+    @Transactional
+    public String doMapAllTheNodes(){
         List<Teams> Allteams = TMr.findAll();
         List<TeamsNode> nodeToInsert = new ArrayList<>();
         System.out.println("Teams found :" + Allteams.size());
@@ -109,6 +110,11 @@ public class Teams_node_service {
         }
         TMn.saveAll(nodeToInsert);
         return "The amount of TeamsNode created are: " + nodeToInsert.size();
+    }
+    public String MapAllTheNodes() {
+        // Ensure indexes are created
+        ensureTeamNodeIndexes();
+        return doMapAllTheNodes();
     }
 
     // DELETE

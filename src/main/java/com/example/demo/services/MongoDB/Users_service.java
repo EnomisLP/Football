@@ -214,6 +214,10 @@ public class Users_service {
             UsersNode existingUserNode = optionalUserNode.get();
             if(existingArticle.getAuthor().equals(existingUser.getUsername()) && existingArticleNode.getAuthor().equals(existingUserNode.getUserName())){
                 Ar.deleteById(articleId);
+                existingUserNode.getArticlesNodes().remove(existingArticleNode);
+                if(existingUserNode.getLikedArticlesNodes().contains(existingArticleNode)){
+                    existingUserNode.getLikedArticlesNodes().remove(existingArticleNode);
+                }
                 AR.delete(existingArticleNode);
                 UNr.save(existingUserNode);
                 return CompletableFuture.completedFuture("Article deleted correctly!");

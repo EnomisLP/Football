@@ -6,6 +6,7 @@ import com.example.demo.models.Neo4j.ArticlesNode;
 import com.example.demo.services.Neo4j.Articles_node_service;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,10 +14,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
+@RequestMapping("/api/v1/Articles_Node")
+@Tag(name = "Articles_node", description = "QUERIES AND AGGREGATION FOR ARTICLES_NODE")
 public class Articles_node_controller {
     private final Articles_node_service articlesNodeService;
     

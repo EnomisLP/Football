@@ -370,14 +370,14 @@ public class Users_node_service {
     )
     public CompletableFuture<String> LIKE_ARTICLE(String username, Long articleId) {
         Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<ArticlesNode> optionalArticleNode = AR.findByMongoId(String.valueOf(articleId));
+        Optional<ArticlesNode> optionalArticleNode = AR.findById(articleId);
     
         if (optionalUserNode.isPresent() && optionalArticleNode.isPresent()) {
             UsersNode usersNode = optionalUserNode.get();
             ArticlesNode articlesNode = optionalArticleNode.get();
     
             // Add the article to the user's liked articles
-            usersNode.getArticlesNodes().add(articlesNode);
+            usersNode.getLikedArticlesNodes().add(articlesNode);
             Unr.save(usersNode);
     
             return CompletableFuture.completedFuture("User: " + username + " now likes article with id: " + articleId);
@@ -403,7 +403,7 @@ public class Users_node_service {
             ArticlesNode existingArticlesNode = optionalArticleNode.get();
     
             // Remove the article from the user's liked articles
-            existingUsersNode.getArticlesNodes().remove(existingArticlesNode);
+            existingUsersNode.getLikedArticlesNodes().remove(existingArticlesNode);
             Unr.save(existingUsersNode);
     
             return CompletableFuture.completedFuture("User: " + username + " is not liking article with id: " + articleId + " anymore");
@@ -664,9 +664,9 @@ public class Users_node_service {
         """).run();
         
     }
-
-    public String mapAllUsersToNeo4j() {
-        ensureUserNodeIndexes(); // Ensure indexes are created before mapping users
+   
+    @Transactional
+    public String doMapAllUsersToNeo4j(){
         List<Users> AllUsers = Ur.findAll();
         List<UsersNode> usersToAdd = new ArrayList<>();
         System.out.println("Users found :" + AllUsers.size());
@@ -682,6 +682,10 @@ public class Users_node_service {
         }
         Unr.saveAll(usersToAdd);
         return "The amount of UsersNode created are: " + usersToAdd.size();
+    }
+    public String mapAllUsersToNeo4j() {
+        ensureUserNodeIndexes(); // Ensure indexes are created before mapping users
+        return doMapAllUsersToNeo4j();
     }
 
 }
