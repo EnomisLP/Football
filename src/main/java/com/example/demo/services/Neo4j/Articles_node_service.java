@@ -3,8 +3,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.MongoDB.Articles;
@@ -22,6 +25,9 @@ public class Articles_node_service {
     private final Articles_node_rep Ar;
     private final Users_node_rep Un;
     private final Articles_repository ArM;
+
+    @Autowired
+    private Neo4jClient neo4jClient;
 
     public Articles_node_service(Articles_node_rep Ar, Users_node_rep Un, Articles_repository ArM) {
         this.Ar = Ar;
@@ -54,9 +60,19 @@ public class Articles_node_service {
         return "Mapped " + count + " wrote relationships successfully.";
     }
 
+    private void ensureArticlesNodeIndexes() {
+        neo4jClient.query("""
+            CREATE INDEX mongoId IF NOT EXISTS FOR (a:ArticlesNode) ON (a.mongoId)
+        """).run();
+        
+        neo4jClient.query("""
+            CREATE INDEX author IF NOT EXISTS FOR (a:ArticlesNode) ON (a.author)
+        """).run();
+    }
     @Transactional
     public String MappAllArticles(){
         int count = 0;
+        ensureArticlesNodeIndexes();
         List<Articles> articles = ArM.findAll();
         List<ArticlesNode> articlesNodes = new ArrayList<>();
         for (Articles article : articles) {
