@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.models.MongoDB.CoachObj;
 import com.example.demo.models.MongoDB.Coaches;
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.MongoDB.FifaStatsTeam;
@@ -89,8 +90,8 @@ public class Teams_service {
                     for (Players player : players) {
                         List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
                         for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
-                            playerFifaStat.setClub_team_id(teamsDetails.getTeam_id());
-                            playerFifaStat.setClub_name(teamsDetails.getTeam_name());
+                            playerFifaStat.getTeamObj().setTeam_id(teamsDetails.getTeam_id());
+                            playerFifaStat.getTeamObj().setTeam_name(teamsDetails.getTeam_name());
                             PMr.save(player);
                         }
                     }
@@ -307,8 +308,9 @@ public class Teams_service {
                 for (Players player : players) {
                     List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
                     for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
-                        playerFifaStat.setClub_team_id(null);
-                        playerFifaStat.setClub_name(null);
+                        playerFifaStat.getTeamObj().setTeam_id(null);
+                        playerFifaStat.getTeamObj().setTeam_name(null);
+                        playerFifaStat.getTeamObj().setTeam_mongo_id(null);
                         playerFifaStat.setClub_position(null);
                         playerFifaStat.setLeague_name(null);
                         playerFifaStat.setClub_contract_valid_until_year(null);
@@ -374,8 +376,9 @@ public class Teams_service {
                         List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
                         for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
                             if (playerFifaStat.getFifa_version().equals(fifaV)) {
-                                playerFifaStat.setClub_team_id(null);
-                                playerFifaStat.setClub_name(null);
+                                playerFifaStat.getTeamObj().setTeam_id(null);
+                                playerFifaStat.getTeamObj().setTeam_name(null);
+                                playerFifaStat.getTeamObj().setTeam_mongo_id(null);
                                 playerFifaStat.setClub_position(null);
                                 playerFifaStat.setLeague_name(null);
                                 PMr.save(player);
@@ -493,7 +496,7 @@ public class Teams_service {
         }
     }
 
-    public Coaches showCurrentCoach(Long teamId){
+    public CoachObj showCurrentCoach(Long teamId){
         Optional<Teams> optionalTeam = TMr.findByTeamId(teamId);
         if (optionalTeam.isPresent()) {
             Teams existingTeam = optionalTeam.get();
@@ -503,8 +506,10 @@ public class Teams_service {
     
             if (optionalFifa.isPresent()) {
                 FifaStatsTeam existingFifaStats = optionalFifa.get();
-                 return CMr.findByCoachId(existingFifaStats.getCoach().getCoach_id())
-                .orElseThrow(() -> new RuntimeException("Coach not found"));
+                 if (existingFifaStats.getCoach() == null) {
+                     throw new RuntimeException("Coach not found");
+                 }
+                 return existingFifaStats.getCoach();
             }
             else{
                 throw new RuntimeException("FIFA stats for current year not found for team: " + teamId);
@@ -515,7 +520,7 @@ public class Teams_service {
         }
     }
 
-    public Coaches showSpecificCoach(Long teamId, Integer fifaV){
+    public CoachObj showSpecificCoach(Long teamId, Integer fifaV){
         Optional<Teams> optionalTeam = TMr.findByTeamId(teamId);
         if (optionalTeam.isPresent()) {
             Teams existingTeam = optionalTeam.get();
@@ -525,8 +530,12 @@ public class Teams_service {
     
             if (optionalFifa.isPresent()) {
                 FifaStatsTeam existingFifaStats = optionalFifa.get();
-                 return CMr.findByCoachId(existingFifaStats.getCoach().getCoach_id())
-                .orElseThrow(() -> new RuntimeException("Coach not found"));
+                 if(existingFifaStats.getCoach()!=null){
+                    return existingFifaStats.getCoach();
+                 }
+                 else{
+                    throw new RuntimeException("Coach not found");
+                 }
             }
             else{
                 throw new RuntimeException("FIFA stats for current year not found for team: " + teamId);

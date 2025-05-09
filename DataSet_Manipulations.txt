@@ -409,7 +409,7 @@ articles.forEach(article => {
     let varAuthor=article.author;
     
 
-    if (!varAuthor || varAuthor.length==0 || varAuthor.split(" ").length>5) {
+    if (!varAuthor || varAuthor.length==0 || varAuthor.split(" ").length>5|| varAuthor=="Author not found") {
         return;
     }
     
@@ -434,5 +434,74 @@ articles.forEach(article => {
         roles: ["ROLE_USER"]
     });
 });
+______________________________________________________________________________________________________________________________
+
+const validUserIds = db.Users.find({}, { _id: 1 }).toArray().map(user => user._id);
+
+// Step 2: Delete all articles where the author is not in the list of valid users
+const result = db.Articles.deleteMany({
+  author: { $nin: validUserIds }
+});
+
+print(`${result.deletedCount} articles deleted.`);
+______________________________________________________________________________________________________________________________
+
+
+function parseSignupDate(str) {
+  const [day, month, year] = str.split('/').map(Number);
+  return new Date(year, month - 1, day); // month is 0-indexed
+}
+
+function generateRandomDateAfter(startDate) {
+  
+  const now = new Date();
+  const start = parseSignupDate(startDate).getTime();
+  const end = now.getTime();
+  const randomTime = start + Math.random() * (end - start);
+  
+  const year = randomTime.getFullYear();
+  const month = randomTime.getMonth();
+  const day = randomTime.getDate();
+  return new Date(year, month, day).toLocaleDateString();
+
+}
+
+// Loop through each user
+db.Users.find({}).forEach(user => {
+
+  const username = user.username;
+  const signupDate = user.signup_date;
+
+  if (!signupDate) {
+    print('Skipping user ${username} (no subscription date)');
+    return;
+  }
+
+  const articles = db.Articles.find({
+	author: username,
+	$or: [
+		{ publish_time: null },
+		{ publish_time: "Publish time not found" }
+	]
+  });
+
+  articles.forEach(article => {   
+	
+	
+	const randomDate = generateRandomDateAfter(signupDate);
+    
+    db.Articles.updateOne(
+      { _id: article._id },
+      { $set: { publish_time: randomDate } }
+    );
+   
+  });
+
+  print(`Updated articles for ${username}`);
+});
+
+___________________________________________________________________________________________-
+
+
 
 

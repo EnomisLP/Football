@@ -4,6 +4,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+
+import com.example.demo.models.MongoDB.TeamObj;
 import com.example.demo.models.Neo4j.CoachesNode;
 import com.example.demo.relationships.manages_team;
 import com.example.demo.services.Neo4j.Coaches_node_service;
@@ -41,25 +43,23 @@ public class Coaches_node_controller{
         PageRequest pageable = PageRequest.of(page, size);
         return coachesMNodeService.getAllCoaches(pageable, gender);
     }
-
     @GetMapping("/{coachId1}/history")
     @Operation(summary = "show team trained Hystory")
-    public List<manages_team> showTrainedHistory(@PathVariable Integer coachId1) {
+    public List<manages_team> showTrainedHistory(Integer coachId1){
         return coachesMNodeService.showTrainedHistory(coachId1);
     }
-    
+
     @GetMapping("/{coachId}/CurrentTeam")
     @Operation(summary = "show current team training")
-    public manages_team showCurrenTraining(@PathVariable Integer coachId) {
+    public manages_team showCurrentTeam(Integer coachId){
         return coachesMNodeService.showCurrentTeam(coachId);
     }
 
     @GetMapping("/{coachId}/{fifaV}")
     @Operation(summary = "show specific team training")
-    public manages_team showSpecificTraining(@PathVariable Integer coachId, @PathVariable Integer fifaV) {
+    public manages_team showSpecificTeam(Integer coachId, Integer fifaV){
         return coachesMNodeService.showSpecificTeam(coachId, fifaV);
     }
-
     // MAP: Map all Coaches from MongoDB to Neo4j nodes
     @PostMapping("/admin/map-all")
     @Operation(summary = "MAP operation: Map all Coaches from MongoDB to Neo4j nodes")

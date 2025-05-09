@@ -143,9 +143,9 @@ public class Players_node_service {
 
             Players existingPlayer = optionalPlayer.get();
             for (FifaStatsPlayer fifaStat : existingPlayer.getFifaStats()) {
-                Optional<Teams> optionalTeam = TMr.findByTeamId(fifaStat.getClub_team_id());
+                Optional<Teams> optionalTeam = TMr.findByTeamId(fifaStat.getTeamObj().getTeam_id());
                 if (optionalTeam.isEmpty()) {
-                    System.err.printf("No Team found in MongoDB", fifaStat.getClub_team_id());
+                    System.err.printf("No Team found in MongoDB", fifaStat.getTeamObj().getTeam_id());
                     continue;
                 }
 

@@ -12,7 +12,6 @@ import lombok.Setter;
 @Data
 public class DreamTeamPlayer {
     private String playerName;
-    private int overall;
-    private int fifaVersion;
+    private Integer overall;
     private String position;
 }

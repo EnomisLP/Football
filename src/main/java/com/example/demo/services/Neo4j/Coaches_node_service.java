@@ -168,7 +168,7 @@ public class Coaches_node_service {
         return "Number of Relationships Created: " + counter;
     }
     
-    public List<manages_team> showTrainedHistory(Integer coachId){
+     public List<manages_team> showTrainedHistory(Integer coachId){
         Optional<CoachesNode> optionalCoach = CMn.findByCoachId(coachId);
         if(optionalCoach.isPresent()){
             CoachesNode existingCoachNode = optionalCoach.get();

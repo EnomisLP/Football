@@ -1,5 +1,7 @@
 package com.example.demo.services.Neo4j;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -170,11 +172,43 @@ public class Users_node_service {
     }
 
     public List<UsersNodeProjection> getFollowings(String username) {
-        return Unr.findFollowingsByUserName(username);
+        //return Unr.findFollowingsByUserName(username);
+        Optional<UsersNode> optionalUsersNode = Unr.findByUserName(username);
+        if(optionalUsersNode.isPresent()){
+            UsersNode existingUsersNode = optionalUsersNode.get();
+            List<UsersNodeProjection> listOfFollowings = new ArrayList<>();
+            List<UsersNode> existingFollowing = existingUsersNode.getFollowings();
+            for(UsersNode user : existingFollowing){
+                UsersNodeProjection projectionToInsert = new UsersNodeProjection();
+                projectionToInsert.setMongoId(user.getMongoId());
+                projectionToInsert.setUserName(user.getUserName());
+                listOfFollowings.add(projectionToInsert);
+            }
+            return listOfFollowings;
+        }
+        else{
+            throw new RuntimeErrorException(null, "User not found");
+        }
     }
     
     public List<UsersNodeProjection> getFollowedBy(String username) {
-        return Unr.findFollowersByUserName(username);
+        //return Unr.findFollowersByUserName(username);
+        Optional<UsersNode> optionalUsersNode = Unr.findByUserName(username);
+        if(optionalUsersNode.isPresent()){
+            UsersNode existingUsersNode = optionalUsersNode.get();
+            List<UsersNodeProjection> listOfFollowers = new ArrayList<>();
+            List<UsersNode> existingFollowers = existingUsersNode.getFollowers();
+            for(UsersNode user : existingFollowers){
+                UsersNodeProjection projectionToInsert = new UsersNodeProjection();
+                projectionToInsert.setMongoId(user.getMongoId());
+                projectionToInsert.setUserName(user.getUserName());
+                listOfFollowers.add(projectionToInsert);
+            }
+            return listOfFollowers;
+        }
+        else{
+            throw new RuntimeErrorException(null, "User not found");
+        }
     }
     
     public Page<ArticlesNode> getUserArticles(String username, PageRequest page){
@@ -433,16 +467,13 @@ public class Users_node_service {
     if (Opt.isPresent() && targetOpt.isPresent()) {
         UsersNode user = Opt.get();
         UsersNode target = targetOpt.get();
-
-        if (!user.getFollowings().contains(target)) {
+        //Doing stuffs only in one side because the relationship has the same name and it is automatically mapped
+        //by neo4j from the other side (target). I don't need to save both nodes, because they're nested
+        if (!user.getFollowings().contains(target) && !target.getFollowers().contains(user)) {
             user.getFollowings().add(target);
         }
-        if (!target.getFollowers().contains(user)) {
-            target.getFollowers().add(user);
-        }
-
+    
         Unr.save(user); 
-        Unr.createFollowRelation(user.getUserName(), target.getUserName());
         long endTime = System.currentTimeMillis(); // End timer
         System.out.println("FOLLOW completed in " + (endTime - startTime) +" ms. Total calls: "+ interactionCounter.get());
         return CompletableFuture.completedFuture("User: " + Username + " now follows user: " + targetUsername);
@@ -467,14 +498,13 @@ public class Users_node_service {
         if (Opt.isPresent() && targetOpt.isPresent()) {
             UsersNode user = Opt.get();
             UsersNode target = targetOpt.get();
-    
-            user.getFollowings().removeIf(u -> u.getUserName().equals(target.getUserName()));
-            target.getFollowers().removeIf(u -> u.getUserName().equals(user.getUserName()));
-    
+            if(user.getFollowings().contains(target) && target.getFollowers().contains(user)){
+                 user.getFollowings().remove(target);
+            }
+            
             Unr.save(user); 
              //Since some times it doesn't delete the relationship       
-            Unr.removeFollowingRelationship(Username, targetUsername);
-            Unr.removeFollowerRelationship(Username, targetUsername);
+
             return CompletableFuture.completedFuture("User: " + Username + " no longer follows user: " + targetUsername);
         } else {
             throw new RuntimeException("User(s) not found");
@@ -647,6 +677,8 @@ public class Users_node_service {
             existingUsersNode.getPlayersFNodes().clear();
             existingUsersNode.getPlayersMNodes().clear();
             existingUsersNode.getTeamsNodes().clear();
+            existingUsersNode.getLikedArticlesNodes().clear();
+            existingUsersNode.getArticlesNodes().clear();
             Unr.save(existingUsersNode);
             Unr.deleteById(id);
         } else {
@@ -688,5 +720,82 @@ public class Users_node_service {
         return doMapAllUsersToNeo4j();
     }
 
+    // Utility
+    public String populateFollowsToUsers() {
+        
+        String dataPath="data/user_follows.csv";
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(dataPath))) {
+            String line;
+            //skip first line
+            line=br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                this.Unr.createFollowRelation(values[0],values[1]);
+            }
+        }catch(Exception e){
+          System.out.println(e);  
+        }
+        
+        return "Finished";
+    }
+    
+    public String populateLikesToPlayer() {
+        
+        String dataPath="data/players_likes.csv";
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(dataPath))) {
+            String line;
+            //skip first line
+            line=br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                this.Unr.createLikeRelationToPlayer(values[0],values[1]);
+            }
+        }catch(Exception e){
+          System.out.println(e);  
+        }
+        
+        return "Finished";
+    }
+    
+    public String populateLikesToTeams() {
+        
+        String dataPath="data/teams_likes.csv";
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(dataPath))) {
+            String line;
+            //skip first line
+            line=br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                this.Unr.createLikeRelationToTeam(values[0],values[1]);
+            }
+        }catch(Exception e){
+          System.out.println(e);  
+        }
+        
+        return "Finished";
+    }
+    
+    public String populateLikesToCoaches() {
+        
+        String dataPath="data/coaches_likes.csv";
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(dataPath))) {
+            String line;
+            //skip first line
+            line=br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                this.Unr.createLikeRelationToCoach(values[0],values[1]);
+            }
+        }catch(Exception e){
+          System.out.println(e);  
+        }
+        
+        return "Finished";
+    }
+    
 }
 

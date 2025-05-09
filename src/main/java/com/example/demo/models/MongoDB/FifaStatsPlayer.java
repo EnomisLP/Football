@@ -19,8 +19,6 @@ public class FifaStatsPlayer {
     private Integer potential;
     private Long value_eur;
     private Long wage_eur;
-    private Long club_team_id;
-    private String club_name;
     private String club_position;
     private Integer club_jersey_number;
     private Integer club_contract_valid_until_year;

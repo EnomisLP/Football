@@ -47,7 +47,7 @@ public class Articles_node_controller {
         return articlesNodeService.MappAllWroteRelationships();
     }
 
-    @PutMapping("/admin/articles/mapp-all")
+    @PostMapping("/admin/articles/mapp-all")
     @Operation(summary = "Map all articles")
     public String mapAllArticles() {
         return articlesNodeService.MappAllArticles();

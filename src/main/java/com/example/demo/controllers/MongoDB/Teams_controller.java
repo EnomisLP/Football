@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo.models.MongoDB.CoachObj;
 import com.example.demo.models.MongoDB.Coaches;
 import com.example.demo.models.MongoDB.Players;
 import com.example.demo.models.MongoDB.Teams;
@@ -60,14 +61,14 @@ public class Teams_controller {
     // READ: Get current coach of the team
     @GetMapping("/{coachId}")
     @Operation(summary = "READ: Show the current coach of the team")
-    public Coaches showCurrentCoach(@PathVariable Long coachId) {
+    public CoachObj showCurrentCoach(@PathVariable Long coachId) {
         return teamsMService.showCurrentCoach(coachId);
     }
 
     // READ: Get a specific coach for a given FIFA version
     @GetMapping("/{coachId}/coach/{fifaV}")
     @Operation(summary = "READ: Show a specific coach for a given FIFA version")
-    public Coaches showSpecificCoach(@PathVariable Long coachId, @PathVariable Integer fifaV) {
+    public CoachObj showSpecificCoach(@PathVariable Long coachId, @PathVariable Integer fifaV) {
         return teamsMService.showSpecificCoach(coachId, fifaV);
     }
 

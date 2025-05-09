@@ -6,9 +6,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.aggregations.DTO.ClubAverage;
 import com.example.demo.aggregations.DTO.DreamTeamPlayer;
-import com.example.demo.aggregations.DTO.TopPlayersByCoach;
+import com.example.demo.aggregations.DTO.monthSummary;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,26 +25,18 @@ public class FootballController {
     @Autowired
     private FootballService footballService;
 
-   /*  @GetMapping("/top-clubs")
-    @Operation(summary = "Get top clubs by average overall rating")
+    @GetMapping("/analytics/subscriptionYearSummary/{year}")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved top clubs"),
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved subscription summary"),
+            @ApiResponse(responseCode = "404", description = "Summary not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public List<ClubAverage> getTopClubs() {
-        return footballService.getTopClubsByAverageOverall();
+    @Operation(summary = "Get the summary of the subscriptions for each month of a specific year")
+    public List<monthSummary> getSubscriptionYearSummary(@PathVariable Integer year) {
+        return footballService.getSubscriptionYearSummary(year);
     }
-    */
-    @GetMapping("/coach/{coachId}/top-players")
-    @Operation(summary = "Get top players managed by a specific coach")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved top players"),
-            @ApiResponse(responseCode = "404", description = "Coach not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
-    public List<TopPlayersByCoach> getTopPlayersByCoach(@PathVariable int coachId) {
-    return footballService.getTopPlayersManagedByCoach(coachId);
-    }  
+
+ 
 
     @GetMapping("/dream-team(4-3-3)/{fifaV}")
     @ApiResponses(value = {

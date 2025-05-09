@@ -43,10 +43,10 @@ public class UsersNode {
     @Relationship(type = "HAS_IN_F_TEAM", direction = Relationship.Direction.OUTGOING)
     private List<has_in_F_team> playersFNodes = new ArrayList<>();
 
-    @Relationship(type = "FOLLOWING", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
     private List<UsersNode> followings = new ArrayList<>();
 
-    @Relationship(type = "FOLLOWER", direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = "FOLLOWS", direction = Relationship.Direction.INCOMING)
     private List<UsersNode> followers = new ArrayList<>();
 
     @Relationship(type = "LIKES_TEAM", direction = Relationship.Direction.OUTGOING)
