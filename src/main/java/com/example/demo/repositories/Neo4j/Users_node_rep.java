@@ -31,9 +31,21 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
     List<UsersNodeProjection> findFollowersByUserName(String username);
 
     @Query("MATCH (a:UsersNode {userName: $from}), (b:UsersNode {userName: $to}) "+
-    "MERGE (a)-[:FOLLOWING]->(b) "+
-    "MERGE (b)-[:FOLLOWER]->(a)")
+    "MERGE (a)-[:FOLLOWS]->(b) ")
+            
     void createFollowRelation(@Param("from") String fromUsername, @Param("to") String toUsername);
+    
+    @Query("MATCH (a:UsersNode {userName: $from}), (b:PlayersNode {longName: $to}) "+
+    "MERGE (a)-[:LIKES]->(b) ")
+    void createLikeRelationToPlayer(@Param("from") String fromUsername, @Param("to") String toPlayerName);
+    
+    @Query("MATCH (a:UsersNode {userName: $from}), (b:CoachesNode {longName: $to}) "+
+    "MERGE (a)-[:LIKES]->(b) ")
+    void createLikeRelationToCoach(@Param("from") String fromUsername, @Param("to") String toCoachName);
+    
+    @Query("MATCH (a:UsersNode {userName: $from}), (b:TeamsNode {teamName: $to}) "+
+    "MERGE (a)-[:LIKES]->(b) ")
+    void createLikeRelationToTeam(@Param("from") String fromUsername, @Param("to") String toTeamsName);
 
 
     @Query("MATCH (a:UsersNode {userName: $from})-[r:FOLLOWING]->(b:UsersNode {userName: $to}) "+

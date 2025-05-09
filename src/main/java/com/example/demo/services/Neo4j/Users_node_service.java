@@ -1,7 +1,8 @@
 package com.example.demo.services.Neo4j;
 
 import java.util.ArrayList;
-
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -599,6 +600,85 @@ public class Users_node_service {
         Unr.saveAll(usersToAdd);
         return "The amount of UsersNode created are: " + usersToAdd.size();
     }
+    
+    // Utility
+    public String populateFollowsToUsers() {
+        
+        String dataPath="data/user_follows.csv";
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(dataPath))) {
+            String line;
+            //skip first line
+            line=br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                this.Unr.createFollowRelation(values[0],values[1]);
+            }
+        }catch(Exception e){
+          System.out.println(e);  
+        }
+        
+        return "Finished";
+    }
+    
+    public String populateLikesToPlayer() {
+        
+        String dataPath="data/players_likes.csv";
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(dataPath))) {
+            String line;
+            //skip first line
+            line=br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                this.Unr.createLikeRelationToPlayer(values[0],values[1]);
+            }
+        }catch(Exception e){
+          System.out.println(e);  
+        }
+        
+        return "Finished";
+    }
+    
+    public String populateLikesToTeams() {
+        
+        String dataPath="data/teams_likes.csv";
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(dataPath))) {
+            String line;
+            //skip first line
+            line=br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                this.Unr.createLikeRelationToTeam(values[0],values[1]);
+            }
+        }catch(Exception e){
+          System.out.println(e);  
+        }
+        
+        return "Finished";
+    }
+    
+    public String populateLikesToCoaches() {
+        
+        String dataPath="data/coaches_likes.csv";
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(dataPath))) {
+            String line;
+            //skip first line
+            line=br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                this.Unr.createLikeRelationToCoach(values[0],values[1]);
+            }
+        }catch(Exception e){
+          System.out.println(e);  
+        }
+        
+        return "Finished";
+    }
+    
+    //End utility
 
     //------------------------SPEED TEST------------------------
     //Exactly same service of follow but without async and retryable
@@ -637,5 +717,7 @@ public class Users_node_service {
         throw new RuntimeException("User(s) not found");
     }
 }
+    
+    
 }
 

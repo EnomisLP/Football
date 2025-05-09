@@ -65,7 +65,7 @@ articles.forEach(article => {
     let varAuthor=article.author;
     
 
-    if (!varAuthor || varAuthor.length==0 || varAuthor.split(" ").length>5) {
+    if (!varAuthor || varAuthor.length==0 || varAuthor.split(" ").length>5|| varAuthor=="Author not found") {
         return;
     }
     

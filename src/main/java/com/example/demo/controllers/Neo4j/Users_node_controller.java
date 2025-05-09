@@ -88,6 +88,26 @@ public class Users_node_controller {
     public String MapAllUsers() {
         return Uns.mapAllUsersToNeo4j();
     }
+    
+    @PutMapping("/admin/users/likes/players/populate_neo4j")
+    public String populateLikesToPlayer() {
+        return Uns.populateLikesToPlayer();
+    }
+    
+    @PutMapping("/admin/users/likes/teams/populate_neo4j")
+    public String populateLikesToTeams() {
+        return Uns.populateLikesToTeams();
+    }
+    
+    @PutMapping("/admin/users/likes/coaches/populate_neo4j")
+    public String populateLikesToCoaches() {
+        return Uns.populateLikesToCoaches();
+    }
+    
+    @PutMapping("/admin/users/follow/users/populate_neo4j")
+    public String populateFollowsToUsers() {
+        return Uns.populateFollowsToUsers();
+    }
 
     // DELETE PLAYERS
     @DeleteMapping("/user/Mplayers/{playerId}")
