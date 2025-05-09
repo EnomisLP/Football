@@ -1,4 +1,4 @@
-const validUserIds = db.users.find({}, { _id: 1 }).map(user => user._id);
+const validUserIds = db.users.find({}, { _id: 1 }).toArray().map(user => user._id);
 
 // Step 2: Delete all articles where the author is not in the list of valid users
 const result = db.articles.deleteMany({
