@@ -287,8 +287,8 @@ public class Players_service {
                     //Updating MongoDB
                     for(FifaStatsPlayer stat : ExistingPlayerstats){
                         if(stat.getFifa_version().equals(fifaV)){
-                            if(stat.getTeamObj().getTeam_id().equals(request.getTeam_id()) ||
-                            stat.getTeamObj().getTeam_name().equals(request.getTeam_name())){
+                            if(stat.getTeam().getTeam_id().equals(request.getTeam_id()) ||
+                            stat.getTeam().getTeam_name().equals(request.getTeam_name())){
                                 return existingPlayer;
                             }
                         }
@@ -330,9 +330,9 @@ public class Players_service {
                     //Updating player_id in teams formation by comparing the positions
                     for(FifaStatsPlayer stat : ExistingPlayerstats){
                         if(stat.getFifa_version().equals(fifaV)){
-                            stat.getTeamObj().setTeam_id(request.getTeam_id());
-                            stat.getTeamObj().setTeam_name(request.getTeam_name());
-                            stat.getTeamObj().setTeam_mongo_id(existingTeam1.get_id());
+                            stat.getTeam().setTeam_id(request.getTeam_id());
+                            stat.getTeam().setTeam_name(request.getTeam_name());
+                            stat.getTeam().setTeam_mongo_id(existingTeam1.get_id());
                             PMr.save(existingPlayer);
                             List<FifaStatsTeam> statsTeam = existingTeam1.getFifaStats();
                             for(FifaStatsTeam Teamstat : statsTeam){

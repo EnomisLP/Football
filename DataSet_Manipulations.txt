@@ -436,16 +436,26 @@ articles.forEach(article => {
 });
 ______________________________________________________________________________________________________________________________
 
-const validUserIds = db.Users.find({}, { _id: 1 }).toArray().map(user => user._id);
+const validUserUsernames = db.Users.find({}, { _id:0,username: 1 }).toArray().map(user => user.username);
 
 // Step 2: Delete all articles where the author is not in the list of valid users
 const result = db.Articles.deleteMany({
-  author: { $nin: validUserIds }
+  author: { $nin: validUserUsernames }
 });
 
 print(`${result.deletedCount} articles deleted.`);
-______________________________________________________________________________________________________________________________
 
+
+_____________________________________________________________________________
+// Step 1: Get all valid usernames
+const validUserUsernames = db.Users.find({}, { _id: 0, username: 1 }).toArray().map(user => user.username);
+
+// Step 2: Delete all articles where the author is not in the list of valid users
+const result = db.Articles.deleteMany({
+  author: { $nin: validUserUsernames }
+});
+
+print(`${result.deletedCount} articles deleted.`);
 
 function parseSignupDate(str) {
   const [day, month, year] = str.split('/').map(Number);
@@ -453,52 +463,55 @@ function parseSignupDate(str) {
 }
 
 function generateRandomDateAfter(startDate) {
-  
   const now = new Date();
   const start = parseSignupDate(startDate).getTime();
   const end = now.getTime();
-  const randomTime = start + Math.random() * (end - start);
-  
+  const randomTime = new Date(start + Math.random() * (end - start));
+
   const year = randomTime.getFullYear();
   const month = randomTime.getMonth();
   const day = randomTime.getDate();
   return new Date(year, month, day).toLocaleDateString();
-
 }
 
 // Loop through each user
 db.Users.find({}).forEach(user => {
-
   const username = user.username;
   const signupDate = user.signup_date;
 
   if (!signupDate) {
-    print('Skipping user ${username} (no subscription date)');
+    print(`Skipping user ${username} (no subscription date)`);
     return;
   }
 
   const articles = db.Articles.find({
-	author: username,
-	$or: [
-		{ publish_time: null },
-		{ publish_time: "Publish time not found" }
-	]
+    author: username
   });
 
-  articles.forEach(article => {   
-	
-	
-	const randomDate = generateRandomDateAfter(signupDate);
-    
+  articles.forEach(article => {
+    const randomDate = generateRandomDateAfter(signupDate);
+
     db.Articles.updateOne(
       { _id: article._id },
-      { $set: { publish_time: randomDate } }
+      {
+        $set: {
+          publish_time: randomDate
+        },
+        $unset: {
+          link: "",
+          "publish-time": "",
+          source: "",
+          " ": ""
+        }
+      }
     );
-   
   });
 
   print(`Updated articles for ${username}`);
 });
+
+
+
 
 ___________________________________________________________________________________________-
 

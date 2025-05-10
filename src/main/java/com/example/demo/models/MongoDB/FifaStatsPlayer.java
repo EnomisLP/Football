@@ -62,5 +62,5 @@ public class FifaStatsPlayer {
     private Integer goalkeeping_kicking;
     private Integer goalkeeping_positioning;
     private Integer goalkeeping_reflexes;
-    private TeamObj teamObj;
+    private TeamObj team;
 }

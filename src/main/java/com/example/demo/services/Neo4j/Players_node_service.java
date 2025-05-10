@@ -22,6 +22,7 @@ import com.example.demo.repositories.MongoDB.Players_repository;
 import com.example.demo.repositories.MongoDB.Teams_repository;
 import com.example.demo.repositories.Neo4j.Players_node_rep;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
+import com.mongodb.lang.Nullable;
 
 import jakarta.transaction.Transactional;
 
@@ -142,12 +143,18 @@ public class Players_node_service {
             }
 
             Players existingPlayer = optionalPlayer.get();
-            for (FifaStatsPlayer fifaStat : existingPlayer.getFifaStats()) {
-                Optional<Teams> optionalTeam = TMr.findByTeamId(fifaStat.getTeamObj().getTeam_id());
-                if (optionalTeam.isEmpty()) {
-                    System.err.printf("No Team found in MongoDB", fifaStat.getTeamObj().getTeam_id());
+                for (FifaStatsPlayer fifaStat : existingPlayer.getFifaStats()) {
+                // Check if teamObj is not null
+                    if (fifaStat.getTeam() == null) {
+                    System.out.println("TeamObj is null for a player's FIFA stat.");
                     continue;
-                }
+                    }
+
+                    Optional<Teams> optionalTeam = TMr.findByTeamId(fifaStat.getTeam().getTeam_id());
+                    if (optionalTeam.isEmpty()) {
+                        System.out.printf("No Team found in MongoDB for team ID: %d%n", fifaStat.getTeam().getTeam_id());
+                        continue;
+                    }
 
                 Teams existingTeam = optionalTeam.get();
                 Optional<TeamsNode> optionalTeamNode = TMn.findByMongoId(existingTeam.get_id());

@@ -90,8 +90,8 @@ public class Teams_service {
                     for (Players player : players) {
                         List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
                         for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
-                            playerFifaStat.getTeamObj().setTeam_id(teamsDetails.getTeam_id());
-                            playerFifaStat.getTeamObj().setTeam_name(teamsDetails.getTeam_name());
+                            playerFifaStat.getTeam().setTeam_id(teamsDetails.getTeam_id());
+                            playerFifaStat.getTeam().setTeam_name(teamsDetails.getTeam_name());
                             PMr.save(player);
                         }
                     }
@@ -308,9 +308,9 @@ public class Teams_service {
                 for (Players player : players) {
                     List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
                     for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
-                        playerFifaStat.getTeamObj().setTeam_id(null);
-                        playerFifaStat.getTeamObj().setTeam_name(null);
-                        playerFifaStat.getTeamObj().setTeam_mongo_id(null);
+                        playerFifaStat.getTeam().setTeam_id(null);
+                        playerFifaStat.getTeam().setTeam_name(null);
+                        playerFifaStat.getTeam().setTeam_mongo_id(null);
                         playerFifaStat.setClub_position(null);
                         playerFifaStat.setLeague_name(null);
                         playerFifaStat.setClub_contract_valid_until_year(null);
@@ -376,9 +376,9 @@ public class Teams_service {
                         List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
                         for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
                             if (playerFifaStat.getFifa_version().equals(fifaV)) {
-                                playerFifaStat.getTeamObj().setTeam_id(null);
-                                playerFifaStat.getTeamObj().setTeam_name(null);
-                                playerFifaStat.getTeamObj().setTeam_mongo_id(null);
+                                playerFifaStat.getTeam().setTeam_id(null);
+                                playerFifaStat.getTeam().setTeam_name(null);
+                                playerFifaStat.getTeam().setTeam_mongo_id(null);
                                 playerFifaStat.setClub_position(null);
                                 playerFifaStat.setLeague_name(null);
                                 PMr.save(player);
