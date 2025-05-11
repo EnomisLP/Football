@@ -20,5 +20,4 @@ public class updatePlayer {
     private Integer height_cm;
     private Integer weight_kg;
     private String gender;
-    private Integer player_id;
 }

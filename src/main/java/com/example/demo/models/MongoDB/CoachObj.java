@@ -11,5 +11,4 @@ import lombok.Setter;
 public class CoachObj {
     private String coach_mongo_id;
     private String coach_name;
-    private Integer coach_id;
 }

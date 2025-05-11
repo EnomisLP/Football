@@ -1,14 +1,10 @@
 package com.example.demo.services.MongoDB;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.management.RuntimeErrorException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import com.example.demo.models.MongoDB.CoachObj;
 import com.example.demo.models.MongoDB.Coaches;
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.MongoDB.FifaStatsTeam;
@@ -16,12 +12,15 @@ import com.example.demo.models.MongoDB.Players;
 import com.example.demo.models.MongoDB.TeamObj;
 import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.models.Neo4j.CoachesNode;
+import com.example.demo.models.Neo4j.PlayersNode;
 import com.example.demo.models.Neo4j.TeamsNode;
 import com.example.demo.relationships.manages_team;
+import com.example.demo.relationships.plays_in_team;
 import com.example.demo.repositories.MongoDB.Coaches_repository;
 import com.example.demo.repositories.MongoDB.Players_repository;
 import com.example.demo.repositories.MongoDB.Teams_repository;
 import com.example.demo.repositories.Neo4j.Coaches_node_rep;
+import com.example.demo.repositories.Neo4j.Players_node_rep;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
 import com.example.demo.requets.updateTeam;
 import com.example.demo.requets.updateFifaTeam;
@@ -37,14 +36,17 @@ public class Teams_service {
     private Players_repository PMr;
     private Coaches_repository CMr;
     private Coaches_node_rep CMn;
+    private Players_node_rep Pmn;
 
     public Teams_service(Teams_repository tmr, Teams_node_rep TMR,
-    Players_repository pmr, Coaches_repository cmr, Coaches_node_rep CMn) {
+    Players_repository pmr, Coaches_repository cmr, Coaches_node_rep CMn,
+    Players_node_rep pmn) {
         this.TMr = tmr;
         this.Tmr = TMR;
         this.PMr = pmr;
         this.CMr = cmr;
         this.CMn = CMn;
+        this.Pmn = pmn;
     }
 
     //READ
@@ -67,7 +69,6 @@ public class Teams_service {
         Teams teamM = TMr.save(team);
         TeamsNode newTeam = new TeamsNode();
         newTeam.setMongoId(teamM.get_id());
-        newTeam.setTeamId(teamM.getTeam_id());
         newTeam.setTeamName(teamM.getTeam_name());
         newTeam.setGender(teamM.getGender());
         Tmr.save(newTeam);
@@ -83,25 +84,39 @@ public class Teams_service {
             Optional<TeamsNode> optionalTeamNode = Tmr.findByMongoId(existingTeam.get_id());
             if(optionalTeamNode.isPresent()){
                 TeamsNode existingTeamNode = optionalTeamNode.get();
-                
-                //Updating attribute istances
-                List<Players> players = PMr.findByClubTeamIdInFifaStats(existingTeam.getTeam_id());
-                if(!players.isEmpty()){
-                    for (Players player : players) {
-                        List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
-                        for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
-                            playerFifaStat.getTeam().setTeam_id(teamsDetails.getTeam_id());
-                            playerFifaStat.getTeam().setTeam_name(teamsDetails.getTeam_name());
-                            PMr.save(player);
+                if(!existingTeam.getTeam_name().equals(teamsDetails.getTeam_name())){
+                    //Updating attribute istances
+                    List<Players> players = PMr.findByClubTeamNameInFifaStats(existingTeam.getTeam_name());
+                    if(!players.isEmpty()){
+                        for (Players player : players) {
+                            List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
+                            for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
+                                playerFifaStat.getTeam().setTeam_name(teamsDetails.getTeam_name());
+                                existingTeam.setTeam_name(teamsDetails.getTeam_name());
+                                existingTeamNode.setTeamName(teamsDetails.getTeam_name());
+                                PMr.save(player);
+                            }
+                        }
+                    }
+                    List<Coaches> coaches = CMr.findByClubTeamNameInTeams(existingTeam.getTeam_name());
+                    if(!coaches.isEmpty()){
+                        for(Coaches coach : coaches){
+                            List<TeamObj> teams = coach.getTeams();
+                            for(TeamObj team : teams){
+                                team.setTeam_name(teamsDetails.getTeam_name());
+                                CMr.save(coach);
+                            }
                         }
                     }
                 }
-                existingTeam.setGender(teamsDetails.getGender());
-                existingTeam.setTeam_name(teamsDetails.getTeam_name());
-                existingTeam.setTeam_id(teamsDetails.getTeam_id());
                 
-                existingTeamNode.setTeamName(teamsDetails.getTeam_name());
-                existingTeamNode.setTeamId(teamsDetails.getTeam_id());
+                existingTeam.setGender(teamsDetails.getGender());
+                existingTeam.setLeague_id(teamsDetails.getLeague_id());
+                existingTeam.setLeague_level(teamsDetails.getLeague_level());
+                existingTeam.setLeague_name(teamsDetails.getLeague_name());
+                existingTeam.setNationality_id(teamsDetails.getNationality_id());
+                existingTeam.setNationality_name(teamsDetails.getNationality_name());
+                
                 existingTeamNode.setGender(teamsDetails.getGender());
                
 
@@ -129,7 +144,7 @@ public class Teams_service {
                         stat.setFifa_version(request.getFifa_version());
 
                         //Updating relationship in Neo4j
-                        Optional<CoachesNode> optionalCoach = CMn.findByCoachId(stat.getCoach().getCoach_id());
+                        Optional<CoachesNode> optionalCoach = CMn.findByMongoId(stat.getCoach().getCoach_mongo_id());
                         if(optionalCoach.isPresent()){
                             CoachesNode existingCoach = optionalCoach.get();
                             List<manages_team> relationships = existingCoach.getTeamMNodes();
@@ -142,22 +157,34 @@ public class Teams_service {
                             }
                         }
                         else{
-                            throw new RuntimeErrorException(null, "Coach not found with id: " + stat.getCoach().getCoach_id());
+                            throw new RuntimeErrorException(null, "Coach not found with name: " + stat.getCoach().getCoach_name());
                         }
 
                         //Updating attribute istances
-                        List<Players> players = PMr.findByClubTeamIdInFifaStats(existingTeam.getTeam_id());
+                        List<Players> players = PMr.findByClubTeamNameInFifaStats(existingTeam.getTeam_name());
                         for(Players player : players){
                             List<FifaStatsPlayer> playerFifaStats = player.getFifaStats();
                             for(FifaStatsPlayer playerFifaStat : playerFifaStats){
                                 if(playerFifaStat.getFifa_version().equals(fifaV)){
-                                    playerFifaStat.setLeague_name(request.getLeague_name());
+                                    Optional<PlayersNode> optionalPlayersNode = Pmn.findByMongoId(player.get_id());
+                                    if(optionalPlayersNode.isPresent()){
+                                        PlayersNode existingPlayerNode = optionalPlayersNode.get();
+                                        List<plays_in_team> existing = existingPlayerNode.getTeamMNodes();
+                                        for(plays_in_team exist: existing){
+                                            if(exist.getFifaV().equals(fifaV)){
+                                                exist.setFifaV(request.getFifa_version());
+                                                Pmn.save(existingPlayerNode);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    playerFifaStat.setFifa_version(request.getFifa_version());
                                     PMr.save(player);
                                     break;
                                 }
                             }
                         }
-                        List<Coaches> coaches = CMr.findByTeamId(existingTeam.getTeam_id());
+                        List<Coaches> coaches = CMr.findByClubTeamNameInTeams(existingTeam.getTeam_name());
                         for(Coaches coach : coaches){
                             List<TeamObj> teams = coach.getTeams();
                             for(TeamObj team : teams){
@@ -168,10 +195,6 @@ public class Teams_service {
                             }
                         }
                     }
-                        stat.setLeague_id(request.getLeague_id());
-                        stat.setLeague_level(request.getLeague_level());
-                        stat.setNationality_id(request.getNationality_id());
-                        stat.setNationality_name(request.getNationality_name());
                         stat.setHome_stadium(request.getHome_stadium());
                         stat.setOverall(request.getOverall());
                         stat.setClub_worth_eur(request.getClub_worth_eur());
@@ -198,67 +221,55 @@ public class Teams_service {
     public Teams updateCoachTeam(String id, Integer fifaV, updateCoachTeam request){
         Optional<Teams> optionalTeam = TMr.findById(id);
         Optional<TeamsNode> optionalTeamNode = Tmr.findByMongoId(id);
-        Optional<Coaches> optionalCoach1 = CMr.findByCoachId(request.getCoach_id());
-        Optional<Coaches> optionalCoach2 = CMr.findByCoachLongName(request.getLong_name());
+        Optional<Coaches> optionalCoach = CMr.findByCoachLongName(request.getLong_name());
         if(optionalTeam.isPresent() && optionalTeamNode.isPresent()){
             Teams existingTeam = optionalTeam.get();
             TeamsNode existingTeamNode = optionalTeamNode.get();
             List<FifaStatsTeam> existingFifaStats = existingTeam.getFifaStats();
-            if(optionalCoach1.isPresent() && optionalCoach2.isPresent()){
-                Coaches existingCoach1 = optionalCoach1.get();
-                Coaches existingCoach2 = optionalCoach2.get();
-                if(existingCoach1.getCoach_id().equals(existingCoach2.getCoach_id()) ||
-                existingCoach1.getLong_name().equals(existingCoach2.getLong_name())){
-                    for(FifaStatsTeam stats : existingFifaStats){
-                        if(stats.getFifa_version().equals(fifaV)){
-                            if(request.getCoach_id().equals(stats.getCoach().getCoach_id())){
-                                return existingTeam;
+            if( optionalCoach.isPresent()){
+                
+                Coaches existingCoach = optionalCoach.get();
+                for(FifaStatsTeam stats : existingFifaStats){
+                    if(stats.getFifa_version().equals(fifaV)){
+                        if(request.getLong_name().equals(stats.getCoach().getCoach_name())){
+                            return existingTeam;
+                        }
+                        List<TeamObj> teams = existingCoach.getTeams();
+                        for(TeamObj team : teams){
+                            if(team.getFifa_version().equals(fifaV)){
+                                team.setTeam_name(existingTeam.getTeam_name());
+                                team.setTeam_mongo_id(existingTeam.get_id());
+                                break;
                             }
-                            //Update Coach MongoDB
-                            Optional<Coaches> optionalCoach = CMr.findByCoachId(request.getCoach_id());
-                            if(optionalCoach.isPresent()){
-                                Coaches existingCoach = optionalCoach.get();
-                                List<TeamObj> teams = existingCoach.getTeams();
-                                for(TeamObj team : teams){
-                                    if(team.getFifa_version().equals(fifaV)){
-                                        team.setTeam_id(existingTeam.getTeam_id());
-                                        team.setTeam_name(existingTeam.getTeam_name());
-                                        team.setTeam_mongo_id(existingTeam.get_id());
-                                        break;
-                                    }
-                                }
-                                CMr.save(existingCoach);
-                            }
-                            else{
-                                throw new RuntimeErrorException(null, "Coach not found with id: " + request.getCoach_id());
-                            }
-                            //Update Coach Neo4j
-                            List<Coaches> optCoach = CMr.findByTeamId(existingTeam.getTeam_id());
-                            for(Coaches coach : optCoach){
-                                List<TeamObj> teams = coach.getTeams();
-                                for(TeamObj team : teams){
-                                    if(team.getFifa_version().equals(fifaV)){
-                                        Optional<CoachesNode> optionalCoachNodeOld = CMn.findByCoachId(coach.getCoach_id());
-                                        if(optionalCoachNodeOld.isPresent()){
-                                            CoachesNode existingCoachNode = optionalCoachNodeOld.get();
-                                            List<manages_team> relationships = existingCoachNode.getTeamMNodes();
-                                            for (manages_team relationship : relationships) {
-                                                if (relationship.getFifaV().equals(fifaV)) {
-                                                    relationships.remove(relationship);
-                                                    CMn.save(existingCoachNode);
-                                                    break;
-                                                }
+                        }
+                        CMr.save(existingCoach);
+                            
+                        //Update Coach Neo4j
+                        List<Coaches> optCoach = CMr.findByClubTeamNameInTeams(existingTeam.getTeam_name());
+                        for(Coaches coach : optCoach){
+                            for(TeamObj team : teams){
+                                if(team.getFifa_version().equals(fifaV)){
+                                    Optional<CoachesNode> optionalCoachNodeOld = CMn.findByMongoId(coach.get_id());
+                                    if(optionalCoachNodeOld.isPresent()){
+                                        CoachesNode existingCoachNode = optionalCoachNodeOld.get();
+                                        List<manages_team> relationships = existingCoachNode.getTeamMNodes();
+                                        for (manages_team relationship : relationships) {
+                                            if (relationship.getFifaV().equals(fifaV)) {
+                                                relationships.remove(relationship);
+                                                CMn.save(existingCoachNode);
+                                                break;
                                             }
                                         }
-                                        else{
-                                            throw new RuntimeErrorException(null, "Coach not found with id: " + coach.getCoach_id());
-                                        }
-                                        break;
                                     }
+                                    else{
+                                        throw new RuntimeErrorException(null, "Coach not found with name: " + coach.getLong_name());
                                 }
+                                break;
                             }
+                        }
+                    }
                            
-                            Optional<CoachesNode> optionalCoachNode = CMn.findByCoachId(request.getCoach_id());
+                            Optional<CoachesNode> optionalCoachNode = CMn.findByMongoId(existingCoach.get_id());
                             if(optionalCoachNode.isPresent()){
                                 CoachesNode existingCoachNode = optionalCoachNode.get();
                                 manages_team relationship = new manages_team(existingTeamNode, fifaV);
@@ -266,26 +277,23 @@ public class Teams_service {
                                 CMn.save(existingCoachNode);
                             }
                             else{
-                                throw new RuntimeErrorException(null, "Coach not found with id: " + request.getCoach_id());
+                                throw new RuntimeErrorException(null, "Coach not found with name: " + request.getLong_name());
                             }
                             //Update Team MongoDB
-                            stats.getCoach().setCoach_id(request.getCoach_id());
+                            
                             stats.getCoach().setCoach_name(request.getLong_name());
-                            stats.getCoach().setCoach_mongo_id(existingCoach1.get_id());
+                            stats.getCoach().setCoach_mongo_id(existingCoach.get_id());
                             TMr.save(existingTeam);
                         }
 
                     
                     }
                     return existingTeam;
-                }
-                else{
-                    throw new RuntimeErrorException(null, "Coach not matching");
-                }
+                
                 
             }
             else{
-                throw new RuntimeErrorException(null, "Coach not found with id: " + request.getCoach_id());
+                throw new RuntimeErrorException(null, "Coach not found with name: " + request.getLong_name());
             }
 
         }
@@ -303,12 +311,11 @@ public class Teams_service {
             Teams existingTeam = team.get();
 
             //Deleting attribute istances
-            List<Players> players = PMr.findByClubTeamIdInFifaStats(existingTeam.getTeam_id());
+            List<Players> players = PMr.findByClubTeamNameInFifaStats(existingTeam.getTeam_name());
             if(!players.isEmpty()){
                 for (Players player : players) {
                     List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
                     for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
-                        playerFifaStat.getTeam().setTeam_id(null);
                         playerFifaStat.getTeam().setTeam_name(null);
                         playerFifaStat.getTeam().setTeam_mongo_id(null);
                         playerFifaStat.setClub_position(null);
@@ -344,10 +351,10 @@ public class Teams_service {
             if(!existingFifaStats.isEmpty()) {
                 for (FifaStatsTeam fifaStat : existingFifaStats) {
                     if (fifaStat.getFifa_version().equals(fifaV)) {
-                        Optional<CoachesNode> optionalCoach = CMn.findByCoachId(fifaStat.getCoach().getCoach_id());
+                        Optional<CoachesNode> optionalCoach = CMn.findByMongoId(fifaStat.getCoach().getCoach_mongo_id());
                         if(optionalCoach.isPresent()){
                             CoachesNode existingCoach = optionalCoach.get();
-                            manages_team relationship = CMn.findFifaVersionByTeamIdAndFifaV(existingTeamNode.getTeamId(), fifaV);
+                            manages_team relationship = CMn.findFifaVersionByTeamNameAndFifaV(existingTeamNode.getTeamName(), fifaV);
                             if (relationship != null) {
                                 existingCoach.getTeamMNodes().remove(relationship);
                                 CMn.save(existingCoach);
@@ -355,7 +362,7 @@ public class Teams_service {
                             }
                         }
                         else{
-                            throw new RuntimeErrorException(null, "Coach not found with id: " + fifaStat.getCoach().getCoach_id());
+                            throw new RuntimeErrorException(null, "Coach not found with name: " + fifaStat.getCoach().getCoach_name());
                         }
                     }
                 }
@@ -370,13 +377,12 @@ public class Teams_service {
 
                 //Deleting attribute istances
                 
-                List<Players> players = PMr.findByClubTeamIdInFifaStats(existingTeam.getTeam_id());
+                List<Players> players = PMr.findByClubTeamNameInFifaStats(existingTeam.getTeam_name());
                 if(!players.isEmpty()){
                     for (Players player : players) {
                         List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
                         for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
                             if (playerFifaStat.getFifa_version().equals(fifaV)) {
-                                playerFifaStat.getTeam().setTeam_id(null);
                                 playerFifaStat.getTeam().setTeam_name(null);
                                 playerFifaStat.getTeam().setTeam_mongo_id(null);
                                 playerFifaStat.setClub_position(null);
@@ -394,155 +400,6 @@ public class Teams_service {
         }
         else{
             throw new RuntimeErrorException(null, "Team not found with id: " + id);
-        }
-    }
-
-    //OPERATIONS TO MANAGE TEAM STATS
-    public List<Players> showCurrentFormation(Long teamId) {
-        Optional<Teams> optionalTeam = TMr.findByTeamId(teamId);
-        List<Players> listToReturn = new ArrayList<>();
-    
-        if (optionalTeam.isPresent()) {
-            Teams existingTeam = optionalTeam.get();
-    
-            // Get the current year's FIFA stats
-            Optional<FifaStatsTeam> optionalFifa = existingTeam.getFifaStats().stream()
-                    .filter(fifaStat -> fifaStat.getFifa_version().equals(CURRENT_YEAR))
-                    .findFirst();
-    
-            if (optionalFifa.isPresent()) {
-                FifaStatsTeam existingFifaStats = optionalFifa.get();
-    
-                // Retrieve each player by their ID and add them to the list
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getCaptain())
-                        .orElseThrow(() -> new RuntimeException("Captain not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getShort_free_kick())
-                        .orElseThrow(() -> new RuntimeException("Short free-kick taker not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getLong_free_kick())
-                        .orElseThrow(() -> new RuntimeException("Long free-kick taker not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getLeft_short_free_kick())
-                        .orElseThrow(() -> new RuntimeException("Left short free-kick taker not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getRight_short_free_kick())
-                        .orElseThrow(() -> new RuntimeException("Right short free-kick taker not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getPenalties())
-                        .orElseThrow(() -> new RuntimeException("Penalty taker not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getLeft_corner())
-                        .orElseThrow(() -> new RuntimeException("Left corner taker not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getRight_corner())
-                        .orElseThrow(() -> new RuntimeException("Right corner taker not found")));
-    
-                return listToReturn;
-            } else {
-                throw new RuntimeException("FIFA stats for current year not found for team: " + teamId);
-            }
-        } else {
-            throw new RuntimeException("Team not found with ID: " + teamId);
-        }
-    }
-    
-    public List<Players> showSpecificFormation(Long teamId, Integer fifaV) {
-        Optional<Teams> optionalTeam = TMr.findByTeamId(teamId);
-        List<Players> listToReturn = new ArrayList<>();
-    
-        if (optionalTeam.isPresent()) {
-            Teams existingTeam = optionalTeam.get();
-    
-            // Get the current year's FIFA stats
-            Optional<FifaStatsTeam> optionalFifa = existingTeam.getFifaStats().stream()
-                    .filter(fifaStat -> fifaStat.getFifa_version().equals(fifaV))
-                    .findFirst();
-    
-            if (optionalFifa.isPresent()) {
-                FifaStatsTeam existingFifaStats = optionalFifa.get();
-    
-                // Retrieve each player by their ID and add them to the list
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getCaptain())
-                        .orElseThrow(() -> new RuntimeException("Captain not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getShort_free_kick())
-                        .orElseThrow(() -> new RuntimeException("Short free-kick taker not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getLong_free_kick())
-                        .orElseThrow(() -> new RuntimeException("Long free-kick taker not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getLeft_short_free_kick())
-                        .orElseThrow(() -> new RuntimeException("Left short free-kick taker not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getRight_short_free_kick())
-                        .orElseThrow(() -> new RuntimeException("Right short free-kick taker not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getPenalties())
-                        .orElseThrow(() -> new RuntimeException("Penalty taker not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getLeft_corner())
-                        .orElseThrow(() -> new RuntimeException("Left corner taker not found")));
-    
-                listToReturn.add(PMr.findByPlayerId(existingFifaStats.getRight_corner())
-                        .orElseThrow(() -> new RuntimeException("Right corner taker not found")));
-    
-                return listToReturn;
-            } else {
-                throw new RuntimeException("FIFA stats for current year not found for team: " + teamId);
-            }
-        } else {
-            throw new RuntimeException("Team not found with ID: " + teamId);
-        }
-    }
-
-    public CoachObj showCurrentCoach(Long teamId){
-        Optional<Teams> optionalTeam = TMr.findByTeamId(teamId);
-        if (optionalTeam.isPresent()) {
-            Teams existingTeam = optionalTeam.get();
-            Optional<FifaStatsTeam> optionalFifa = existingTeam.getFifaStats().stream()
-                    .filter(fifaStat -> fifaStat.getFifa_version().equals(CURRENT_YEAR))
-                    .findFirst();
-    
-            if (optionalFifa.isPresent()) {
-                FifaStatsTeam existingFifaStats = optionalFifa.get();
-                 if (existingFifaStats.getCoach() == null) {
-                     throw new RuntimeException("Coach not found");
-                 }
-                 return existingFifaStats.getCoach();
-            }
-            else{
-                throw new RuntimeException("FIFA stats for current year not found for team: " + teamId);
-            }
-        }
-        else{
-            throw new RuntimeException("Team not found with ID: " + teamId);
-        }
-    }
-
-    public CoachObj showSpecificCoach(Long teamId, Integer fifaV){
-        Optional<Teams> optionalTeam = TMr.findByTeamId(teamId);
-        if (optionalTeam.isPresent()) {
-            Teams existingTeam = optionalTeam.get();
-            Optional<FifaStatsTeam> optionalFifa = existingTeam.getFifaStats().stream()
-                    .filter(fifaStat -> fifaStat.getFifa_version().equals(fifaV))
-                    .findFirst();
-    
-            if (optionalFifa.isPresent()) {
-                FifaStatsTeam existingFifaStats = optionalFifa.get();
-                 if(existingFifaStats.getCoach()!=null){
-                    return existingFifaStats.getCoach();
-                 }
-                 else{
-                    throw new RuntimeException("Coach not found");
-                 }
-            }
-            else{
-                throw new RuntimeException("FIFA stats for current year not found for team: " + teamId);
-            }
-        }
-        else{
-            throw new RuntimeException("Team not found with ID: " + teamId);
         }
     }
 }

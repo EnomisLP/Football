@@ -35,12 +35,9 @@ public class PlayersNode{
     @Property(name ="mongoId")
     @Indexed(unique = true)
     private String mongoId;
-    
-    @Property(name = "playerId")
-    @Indexed(unique = true)
-    private Integer playerId;
 
     @Property(name = "longName")
+    @Indexed(unique = true)
     private String longName;
 
     @Property(name = "age")

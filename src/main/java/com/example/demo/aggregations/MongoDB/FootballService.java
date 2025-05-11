@@ -7,12 +7,14 @@ import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
-
+import org.springframework.data.mongodb.core.aggregation.ComparisonOperators;
 import org.springframework.data.mongodb.core.aggregation.StringOperators;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 import com.example.demo.aggregations.DTO.DreamTeamPlayer;
+import com.example.demo.aggregations.DTO.TeamImprovements;
 import com.example.demo.aggregations.DTO.monthSummary;
 
 import java.util.Arrays;
@@ -108,6 +110,66 @@ public class FootballService {
         return result.getMappedResults();
     }
 
+    public TeamImprovements getTeamImprovements(String team,String year1,String year2){
+        
+        //String manipulation phase
+        Integer firstYear= Integer.parseInt(year1.substring(year1.length()-2,year1.length()));
+        Integer secondYear= Integer.parseInt(year2.substring(year2.length()-2,year2.length()));
+        
+        System.out.println(team+" "+firstYear+" "+secondYear);
+        
+        Aggregation aggregation = Aggregation.newAggregation(
+        // Stage 1: Match
+        Aggregation.match(Criteria.where("team_name").is("FC Barcelona")),
+
+        // Stage 2: Project filtered stats for FIFA 24 and 23
+        Aggregation.project()
+            .and(ArrayOperators.ArrayElemAt.arrayOf(
+                ArrayOperators.Filter.filter("fifaStats")
+                    .as("st")
+                    .by(ComparisonOperators.Eq.valueOf("$$st.fifa_version").equalToValue(secondYear))
+            ).elementAt(0)).as("first_stats")
+            .and(ArrayOperators.ArrayElemAt.arrayOf(
+                ArrayOperators.Filter.filter("fifaStats")
+                    .as("st")
+                    .by(ComparisonOperators.Eq.valueOf("$$st.fifa_version").equalToValue(firstYear))
+            ).elementAt(0)).as("second_stats"),
+
+        // Stage 3: Project improvement percentages
+        Aggregation.project()
+            .andExclude("_id")
+            .and(
+                ArithmeticOperators.Multiply.valueOf(
+                    ArithmeticOperators.Divide.valueOf(
+                        ArithmeticOperators.Subtract.valueOf("second_stats.attack")
+                            .subtract("first_stats.attack")
+                    ).divideBy("first_stats.attack")
+                ).multiplyBy(100)
+            ).as("attack_improvement")
+            .and(
+                ArithmeticOperators.Multiply.valueOf(
+                    ArithmeticOperators.Divide.valueOf(
+                        ArithmeticOperators.Subtract.valueOf("second_stats.midfield")
+                            .subtract("first_stats.midfield")
+                    ).divideBy("first_stats.midfield")
+                ).multiplyBy(100)
+            ).as("midfield_improvement")
+            .and(
+                ArithmeticOperators.Multiply.valueOf(
+                    ArithmeticOperators.Divide.valueOf(
+                        ArithmeticOperators.Subtract.valueOf("second_stats.defence")
+                            .subtract("first_stats.defence")
+                    ).divideBy("first_stats.defence")
+                ).multiplyBy(100)
+            ).as("defence_improvement")
+    );
+
+        // Run the aggregation
+        AggregationResults<TeamImprovements> result = mongoTemplate.aggregate(
+            aggregation,"Teams",TeamImprovements.class);
+        
+        return result.getUniqueMappedResult();
+    }
 }
 
 

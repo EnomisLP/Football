@@ -124,14 +124,14 @@ public class Users_node_controller {
     }
 
     // DELETE PLAYERS
-    @DeleteMapping("/user/Mplayers/{playerId}")
-    public void removeMPlayer(@PathVariable Integer playerId, Authentication auth) {
-        Uns.removePlayerMTeam(auth.getName(), playerId);
+    @DeleteMapping("/user/Mplayers/{playerName}")
+    public void removeMPlayer(@PathVariable String playerName, Authentication auth) {
+        Uns.removePlayerMTeam(auth.getName(), playerName);
     }
 
-    @DeleteMapping("/user/Fplayers/{playerId}")
-    public void removeFPlayer(@PathVariable Integer playerId, Authentication auth) {
-        Uns.removePlayerFTeam(auth.getName(), playerId);
+    @DeleteMapping("/user/Fplayers/{playerName}")
+    public void removeFPlayer(@PathVariable String playerName, Authentication auth) {
+        Uns.removePlayerFTeam(auth.getName(), playerName);
     }
 
     // FOLLOW / UNFOLLOW
@@ -157,45 +157,45 @@ public class Users_node_controller {
     }
     
     // ADD TO TEAM
-    @PostMapping("/user/MaleTeam/{playerId}/{fifaValue}")
-    public String add_in_M_Team(@PathVariable Integer playerId, @PathVariable int fifaValue, Authentication auth) {
-        return Uns.addInMTeam(auth.getName(), playerId, fifaValue);
+    @PostMapping("/user/MaleTeam/{playerName}/{fifaValue}")
+    public String add_in_M_Team(@PathVariable String playerName, @PathVariable int fifaValue, Authentication auth) {
+        return Uns.addInMTeam(auth.getName(), playerName, fifaValue);
     }
 
-    @PostMapping("/user/FemaleTeam/{playerId}/{fifaValue}")
-    public String add_in_F_Team(@PathVariable Integer playerId, @PathVariable int fifaValue, Authentication auth) {
-        return Uns.addInFTeam(auth.getName(), playerId, fifaValue);
+    @PostMapping("/user/FemaleTeam/{playerName}/{fifaValue}")
+    public String add_in_F_Team(@PathVariable String playerName, @PathVariable int fifaValue, Authentication auth) {
+        return Uns.addInFTeam(auth.getName(), playerName, fifaValue);
     }
 
     // LIKES
-    @PostMapping("/user/like/team/{targetId}")
-    public CompletableFuture<String> teamLIKE(@PathVariable Long targetId, Authentication auth) {
-        return Uns.team_LIKE(auth.getName(), targetId);
+    @PostMapping("/user/like/team/{teamName}")
+    public CompletableFuture<String> teamLIKE(@PathVariable String teamName, Authentication auth) {
+        return Uns.team_LIKE(auth.getName(), teamName);
     }
 
-    @DeleteMapping("/user/unlike/team/{targetId}")
-    public CompletableFuture<String> teamUNLIKE(@PathVariable Long targetId, Authentication auth) {
-        return Uns.team_UNLIKE(auth.getName(), targetId);
+    @DeleteMapping("/user/unlike/team/{teamName}")
+    public CompletableFuture<String> teamUNLIKE(@PathVariable String teamName, Authentication auth) {
+        return Uns.team_UNLIKE(auth.getName(), teamName);
     }
 
-    @PostMapping("/user/like/player/{playerId}")
-    public CompletableFuture<String> playerLIKE(@PathVariable Integer playerId, Authentication auth) {
-        return Uns.player_LIKE(auth.getName(), playerId);
+    @PostMapping("/user/like/player/{playerName}")
+    public CompletableFuture<String> playerLIKE(@PathVariable String playerName, Authentication auth) {
+        return Uns.player_LIKE(auth.getName(), playerName);
     }
 
-    @DeleteMapping("/user/unlike/player/{playerId}")
-    public CompletableFuture<String> playerUNLIKE(@PathVariable Integer playerId, Authentication auth) {
-        return Uns.player_UNLIKE(auth.getName(), playerId);
+    @DeleteMapping("/user/unlike/player/{playerName}")
+    public CompletableFuture<String> playerUNLIKE(@PathVariable String playerName, Authentication auth) {
+        return Uns.player_UNLIKE(auth.getName(), playerName);
     }
 
-    @PostMapping("/user/like/coach/{targetId}")
-    public CompletableFuture<String> coachLIKE(@PathVariable Long targetId, Authentication auth) {
-        return Uns.coach_LIKE(auth.getName(), targetId.intValue());
+    @PostMapping("/user/like/coach/{coachName}")
+    public CompletableFuture<String> coachLIKE(@PathVariable String coachName, Authentication auth) {
+        return Uns.coach_LIKE(auth.getName(), coachName);
     }
 
-    @DeleteMapping("/user/unlike/coach/{targetId}")
-    public CompletableFuture<String> coachUNLIKE(@PathVariable Long targetId, Authentication auth) {
-        return Uns.coach_UNLIKE(auth.getName(), targetId.intValue());
+    @DeleteMapping("/user/unlike/coach/{coachName}")
+    public CompletableFuture<String> coachUNLIKE(@PathVariable String coachName, Authentication auth) {
+        return Uns.coach_UNLIKE(auth.getName(), coachName);
     }
     
 }

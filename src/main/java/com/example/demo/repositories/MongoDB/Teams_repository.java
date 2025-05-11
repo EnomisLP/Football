@@ -13,16 +13,13 @@ import org.springframework.stereotype.Repository;
 import com.example.demo.models.MongoDB.Teams;
 @Repository
 public interface Teams_repository extends MongoRepository<Teams,String>{
-    @Query("{ 'team_id' : ?0 }")
-    Optional<Teams> findByTeamId(Long team_id);
+
     @Query("{ 'gender' : ?0 }")
     List<Teams> findByGender(String gender);
 
     @Query("{ 'gender' : ?0 }")
     Page<Teams> findAllByGender(String gender, PageRequest page);
     
-    @Query("{ 'fifaStats.coach.coach_id' : ?0 }")
-    List<Teams> findByCoachId(Integer coach_id);
 
     @Query("""
         {
@@ -45,4 +42,9 @@ public interface Teams_repository extends MongoRepository<Teams,String>{
     List<Teams> findTeamsByPlayerIdInFifaStats(Integer playerId);
     @Query("{ 'team_name' : ?0 }")
     Optional<Teams> findByTeamName(String team_name);
+
+     @Query("{ 'fifaStats.coach.coach_mongo_id': ?0 }")
+    List<Teams> findByCoachMongoId(String id);
+     @Query("{ 'fifaStats.coach.coach_mongo_id': ?0 }")
+    List<Teams> findTeamsByPlayerName(String long_name);
 }

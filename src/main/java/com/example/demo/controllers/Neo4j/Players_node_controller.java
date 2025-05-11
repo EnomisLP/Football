@@ -39,17 +39,17 @@ public class Players_node_controller {
     }
 
     // READ: Show the current team a player plays in
-    @GetMapping("/{playerId}/current-team")
+    @GetMapping("/{playerName}/current-team")
     @Operation(summary = "READ: Show the team a player is currently playing in")
-    public plays_in_team showCurrentTeam(@PathVariable Integer playerId) {
-        return playersNodeService.showCurrentTeam(playerId);
+    public plays_in_team showCurrentTeam(@PathVariable String playerName) {
+        return playersNodeService.showCurrentTeam(playerName);
     }
 
     // READ: Show a specific team a player played in with a certain FIFA version
-    @GetMapping("/{playerId}/team/{fifaV}")
+    @GetMapping("/{playerName}/team/{fifaV}")
     @Operation(summary = "READ: Show a team a player played in for a specific FIFA version")
-    public plays_in_team showSpecificTeam(@PathVariable Integer playerId, @PathVariable Integer fifaV) {
-        return playersNodeService.showSpecificTeam(playerId, fifaV);
+    public plays_in_team showSpecificTeam(@PathVariable String playerName, @PathVariable Integer fifaV) {
+        return playersNodeService.showSpecificTeam(playerName, fifaV);
     }
 
     // MAP: Map all PLAYS_IN_TEAM relationships by gender

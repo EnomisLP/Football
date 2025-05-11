@@ -241,9 +241,9 @@ public class Users_node_service {
     }
     //OPERATIONS TO MANAGE PLAYERS IN THE TEAM OF A USER
     @Transactional
-    public String addInMTeam(String username, Integer playerId, Integer fifaVersion) {
+    public String addInMTeam(String username, String playerName, Integer fifaVersion) {
     Optional<UsersNode> userNodeOpt = Unr.findByUserName(username);
-    Optional<PlayersNode> playerNodeOpt = PMNr.findByPlayerId(playerId);
+    Optional<PlayersNode> playerNodeOpt = PMNr.findByLongName(playerName);
 
     if (userNodeOpt.isEmpty() || playerNodeOpt.isEmpty()) {
         throw new IllegalArgumentException("User or Player not found.");
@@ -258,7 +258,7 @@ public class Users_node_service {
 
     Optional<Players> mongoPlayerOpt = PMr.findById(playerNode.getMongoId());
     if (mongoPlayerOpt.isEmpty() || mongoPlayerOpt.get().getFifaStats().isEmpty()) {
-        throw new IllegalArgumentException("FIFA stats not found for Player ID: " + playerId);
+        throw new IllegalArgumentException("FIFA stats not found for Player name: " + playerName);
     }
 
     Players mongoPlayer = mongoPlayerOpt.get();
@@ -274,7 +274,7 @@ public class Users_node_service {
         return "This player with the same FIFA version already exists in the team.";
     }
 
-    if( userNode.getPlayersMNodes().stream().anyMatch(rel -> rel.getPlayer().getPlayerId().equals(playerNode.getPlayerId()))){
+    if( userNode.getPlayersMNodes().stream().anyMatch(rel -> rel.getPlayer().getLongName().equals(playerNode.getLongName()))){
         System.err.println("Player: " + playerNode.getMongoId()+" already in the team.");
         return "This player  already exists in the team.";
     }
@@ -284,9 +284,8 @@ public class Users_node_service {
                 if(userNode.getPlayersMNodes().size() < MAX_NUMBER_TEAM){
                     has_in_M_team fifaVersionRel = new has_in_M_team(playerNode, fifaVersion);
                     userNode.getPlayersMNodes().add(fifaVersionRel);
-                    //Unr.userAddMPlayer(username, playerId, fifaVersion);
                     Unr.save(userNode);
-                    return "Player with ID " + playerId + " added to User " + username + "'s M team with FIFA Version " + fifaVersion;
+                    return "Player with name " + playerName + " added to User " + username + "'s M team with FIFA Version " + fifaVersion;
                 }
                 else {
                     throw new IllegalArgumentException("Team can have maximum "+MAX_NUMBER_TEAM+" players!");
@@ -294,12 +293,12 @@ public class Users_node_service {
             }
         }
 
-        throw new IllegalArgumentException("FIFA version " + fifaVersion + " not found for Player ID: " + playerId);
+        throw new IllegalArgumentException("FIFA version " + fifaVersion + " not found for Player name: " + playerName);
     }
     @Transactional
-    public String addInFTeam(String username, Integer playerId, Integer fifaVersion) {
+    public String addInFTeam(String username, String playerName, Integer fifaVersion) {
     Optional<UsersNode> userNodeOpt = Unr.findByUserName(username);
-    Optional<PlayersNode> playerNodeOpt = PMNr.findByPlayerId(playerId);
+    Optional<PlayersNode> playerNodeOpt = PMNr.findByLongName(playerName);
 
     if (userNodeOpt.isEmpty() || playerNodeOpt.isEmpty()) {
         throw new IllegalArgumentException("User or Player not found.");
@@ -314,7 +313,7 @@ public class Users_node_service {
 
     Optional<Players> mongoPlayerOpt = PMr.findById(playerNode.getMongoId());
     if (mongoPlayerOpt.isEmpty() || mongoPlayerOpt.get().getFifaStats().isEmpty()) {
-        throw new IllegalArgumentException("FIFA stats not found for Player ID: " + playerId);
+        throw new IllegalArgumentException("FIFA stats not found for Player name: " + playerName);
     }
 
     Players mongoPlayer = mongoPlayerOpt.get();
@@ -329,7 +328,7 @@ public class Users_node_service {
                            " with FIFA Version: " + fifaVersion + " already exists in the team.");
         return "This player with the same FIFA version already exists in the team.";
     }
-    if( userNode.getPlayersFNodes().stream().anyMatch(rel -> rel.getPlayer().getPlayerId().equals(playerNode.getPlayerId()))){
+    if( userNode.getPlayersFNodes().stream().anyMatch(rel -> rel.getPlayer().getLongName().equals(playerNode.getLongName()))){
         System.err.println("Player: " + playerNode.getMongoId()+" already in the team.");
         return "This player  already exists in the team.";
     }
@@ -340,7 +339,7 @@ public class Users_node_service {
                     userNode.getPlayersFNodes().add(fifaVersionRel);
                     //Unr.userAddFPlayer(username, playerId, fifaVersion);
                     Unr.save(userNode);
-                    return "Player with ID " + playerId + " added to User " + username + "'s M team with FIFA Version " + fifaVersion;
+                    return "Player with name " + playerName + " added to User " + username + "'s M team with FIFA Version " + fifaVersion;
                 }
                 else{
                     throw new IllegalArgumentException("Team can have maximum "+MAX_NUMBER_TEAM+" players!");
@@ -348,12 +347,12 @@ public class Users_node_service {
             }
         }
 
-        throw new IllegalArgumentException("FIFA version " + fifaVersion + " not found for Player ID: " + playerId);
+        throw new IllegalArgumentException("FIFA version " + fifaVersion + " not found for Player name: " + playerName);
     }
     @Transactional
-    public void removePlayerMTeam(String username, Integer playerId) {
+    public void removePlayerMTeam(String username, String playerName) {
         Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<PlayersNode> optionalPlayerNode = PMNr.findByPlayerId(playerId);
+        Optional<PlayersNode> optionalPlayerNode = PMNr.findByLongName(playerName);
         
         if (optionalUserNode.isPresent() && optionalPlayerNode.isPresent()) {
             PlayersNode existingPlayersNode = optionalPlayerNode.get();
@@ -366,16 +365,16 @@ public class Users_node_service {
                 // Save the updated UsersNode
                 Unr.save(existingUsersNode);
             } else {
-                throw new RuntimeException("Player with ID: " + playerId + " is a female");
+                throw new RuntimeException("Player with name: " + playerName + " is a female");
             }
         } else {
-            throw new RuntimeException("Player with ID: " + playerId + " not found in the M team of user: " + username);
+            throw new RuntimeException("Player with name: " + playerName + " not found in the M team of user: " + username);
         }
     }
       @Transactional
-    public void removePlayerFTeam(String username, Integer playerId){
+    public void removePlayerFTeam(String username, String playerName){
         Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<PlayersNode> optionalPlayerNode = PMNr.findByPlayerId(playerId);
+        Optional<PlayersNode> optionalPlayerNode = PMNr.findByLongName(playerName);
         if (optionalUserNode.isPresent() && optionalPlayerNode.isPresent()) {
             PlayersNode existingPlayersNode = optionalPlayerNode.get();
             UsersNode existingUsersNode = optionalUserNode.get();
@@ -387,10 +386,10 @@ public class Users_node_service {
                 Unr.save(existingUsersNode);
             }
             else{
-                throw new RuntimeException("Player with ID: " + playerId + " is a female");
+                throw new RuntimeException("Player with name: " + playerName + " is a female");
             }
         } else {
-            throw new RuntimeException("Player with ID: " + playerId + " not found in the M team of user: " + username);
+            throw new RuntimeException("Player with name: " + playerName + " not found in the M team of user: " + username);
         }
     }
 
@@ -518,9 +517,9 @@ public class Users_node_service {
         maxAttempts = 3,
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> team_LIKE(String username, Long teamId) {
+    public CompletableFuture<String> team_LIKE(String username, String teamName) {
         Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<TeamsNode> optionalTeamNode = TMn.findByTeamId(teamId);
+        Optional<TeamsNode> optionalTeamNode = TMn.findByTeamName(teamName);
     
         if (optionalUserNode.isPresent() && optionalTeamNode.isPresent()) {
             UsersNode usersNode = optionalUserNode.get();
@@ -530,9 +529,9 @@ public class Users_node_service {
             usersNode.getTeamsNodes().add(teamsNode);
             Unr.save(usersNode);
     
-            return CompletableFuture.completedFuture("User: " + username + " now likes team with id: " + teamId);
+            return CompletableFuture.completedFuture("User: " + username + " now likes team with name: " + teamName);
         } else {
-            throw new RuntimeException("User: " + username + " or Team with id: " + teamId + " not found");
+            throw new RuntimeException("User: " + username + " or Team with name: " + teamName + " not found");
         }
     }
     @Async("customAsyncExecutor")
@@ -542,9 +541,9 @@ public class Users_node_service {
         maxAttempts = 3,
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> team_UNLIKE(String username, Long teamId) {
+    public CompletableFuture<String> team_UNLIKE(String username, String teamName) {
         Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<TeamsNode> optionalTeamNode = TMn.findByTeamId(teamId);
+        Optional<TeamsNode> optionalTeamNode = TMn.findByTeamName(teamName);
     
         if (optionalUserNode.isPresent() && optionalTeamNode.isPresent()) {
             UsersNode existingUsersNode = optionalUserNode.get();
@@ -554,9 +553,9 @@ public class Users_node_service {
             existingUsersNode.getTeamsNodes().remove(existingTeamsNode);
             Unr.save(existingUsersNode);
     
-            return CompletableFuture.completedFuture("User: " + username + " is not liking team with id: " + teamId + " anymore");
+            return CompletableFuture.completedFuture("User: " + username + " is not liking team with name: " + teamName + " anymore");
         } else {
-            throw new RuntimeException("User: " + username + " or Team with id: " + teamId + " not found");
+            throw new RuntimeException("User: " + username + " or Team with name: " + teamName + " not found");
         }
     }
     @Async("customAsyncExecutor")
@@ -566,10 +565,10 @@ public class Users_node_service {
         maxAttempts = 3,
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> coach_LIKE(String username, Integer coachId) {
+    public CompletableFuture<String> coach_LIKE(String username, String coachName) {
         System.out.println("Attempting to find user: " + username);
         Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<CoachesNode> optionalCoachNode = CMn.findByCoachId(coachId);
+        Optional<CoachesNode> optionalCoachNode = CMn.findByLongName(coachName);
     
         if (optionalUserNode.isPresent() && optionalCoachNode.isPresent()) {
             UsersNode usersNode = optionalUserNode.get();
@@ -579,9 +578,9 @@ public class Users_node_service {
             usersNode.getCoachesNodes().add(coachesNode);
             Unr.save(usersNode);
     
-            return CompletableFuture.completedFuture("User: " + username + " now likes coach with id: " + coachId);
+            return CompletableFuture.completedFuture("User: " + username + " now likes coach with name: " + coachName);
         } else {
-            throw new RuntimeException("User: " + username + " or Coach with id: " + coachId + " not found");
+            throw new RuntimeException("User: " + username + " or Coach with name: " + coachName + " not found");
         }
     }
     @Async("customAsyncExecutor")
@@ -591,9 +590,9 @@ public class Users_node_service {
         maxAttempts = 3,
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> coach_UNLIKE(String username, Integer coachId) {
+    public CompletableFuture<String> coach_UNLIKE(String username, String coachName) {
         Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<CoachesNode> optionalCoachNode = CMn.findByCoachId(coachId);
+        Optional<CoachesNode> optionalCoachNode = CMn.findByLongName(coachName);
     
         if (optionalUserNode.isPresent() && optionalCoachNode.isPresent()) {
             UsersNode existingUsersNode = optionalUserNode.get();
@@ -603,9 +602,9 @@ public class Users_node_service {
             existingUsersNode.getCoachesNodes().remove(existingCoachesNode);
             Unr.save(existingUsersNode);
     
-            return CompletableFuture.completedFuture("User: " + username + " is not liking coach with id: " + coachId + " anymore");
+            return CompletableFuture.completedFuture("User: " + username + " is not liking coach with name: " + coachName + " anymore");
         } else {
-            throw new RuntimeException("User: " + username + " or Coach with id: " + coachId + " not found");
+            throw new RuntimeException("User: " + username + " or Coach with name: " + coachName + " not found");
         }
     }
     @Async("customAsyncExecutor")
@@ -614,10 +613,10 @@ public class Users_node_service {
         maxAttempts = 3,
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> player_LIKE(String username, Integer playerId) {
+    public CompletableFuture<String> player_LIKE(String username, String playerName) {
         System.out.println("Attempting to find user: " + username);
         Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<PlayersNode> optionalPlayerNode = PMNr.findByPlayerId(playerId);
+        Optional<PlayersNode> optionalPlayerNode = PMNr.findByLongName(playerName);
     
         if (optionalUserNode.isPresent() && optionalPlayerNode.isPresent()) {
             UsersNode usersNode = optionalUserNode.get();
@@ -626,9 +625,9 @@ public class Users_node_service {
             usersNode.getPlayerNodes().add(playerNode);
             Unr.save(usersNode);
     
-            return CompletableFuture.completedFuture("User: " + username + " now likes player with id: " + playerId);
+            return CompletableFuture.completedFuture("User: " + username + " now likes player with name: " + playerName);
         } else {
-            throw new RuntimeException("User: " + username + " or Player with id: " + playerId + " not found");
+            throw new RuntimeException("User: " + username + " or Player with name: " + playerName + " not found");
         }
     }
     @Async("customAsyncExecutor")
@@ -638,9 +637,9 @@ public class Users_node_service {
         maxAttempts = 3,
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> player_UNLIKE(String username, Integer playerId) {
+    public CompletableFuture<String> player_UNLIKE(String username, String playerName) {
         Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<PlayersNode> optionalPlayerNode = PMNr.findByPlayerId(playerId);
+        Optional<PlayersNode> optionalPlayerNode = PMNr.findByLongName(playerName);
     
         if (optionalUserNode.isPresent() && optionalPlayerNode.isPresent()) {
             UsersNode existingUsersNode = optionalUserNode.get();
@@ -650,9 +649,9 @@ public class Users_node_service {
             existingUsersNode.getPlayerNodes().remove(existingPlayersNode);
             Unr.save(existingUsersNode);
     
-            return CompletableFuture.completedFuture("User: " + username + " is not liking player with id: " + playerId + " anymore");
+            return CompletableFuture.completedFuture("User: " + username + " is not liking player with name: " + playerName + " anymore");
         } else {
-            throw new RuntimeException("User: " + username + " or Player with id: " + playerId + " not found");
+            throw new RuntimeException("User: " + username + " or Player with name: " + playerName + " not found");
         }
     }
     

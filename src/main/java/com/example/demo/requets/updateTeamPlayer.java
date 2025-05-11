@@ -12,5 +12,4 @@ import lombok.Setter;
 @Setter
 public class updateTeamPlayer {
     String team_name;
-    Long team_id;
 }

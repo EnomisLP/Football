@@ -11,10 +11,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
-
 import com.example.demo.models.MongoDB.Teams;
 
 import com.example.demo.models.Neo4j.TeamsNode;
+import com.example.demo.relationships.manages_team;
+import com.example.demo.relationships.plays_in_team;
 import com.example.demo.repositories.MongoDB.Teams_repository;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
 
@@ -23,8 +24,7 @@ import jakarta.transaction.Transactional;
 @Service
 public class Teams_node_service {
 
-   
-
+    private final static Integer CURRENT_YEAR = 24;
     private final Teams_node_rep TMn;
     private final Teams_repository TMr;
     @Autowired
@@ -50,30 +50,6 @@ public class Teams_node_service {
         return TMn.findAllByGenderWithPagination(gender, page);
     }
 
-    // UPDATE
-    public TeamsNode updateTeam(Long id, TeamsNode teamDetails) {
-        Optional<TeamsNode> optionalTeamNode = TMn.findById(id);
-        Optional<Teams> optionalTeam = optionalTeamNode.flatMap(t -> TMr.findById(t.getMongoId()));
-        if (optionalTeamNode.isPresent() && optionalTeam.isPresent()) {
-            TeamsNode existingTeamNode = optionalTeamNode.get();
-            Teams existingTeam = optionalTeam.get();
-
-            // Update Neo4j node
-            existingTeamNode.setTeamId(teamDetails.getTeamId());
-            existingTeamNode.setTeamName(teamDetails.getTeamName());
-            existingTeamNode.setGender(teamDetails.getGender());
-
-            // Update MongoDB document
-            existingTeam.setTeam_id(teamDetails.getTeamId());
-            existingTeam.setTeam_name(teamDetails.getTeamName());
-            existingTeam.setGender(teamDetails.getGender());;
-
-            TMr.save(existingTeam);
-            return TMn.save(existingTeamNode);
-        } else {
-            throw new RuntimeErrorException(null, "Team with id: " + id + " not correctly mapped on MongoDB or Neo4j");
-        }
-    }
 
     private void ensureTeamNodeIndexes() {
         neo4jClient.query("""
@@ -81,7 +57,7 @@ public class Teams_node_service {
         """).run();
         
         neo4jClient.query("""
-            CREATE INDEX teamId IF NOT EXISTS FOR (t:TeamsNode) ON (t.teamId)
+            CREATE INDEX teamName IF NOT EXISTS FOR (t:TeamsNode) ON (t.teamName)
         """).run();
         
         neo4jClient.query("""
@@ -103,7 +79,6 @@ public class Teams_node_service {
             // Create a new Neo4j node for the team
             TeamsNode teamsNode = new TeamsNode();
             teamsNode.setMongoId(team.get_id());
-            teamsNode.setTeamId(team.getTeam_id());
             teamsNode.setTeamName(team.getTeam_name());
             teamsNode.setGender(team.getGender());
             nodeToInsert.add(teamsNode);
@@ -127,4 +102,43 @@ public class Teams_node_service {
         }
     }
 
+    public List<plays_in_team> showCurrentFormation(String teamName){
+        Optional<TeamsNode> optionalTeamsNode = TMn.findByTeamName(teamName);
+        if(optionalTeamsNode.isPresent()){
+            return TMn.findFormation(teamName, CURRENT_YEAR);
+        }
+        else{
+            throw new RuntimeErrorException(null, "Team not found with name" + teamName);
+        }
+    }
+
+    public List<plays_in_team> showSpecificFormation(String teamName, Integer fifaV){
+        Optional<TeamsNode> optionalTeamsNode = TMn.findByTeamName(teamName);
+        if(optionalTeamsNode.isPresent()){
+            return TMn.findFormation(teamName, fifaV);
+        }
+        else{
+            throw new RuntimeErrorException(null, "Team not found with name" + teamName);
+        }
+    }
+
+    public manages_team showCurrentCoach(String teamName){
+         Optional<TeamsNode> optionalTeamsNode = TMn.findByTeamName(teamName);
+        if(optionalTeamsNode.isPresent()){
+            return TMn.findCoach(teamName, CURRENT_YEAR);
+        }
+        else{
+            throw new RuntimeErrorException(null, "Team not found with name" + teamName);
+        }
+    }
+
+    public manages_team showSpecificCoach(String teamName, Integer fifaV){
+         Optional<TeamsNode> optionalTeamsNode = TMn.findByTeamName(teamName);
+        if(optionalTeamsNode.isPresent()){
+            return TMn.findCoach(teamName, fifaV);
+        }
+        else{
+            throw new RuntimeErrorException(null, "Team not found with name" + teamName);
+        }
+    }
 }

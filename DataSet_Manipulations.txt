@@ -51,6 +51,7 @@ ________________________________________________________________________________
 CODE
 _____________________________________________________________________________________
 db.male_players.aggregate([
+  // Match with team info
   {
     $lookup: {
       from: "male_teams",
@@ -76,6 +77,21 @@ db.male_players.aggregate([
       preserveNullAndEmptyArrays: true
     }
   },
+
+  {
+    $group: {
+      _id: {
+        player_id: "$player_id",
+        fifa_version: "$fifa_version"
+      },
+      doc: { $first: "$$ROOT" }
+    }
+  },
+  {
+    $replaceWith: "$doc"
+  },
+
+
   {
     $group: {
       _id: "$player_id",
@@ -110,7 +126,6 @@ db.male_players.aggregate([
           release_clause_eur: "$release_clause_eur",
           team: {
             team_mongo_id: "$team_info._id",
-            team_id: "$team_info.team_id",
             team_name: "$team_info.team_name"
           },
           pace: "$pace",
@@ -157,14 +172,18 @@ db.male_players.aggregate([
       }
     }
   },
+
+  // Use the original document's _id if needed
   {
     $set: {
       _id: "$original_id"
     }
   },
   {
-    $unset: "original_id"
+    $unset: ["original_id", "player_id"]
   },
+
+  // Merge into final collection
   {
     $merge: {
       into: "Players",
@@ -172,7 +191,8 @@ db.male_players.aggregate([
       whenNotMatched: "insert"
     }
   }
-])
+]);
+
 
 _____________________________________________________________________________
 
@@ -211,7 +231,6 @@ db.male_coaches.aggregate([
       team: {
         $push: {
           team_mongo_id: "$team_info._id",
-          team_id: "$team_info.team_id",
           team_name: "$team_info.team_name",
           fifa_version: "$team_info.fifa_version"
         }
@@ -224,7 +243,7 @@ db.male_coaches.aggregate([
     }
   },
   {
-    $unset: "original_id"
+    $unset: ["original_id", "coach_id"]
   },
   {
     $merge: {
@@ -258,33 +277,24 @@ db.male_teams.aggregate([
       team_id: { $first: "$team_id" },
       team_name: { $first: "$team_name" },
       gender: { $first: "male" },
+      league_id: { $first: "$league_id"},
+      league_name: {$first: "$league_name"},
+      league_level: {$first: "$league_level"},
+      nationality_id: {$first: "$nationality_id"},
+      nationality_name: {$first: "$nationality_name"},
       fifaStats: {
         $push: {
           coach: {
             coach_mongo_id: "$coach_info._id",
-            coach_id: "$coach_id",
             coach_name: "$coach_info.long_name"
           },
           fifa_version: "$fifa_version",
-          league_id: "$league_id",
-          league_name: "$league_name",
-          league_level: "$league_level",
-          nationality_id: "$nationality_id",
-          nationality_name: "$nationality_name",
           home_stadium: "$home_stadium",
           overall: "$overall",
           attack: "$attack",
           midfield: "$midfield",
           defence: "$defence",
           club_worth_eur: "$club_worth_eur",
-          captain: "$captain",
-          short_free_kick: "$short_free_kick",
-          long_free_kick: "$long_free_kick",
-          left_short_free_kick: "$left_short_free_kick",
-          right_short_free_kick: "$right_short_free_kick",
-          penalties: "$penalties",
-          left_corner: "$left_corner",
-          right_corner: "$right_corner",
           off_players_in_box: "$off_players_in_box",
           off_corners: "$off_corners",
           off_free_kicks: "$off_free_kicks"
@@ -298,7 +308,7 @@ db.male_teams.aggregate([
     }
   },
   {
-    $unset: "original_id"
+    $unset: ["original_id", "team_id"]
   },
   {
     $merge: {
@@ -312,35 +322,6 @@ db.male_teams.aggregate([
 
 ________________________________________________________________________________________________________________________________________
 
-db.articles.aggregate([
-  {
-    $group: {
-      _id: "$_id",
-      original_id: { $first: "$_id" },
-      author: { $first: "$author" },
-      title: { $first: "$title" },
-      content: { $first: "$content" },
-      publish_time: { $first: "$publish-time" } // Keep as string
-    }
-  },
-  {
-    $set: {
-      _id: "$original_id"
-    }
-  },
-  {
-    $unset: "original_id"
-  },
-  {
-    $merge: {
-      into: "Articles",
-      whenMatched: "merge",
-      whenNotMatched: "insert"
-    }
-  }
-])
-
-_____________________________________________________________________________________________
 
 //Function for hashing the password
 const crypto = require('crypto');

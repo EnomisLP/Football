@@ -17,7 +17,6 @@ public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
 
     boolean existsByMongoId(String valueOf);
     Optional<CoachesNode> findByMongoId(String id);
-    Optional<CoachesNode> findByCoachId(Integer coachId);
     @Query(
         value = "MATCH (c:CoachesNode {gender: $gender}) " +
                 "OPTIONAL MATCH (c)-[:MANAGES_TEAM]->(t:TeamsNode) " +
@@ -30,7 +29,8 @@ public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
 
     @Query("MATCH (c:CoachesNode) -[r:MANAGES_TEAM]-> (t:TeamsNode) " +
     "WHERE r.fifaVersion = $fifaV " +
-    "AND t.teamId = $teamId " +
+    "AND t.teamName = $teamName " +
     "RETURN r")
-    manages_team findFifaVersionByTeamIdAndFifaV(Long teamId, Integer fifaV);
+    manages_team findFifaVersionByTeamNameAndFifaV(String teamName, Integer fifaV);
+    Optional<CoachesNode> findByLongName(String coachName);
 }

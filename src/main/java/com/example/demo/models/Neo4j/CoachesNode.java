@@ -33,11 +33,8 @@ public class CoachesNode {
     @Indexed(unique = true)
     private String mongoId;
 
-    @Property(name = "coachId")
-    @Indexed(unique = true)
-    private Integer coachId;
-
     @Property(name = "longName")
+    @Indexed(unique = true)
     private String longName;
 
     @Property(name = "nationalityName")

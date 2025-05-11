@@ -46,12 +46,12 @@ public class Coaches_node_service {
     }
 
     // READ
-    public CoachesNode getCoach(Integer coach_id) {
-        Optional<CoachesNode> optionalCoach = CMn.findByCoachId(coach_id);
+    public CoachesNode getCoach(String coachName) {
+        Optional<CoachesNode> optionalCoach = CMn.findByLongName(coachName);
         if (optionalCoach.isPresent()) {
             return optionalCoach.get();
         } else {
-            throw new RuntimeErrorException(null, "Coach not found with id: " + coach_id);
+            throw new RuntimeErrorException(null, "Coach not found with name: " + coachName);
         }
     }
 
@@ -66,7 +66,7 @@ public class Coaches_node_service {
         """).run();
         
         neo4jClient.query("""
-            CREATE INDEX coachId IF NOT EXISTS FOR (c:CoachesNode) ON (c.coachId)
+            CREATE INDEX longName IF NOT EXISTS FOR (c:CoachesNode) ON (c.longName)
         """).run();
         
         neo4jClient.query("""
@@ -87,7 +87,6 @@ public class Coaches_node_service {
             // Create a new Neo4j node for the coach
             CoachesNode coachNode = new CoachesNode();
             coachNode.setMongoId(coach.get_id());
-            coachNode.setCoachId(coach.getCoach_id());
             coachNode.setLongName(coach.getLong_name());
             coachNode.setNationalityName(coach.getNationality_name());
             coachNode.setGender(coach.getGender());
@@ -132,9 +131,9 @@ public class Coaches_node_service {
             Teams existingTeam = optionalTeam.get();
     
             for (FifaStatsTeam fifaStat : existingTeam.getFifaStats()) {
-                Optional<Coaches> optionalCoach = Cmr.findByCoachId(fifaStat.getCoach().getCoach_id());
+                Optional<Coaches> optionalCoach = Cmr.findByCoachLongName(fifaStat.getCoach().getCoach_name());
                 if (optionalCoach.isEmpty()) {
-                    System.err.println("Coach with id: " + fifaStat.getCoach().getCoach_id() + " not correctly mapped in MongoDB");
+                    System.err.println("Coach with id: " + fifaStat.getCoach().getCoach_name() + " not correctly mapped in MongoDB");
                     continue;
                 }
     
@@ -153,7 +152,7 @@ public class Coaches_node_service {
     
                 if (existingRelationship) {
                     System.err.println("Relationship already exists for Coach node with id: " + existingCoach.get_id() +
-                                       " and Team node " + teamNode.getTeamId() +
+                                       " and Team node " + teamNode.get_id() +
                                        " in fifaVersion " + fifaStat.getFifa_version());
                     continue;
                 }
@@ -168,19 +167,19 @@ public class Coaches_node_service {
         return "Number of Relationships Created: " + counter;
     }
     
-     public List<manages_team> showTrainedHistory(Integer coachId){
-        Optional<CoachesNode> optionalCoach = CMn.findByCoachId(coachId);
+    public List<manages_team> showTrainedHistory(String coachName){
+        Optional<CoachesNode> optionalCoach = CMn.findByLongName(coachName);
         if(optionalCoach.isPresent()){
             CoachesNode existingCoachNode = optionalCoach.get();
             return existingCoachNode.getTeamMNodes();
         }
         else{
-            throw new RuntimeErrorException(null, "Coach with id:" + coachId + "not found");
+            throw new RuntimeErrorException(null, "Coach with name:" + coachName + "not found");
         }
     }
 
-    public manages_team showCurrentTeam(Integer coachId){
-        Optional<CoachesNode> optionalCoach = CMn.findByCoachId(coachId);
+    public manages_team showCurrentTeam(String coachName){
+        Optional<CoachesNode> optionalCoach = CMn.findByLongName(coachName);
         Optional<manages_team> optionalRelationship = optionalCoach.flatMap(coach -> coach.getTeamMNodes().stream()
         .filter(team -> team.getFifaV().equals(CURRENT_YEAR)).findFirst());
         if(optionalCoach.isPresent() && optionalRelationship.isPresent()){
@@ -188,12 +187,12 @@ public class Coaches_node_service {
             return existingTeam;
         }
         else{
-            throw new RuntimeErrorException(null, "Coach with id:" + coachId + " not found or team not found for this year");
+            throw new RuntimeErrorException(null, "Coach with name:" + coachName + " not found or team not found for this year");
         }
     }
 
-    public manages_team showSpecificTeam(Integer coachId, Integer fifaV){
-        Optional<CoachesNode> optionalCoach = CMn.findByCoachId(coachId);
+    public manages_team showSpecificTeam(String coachName, Integer fifaV){
+        Optional<CoachesNode> optionalCoach = CMn.findByLongName(coachName);
         Optional<manages_team> optionalRelationship = optionalCoach.flatMap(coach -> coach.getTeamMNodes().stream()
         .filter(team -> team.getFifaV().equals(fifaV)).findFirst());
         if(optionalCoach.isPresent() && optionalRelationship.isPresent()){
@@ -201,7 +200,7 @@ public class Coaches_node_service {
             return existingTeam;
         }
         else{
-            throw new RuntimeErrorException(null, "Coach with id:" + coachId + " not found or team not found for this year");
+            throw new RuntimeErrorException(null, "Coach with name:" + coachName + " not found or team not found for this year");
         }
     }
 }

@@ -40,7 +40,6 @@ public class NodeService {
                     else{
                     TeamsNode team = new TeamsNode();
                     team.setMongoId(teamNode.get("mongoId").asString());
-                    team.setTeamId(teamNode.get("teamId").asLong());
                     team.setTeamName(teamNode.get("teamName").asString());
                     team.setGender(teamNode.get("gender").asString());
                     Integer totalFame = record.get("totalFame").asInt();
@@ -71,7 +70,6 @@ public class NodeService {
                 var playerNode = record.get("playerNode").asNode();
                 PlayersNode player = new PlayersNode();
                 player.setMongoId(playerNode.get("mongoId").asString());
-                player.setPlayerId(playerNode.get("playerId").asInt());
                 player.setLongName(playerNode.get("longName").asString());
                 player.setGender(playerNode.get("gender").asString());
                 player.setAge(playerNode.get("age").asInt());

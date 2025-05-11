@@ -1,9 +1,13 @@
 package com.example.demo.controllers.Neo4j;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.Neo4j.TeamsNode;
+import com.example.demo.relationships.manages_team;
+import com.example.demo.relationships.plays_in_team;
 import com.example.demo.services.Neo4j.Teams_node_service;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,5 +46,29 @@ public class Teams_node_controller {
     @Operation(summary = "MAP operation: Map all Teams from MongoDB to Neo4j")
     public String mapAllNodes() {
         return teamsNodeService.MapAllTheNodes();
+    }
+
+    @GetMapping("/user/{teamName}/currentFormation")
+    @Operation(summary = "Show formation of a Team for the current Year")
+    public List<plays_in_team> showCurrentFormation(@PathVariable String teamName){
+        return teamsNodeService.showCurrentFormation(teamName);
+    }
+
+    @GetMapping("/user/{teamName}/specificFormation")
+    @Operation(summary = "Show formation of a Team for a specific Year")
+    public List<plays_in_team> showSpecificFormation(@PathVariable String teamName, @PathVariable Integer fifaV){
+        return teamsNodeService.showSpecificFormation(teamName, fifaV);
+    }
+
+    @GetMapping("/user/{teamName}/currentCoach")
+    @Operation(summary = "Show Coach of a Team for the current Year")
+    public manages_team showCurrentCoach(@PathVariable String teamName){
+        return teamsNodeService.showCurrentCoach(teamName);
+    }
+
+    @GetMapping("/user/{teamName}/specificCoach")
+    @Operation(summary = "Show coach of a Team for a specific Year")
+    public manages_team showSpecificCoach(@PathVariable String teamName, @PathVariable Integer fifaV){
+        return teamsNodeService.showSpecificCoach(teamName, fifaV);
     }
 }

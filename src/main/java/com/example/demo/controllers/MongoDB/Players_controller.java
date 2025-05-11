@@ -90,14 +90,14 @@ public class Players_controller {
     // READ: Get the last year stats of the player
     @GetMapping("/{playerId}/lastYearStats")
     @Operation(summary = "READ: Get the stats of the player for the last year")
-    public FifaStatsPlayer getLastYearStats(@PathVariable Integer playerId) {
-        return playersMService.showCurrentYear(playerId);
+    public FifaStatsPlayer getLastYearStats(@PathVariable String playerName) {
+        return playersMService.showCurrentYear(playerName);
     }
 
     // READ: Get specific year stats of the player
     @GetMapping("/{playerId}/stats/{fifaV}")
     @Operation(summary = "READ: Get the stats of the player for a specific FIFA version")
-    public FifaStatsPlayer getSpecificYearStats(@PathVariable Integer playerId, @PathVariable Integer fifaV) {
-        return playersMService.showSpecificStats(playerId, fifaV);
+    public FifaStatsPlayer getSpecificYearStats(@PathVariable String playerName, @PathVariable Integer fifaV) {
+        return playersMService.showSpecificStats(playerName, fifaV);
     }
 }

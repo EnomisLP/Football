@@ -24,9 +24,6 @@ public class Coaches{
     @Id
     @GeneratedValue
     private String _id;
-    @Field("coach_id")
-    @Indexed(unique = true)
-    private Integer coach_id;
     @Field("long_name")
     private String long_name;
     @Field("short_name")

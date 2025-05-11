@@ -22,7 +22,6 @@ import com.example.demo.repositories.MongoDB.Players_repository;
 import com.example.demo.repositories.MongoDB.Teams_repository;
 import com.example.demo.repositories.Neo4j.Players_node_rep;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
-import com.mongodb.lang.Nullable;
 
 import jakarta.transaction.Transactional;
 
@@ -59,41 +58,14 @@ public class Players_node_service {
         return PMn.findAllByGenderWithPagination(gender, page);
     }
 
-    // UPDATE
-    public PlayersNode updatePlayer(Long id, PlayersNode playerDetails) {
-        Optional<PlayersNode> optionalPlayerNode = PMn.findById(id);
-        Optional<Players> optionalPlayer = optionalPlayerNode.flatMap(p -> PMr.findById(p.getMongoId()));
-        if (optionalPlayerNode.isPresent() && optionalPlayer.isPresent()) {
-            PlayersNode existingPlayerNode = optionalPlayerNode.get();
-            Players existingPlayer = optionalPlayer.get();
-
-            // Update Neo4j node
-            existingPlayerNode.setPlayerId(playerDetails.getPlayerId());
-            existingPlayerNode.setLongName(playerDetails.getLongName());
-            existingPlayerNode.setAge(playerDetails.getAge());
-            existingPlayerNode.setNationalityName(playerDetails.getNationalityName());
-            existingPlayerNode.setGender(playerDetails.getGender());
-
-            // Update MongoDB document
-            existingPlayer.setPlayer_id(playerDetails.getPlayerId());
-            existingPlayer.setLong_name(playerDetails.getLongName());
-            existingPlayer.setAge(playerDetails.getAge());
-            existingPlayer.setNationality_name(playerDetails.getNationalityName());
-            existingPlayer.setGender(playerDetails.getGender());
-
-            PMr.save(existingPlayer);
-            return PMn.save(existingPlayerNode);
-        } else {
-            throw new RuntimeErrorException(null, "Player with id: " + id + " not correctly mapped on MongoDB or Neo4j");
-        }
-    }
+   
     private void ensurePlayerNodeIndexes() {
         neo4jClient.query("""
             CREATE INDEX mongoId IF NOT EXISTS FOR (p:PlayersNode) ON (p.mongoId)
         """).run();
         
         neo4jClient.query("""
-            CREATE INDEX playerId IF NOT EXISTS FOR (p:PlayersNode) ON (p.playerId)
+            CREATE INDEX longName IF NOT EXISTS FOR (p:PlayersNode) ON (p.longName)
         """).run();
         
         neo4jClient.query("""
@@ -121,7 +93,6 @@ public class Players_node_service {
             // Create a new Neo4j node for the player
             PlayersNode playerNode = new PlayersNode();
             playerNode.setMongoId(player.get_id());
-            playerNode.setPlayerId(player.getPlayer_id());
             playerNode.setLongName(player.getLong_name());
             playerNode.setAge(player.getAge());
             playerNode.setNationalityName(player.getNationality_name());
@@ -150,9 +121,9 @@ public class Players_node_service {
                     continue;
                     }
 
-                    Optional<Teams> optionalTeam = TMr.findByTeamId(fifaStat.getTeam().getTeam_id());
+                    Optional<Teams> optionalTeam = TMr.findByTeamName(fifaStat.getTeam().getTeam_name());
                     if (optionalTeam.isEmpty()) {
-                        System.out.printf("No Team found in MongoDB for team ID: %d%n", fifaStat.getTeam().getTeam_id());
+                        System.out.printf("No Team found in MongoDB for team name:", fifaStat.getTeam().getTeam_name());
                         continue;
                     }
 
@@ -203,8 +174,8 @@ public class Players_node_service {
     }
     
     //OPERATIONS TO MANAGE TEAM
-    public plays_in_team showCurrentTeam(Integer playerId){
-        Optional<PlayersNode> optionalPlayerNode = PMn.findByPlayerId(playerId);
+    public plays_in_team showCurrentTeam(String playerName){
+        Optional<PlayersNode> optionalPlayerNode = PMn.findByLongName(playerName);
         Optional<plays_in_team> optionalTeam = optionalPlayerNode.flatMap(playerNode -> 
         playerNode.getTeamMNodes().stream().filter(teamNode -> teamNode.getFifaV()
         .equals(CURRENT_YEAR)).findFirst());
@@ -214,12 +185,12 @@ public class Players_node_service {
            
         }
         else{
-            throw new RuntimeErrorException(null, "Player with id:" + playerId +"not found or team not mapped for current year");
+            throw new RuntimeErrorException(null, "Player with name:" + playerName +"not found or team not mapped for current year");
         }
     }
 
-    public plays_in_team showSpecificTeam(Integer playerId, Integer fifaVersion){
-        Optional<PlayersNode> optionalPlayerNode = PMn.findByPlayerId(playerId);
+    public plays_in_team showSpecificTeam(String playerName, Integer fifaVersion){
+        Optional<PlayersNode> optionalPlayerNode = PMn.findByLongName(playerName);
         Optional<plays_in_team> optionalTeam = optionalPlayerNode.flatMap(playerNode -> 
         playerNode.getTeamMNodes().stream().filter(teamNode -> teamNode.getFifaV()
         .equals(fifaVersion)).findFirst());
@@ -229,7 +200,7 @@ public class Players_node_service {
            
         }
         else{
-            throw new RuntimeErrorException(null, "Player with id:" + playerId +"not found or team not mapped for current year");
+            throw new RuntimeErrorException(null, "Player with name:" + playerName +"not found or team not mapped for current year");
         }
     }
 

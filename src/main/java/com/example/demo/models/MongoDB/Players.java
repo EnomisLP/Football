@@ -27,9 +27,6 @@ public class Players {
     @Id
     @GeneratedValue
     private String _id;
-    @Field("player_id")
-    @Indexed(unique = true)
-    private Integer player_id;
     @Field("short_name")
     private  String short_name;
     @Field("long_name")

@@ -11,6 +11,5 @@ import lombok.Setter;
 public class TeamObj {
     String team_mongo_id;
     String team_name;
-    Long team_id;
     Integer fifa_version;
 }

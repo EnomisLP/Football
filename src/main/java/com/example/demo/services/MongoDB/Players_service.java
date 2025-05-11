@@ -9,7 +9,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
-import com.example.demo.models.MongoDB.FifaStatsTeam;
 import com.example.demo.models.MongoDB.Players;
 import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.models.Neo4j.PlayersNode;
@@ -73,7 +72,6 @@ public class Players_service {
         Players playerM = PMr.save(player);
         PlayersNode playerNode = new PlayersNode();
         playerNode.setMongoId(playerM.get_id());
-        playerNode.setPlayerId(playerM.getPlayer_id());
         playerNode.setLongName(playerM.getLong_name());
         playerNode.setAge(playerM.getAge());
         playerNode.setNationalityName(playerM.getNationality_name());
@@ -102,45 +100,6 @@ public class Players_service {
                 existingPlayerNode.setAge(playerDetails.getAge());
                 existingPlayerNode.setLongName(playerDetails.getLong_name());
                 existingPlayerNode.setGender(playerDetails.getGender());
-                if(!playerDetails.getPlayer_id().equals(existingPlayer.getPlayer_id())){
-                    List<Teams> teams = TMr.findTeamsByPlayerIdInFifaStats(existingPlayer.getPlayer_id());
-                    //Updating MongoDB
-                    if(!teams.isEmpty()){
-                        for(Teams team : teams){
-                            List<FifaStatsTeam> statsTeam = team.getFifaStats();
-                            for(FifaStatsTeam stat: statsTeam){
-                                if(stat.getLeft_short_free_kick().equals(existingPlayer.getPlayer_id())){
-                                    stat.setLeft_short_free_kick(playerDetails.getPlayer_id());
-                                }
-                                if(stat.getRight_short_free_kick().equals(existingPlayer.getPlayer_id())){
-                                    stat.setRight_short_free_kick(playerDetails.getPlayer_id());
-                                }
-                                if(stat.getShort_free_kick().equals(existingPlayer.getPlayer_id())){
-                                    stat.setShort_free_kick(playerDetails.getPlayer_id());
-                                }
-                                if(stat.getLong_free_kick().equals(existingPlayer.getPlayer_id())){
-                                    stat.setLong_free_kick(playerDetails.getPlayer_id());
-                                }
-                                if(stat.getPenalties().equals(existingPlayer.getPlayer_id())){
-                                    stat.setPenalties(playerDetails.getPlayer_id());
-                                }
-                                if(stat.getLeft_corner().equals(existingPlayer.getPlayer_id())){
-                                    stat.setLeft_corner(playerDetails.getPlayer_id());
-                                }
-                                if(stat.getRight_corner().equals(existingPlayer.getPlayer_id())){
-                                    stat.setRight_corner(playerDetails.getPlayer_id());
-                                }
-                                if(stat.getCaptain().equals(existingPlayer.getPlayer_id())){
-                                    stat.setCaptain(playerDetails.getPlayer_id());
-                                }
-                            }
-                            existingPlayerNode.setPlayerId(playerDetails.getPlayer_id());
-                            existingPlayer.setPlayer_id(playerDetails.getPlayer_id());
-                            TMr.save(team);
-                        }
-                    }
-
-                }
                
                 Pmr.save(existingPlayerNode);
                 // Save the updated player back to the repository
@@ -178,7 +137,7 @@ public class Players_service {
                                     }
                                 }
                             }
-                            List<UsersNode> users = Unr.findUsersByPlayerIdAndFifaVersion(existingPlayer.getPlayer_id(),fifaV);
+                            List<UsersNode> users = Unr.findUsersByLongNameAndFifaVersion(existingPlayer.getLong_name(),fifaV);
                             if(users != null){
                                 for(UsersNode user : users){
                                     Optional<UsersNode> hydratatedUser = Unr.findByUserName(user.getUserName());
@@ -269,254 +228,56 @@ public class Players_service {
 
     }
     
-    @Transactional 
-    public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer request){
-        Optional<Players> optionalPlayer = PMr.findById(id);
-        Optional<Teams> optionalTeam1 = TMr.findByTeamId(request.getTeam_id());
-        Optional<Teams> optionalTeam2 = TMr.findByTeamName(request.getTeam_name());
-        Optional<PlayersNode> optionalPlayerNode = Pmr.findByMongoId(optionalPlayer.get().get_id());
-        if(optionalPlayer.isPresent() && optionalPlayerNode.isPresent()){
-            PlayersNode existingPlayerNode = optionalPlayerNode.get();
-            Players existingPlayer = optionalPlayer.get();
-            if(optionalTeam1.isPresent() && optionalTeam2.isPresent()){
-                Teams existingTeam1 = optionalTeam1.get();
-                Teams existingTeam2 = optionalTeam2.get();
-                if(existingTeam1.getTeam_id().equals(existingTeam2.getTeam_id()) ||
-                existingTeam1.getTeam_name().equals(existingTeam2.getTeam_name())){
-                    List<FifaStatsPlayer> ExistingPlayerstats = existingPlayer.getFifaStats();
-                    //Updating MongoDB
-                    for(FifaStatsPlayer stat : ExistingPlayerstats){
-                        if(stat.getFifa_version().equals(fifaV)){
-                            if(stat.getTeam().getTeam_id().equals(request.getTeam_id()) ||
-                            stat.getTeam().getTeam_name().equals(request.getTeam_name())){
-                                return existingPlayer;
-                            }
-                        }
-                    }
-                    List<Teams> Mongoteams = TMr.findTeamsByPlayerIdInFifaStats(existingPlayer.getPlayer_id());
-                    if(!Mongoteams.isEmpty()){
-                        //Deleting player_id from teams formation
-                        for(Teams MongoTeam : Mongoteams){
-                            List<FifaStatsTeam> statsTeam = MongoTeam.getFifaStats();
-                            for(FifaStatsTeam stat: statsTeam){
-                                if(stat.getLeft_short_free_kick().equals(existingPlayer.getPlayer_id())){
-                                    stat.setLeft_short_free_kick(null);
-                                }
-                                if(stat.getRight_short_free_kick().equals(existingPlayer.getPlayer_id())){
-                                    stat.setRight_short_free_kick(null);
-                                }
-                                if(stat.getShort_free_kick().equals(existingPlayer.getPlayer_id())){
-                                    stat.setShort_free_kick(null);
-                                }
-                                if(stat.getLong_free_kick().equals(existingPlayer.getPlayer_id())){
-                                    stat.setLong_free_kick(null);
-                                }
-                                if(stat.getPenalties().equals(existingPlayer.getPlayer_id())){
-                                    stat.setPenalties(null);
-                                }
-                                if(stat.getLeft_corner().equals(existingPlayer.getPlayer_id())){
-                                    stat.setLeft_corner(null);
-                                }
-                                if(stat.getRight_corner().equals(existingPlayer.getPlayer_id())){
-                                    stat.setRight_corner(null);
-                                }
-                                if(stat.getCaptain().equals(existingPlayer.getPlayer_id())){
-                                    stat.setCaptain(null);
-                                }
-                            }
-                            TMr.save(MongoTeam);
-                        }
-                    }
-                    //Updating player_id in teams formation by comparing the positions
-                    for(FifaStatsPlayer stat : ExistingPlayerstats){
-                        if(stat.getFifa_version().equals(fifaV)){
-                            stat.getTeam().setTeam_id(request.getTeam_id());
-                            stat.getTeam().setTeam_name(request.getTeam_name());
-                            stat.getTeam().setTeam_mongo_id(existingTeam1.get_id());
-                            PMr.save(existingPlayer);
-                            List<FifaStatsTeam> statsTeam = existingTeam1.getFifaStats();
-                            for(FifaStatsTeam Teamstat : statsTeam){
-                                if(stat.getFifa_version().equals(fifaV)){
-                                    Optional<Players> Capt = PMr.findByPlayerId(Teamstat.getCaptain());
-                                    if(Capt.isPresent()){
-                                        Players existingCaptain = Capt.get();
-                                        List<FifaStatsPlayer> statsCaptain = existingCaptain.getFifaStats();
-                                            for(FifaStatsPlayer statCap : statsCaptain){
-                                                if(statCap.getFifa_version().equals(fifaV)){
-                                                    if(statCap.getClub_position().equals(stat.getClub_position())){
-                                                        Teamstat.setCaptain(existingPlayer.getPlayer_id());
-                                                        TMr.save(existingTeam1);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    Optional<Players> left = PMr.findByPlayerId(Teamstat.getLeft_short_free_kick());
-                                    if(left.isPresent()){
-                                        Players existingLeft = left.get();
-                                        List<FifaStatsPlayer> statsLeft = existingLeft.getFifaStats();
-                                            for(FifaStatsPlayer statLeft : statsLeft){
-                                                if(statLeft.getFifa_version().equals(fifaV)){
-                                                    if(statLeft.getClub_position().equals(stat.getClub_position())){
-                                                        Teamstat.setLeft_short_free_kick(existingPlayer.getPlayer_id());
-                                                        TMr.save(existingTeam1);
-                                                    }
-                                                }
-                                            }
-                                    }
-                                    Optional<Players> right = PMr.findByPlayerId(Teamstat.getRight_short_free_kick());
-                                    if(right.isPresent()){
-                                        Players existingRight = right.get();
-                                        List<FifaStatsPlayer> statsRight = existingRight.getFifaStats();
-                                            for(FifaStatsPlayer statRight : statsRight){
-                                                if(statRight.getFifa_version().equals(fifaV)){
-                                                    if(statRight.getClub_position().equals(stat.getClub_position())){
-                                                        Teamstat.setRight_short_free_kick(existingPlayer.getPlayer_id());
-                                                        TMr.save(existingTeam1);
-                                                    }
-                                                }
-                                            }
-                                    }
-                                    Optional<Players> shor = PMr.findByPlayerId(Teamstat.getShort_free_kick());
-                                    if(shor.isPresent()){
-                                        Players existingShort = shor.get();
-                                        List<FifaStatsPlayer> statsShort = existingShort.getFifaStats();
-                                            for(FifaStatsPlayer statShort : statsShort){
-                                                if(statShort.getFifa_version().equals(fifaV)){
-                                                    if(statShort.getClub_position().equals(stat.getClub_position())){
-                                                        Teamstat.setShort_free_kick(existingPlayer.getPlayer_id());
-                                                        TMr.save(existingTeam1);
-                                                    }
-                                                }
-                                            }
-                                    }
-                                    Optional<Players> longF = PMr.findByPlayerId(Teamstat.getLong_free_kick());
-                                    if(longF.isPresent()){
-                                        Players existingLong = longF.get();
-                                        List<FifaStatsPlayer> statsLong = existingLong.getFifaStats();
-                                            for(FifaStatsPlayer statLong : statsLong){
-                                                if(statLong.getFifa_version().equals(fifaV)){
-                                                    if(statLong.getClub_position().equals(stat.getClub_position())){
-                                                        Teamstat.setLong_free_kick(existingPlayer.getPlayer_id());
-                                                        TMr.save(existingTeam1);
-                                                    }
-                                                }
-                                            }
-                                    }
-                                    Optional<Players> pen = PMr.findByPlayerId(Teamstat.getPenalties());
-                                    if(pen.isPresent()){
-                                        Players existingPen = pen.get();
-                                        List<FifaStatsPlayer> statsPen = existingPen.getFifaStats();
-                                            for(FifaStatsPlayer statPen : statsPen){
-                                                if(statPen.getFifa_version().equals(fifaV)){
-                                                    if(statPen.getClub_position().equals(stat.getClub_position())){
-                                                        Teamstat.setPenalties(existingPlayer.getPlayer_id());
-                                                        TMr.save(existingTeam1);
-                                                    }
-                                                }
-                                            }
-                                    }
-                                    Optional<Players> leftC = PMr.findByPlayerId(Teamstat.getLeft_corner());
-                                    if(leftC.isPresent()){
-                                        Players existingLeftC = leftC.get();
-                                        List<FifaStatsPlayer> statsLeftC = existingLeftC.getFifaStats();
-                                            for(FifaStatsPlayer statLeftC : statsLeftC){
-                                                if(statLeftC.getFifa_version().equals(fifaV)){
-                                                    if(statLeftC.getClub_position().equals(stat.getClub_position())){
-                                                        Teamstat.setLeft_corner(existingPlayer.getPlayer_id());
-                                                        TMr.save(existingTeam1);
-                                                    }
-                                                }
-                                            }
-                                    }
-                                    Optional<Players> rightC = PMr.findByPlayerId(Teamstat.getRight_corner());
-                                    if(rightC.isPresent()){
-                                        Players existingRightC = rightC.get();
-                                        List<FifaStatsPlayer> statsRightC = existingRightC.getFifaStats();
-                                            for(FifaStatsPlayer statRightC : statsRightC){
-                                                if(statRightC.getFifa_version().equals(fifaV)){
-                                                    if(statRightC.getClub_position().equals(stat.getClub_position())){
-                                                        Teamstat.setRight_corner(existingPlayer.getPlayer_id());
-                                                        TMr.save(existingTeam1);
-                                                    }
-                                                }
-                                            }
-                                    }
+@Transactional
+public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer request) {
+    Players existingPlayer = PMr.findById(id)
+        .orElseThrow(() -> new RuntimeException("Player not found in MongoDB"));
 
-                                }
-                            }
-                        }
-                    
-                    //Updating Neo4j
-                    Optional<TeamsNode> optionalTeamNode = TMs.findByTeamId(request.getTeam_id());
-                    if(optionalTeamNode.isPresent()){
-                        TeamsNode existingTeamNode = optionalTeamNode.get();
-                        List<plays_in_team> teams = existingPlayerNode.getTeamMNodes();
-                        if(teams != null){
-                            for(plays_in_team team : teams){
-                                if(team.getFifaV().equals(fifaV)){
-                                    existingPlayerNode.getTeamMNodes().remove(team);
-                                    plays_in_team newTeam = new plays_in_team(existingTeamNode,fifaV);
-                                    existingPlayerNode.getTeamMNodes().add(newTeam);
-                                    Pmr.save(existingPlayerNode);
-                                }
-                            }
-                        }
-                    }
-                    return existingPlayer;
-                }
-                else{
-                    throw new RuntimeErrorException(null, "Teams name and id do not match");
-                } 
-            }
-            else{
-                throw new RuntimeErrorException(null, "Team not found with id: " + request.getTeam_id() + " or name: " + request.getTeam_name());
-            }
-        }
-        else{
-            throw new RuntimeErrorException(null, "Player not found with id: " + id);
+    PlayersNode existingPlayerNode = Pmr.findByMongoId(existingPlayer.get_id())
+        .orElseThrow(() -> new RuntimeException("Player not found in Neo4j"));
+
+    Teams existingTeam = TMr.findByTeamName(request.getTeam_name())
+        .orElseThrow(() -> new RuntimeException("Team not found in MongoDB"));
+
+    TeamsNode existingTeamNode = TMs.findByTeamName(request.getTeam_name())
+        .orElseThrow(() -> new RuntimeException("Team not found in Neo4j"));
+
+    List<FifaStatsPlayer> existingStats = existingPlayer.getFifaStats();
+    FifaStatsPlayer targetStat = existingStats.stream()
+        .filter(stat -> stat.getFifa_version().equals(fifaV))
+        .findFirst()
+        .orElseThrow(() -> new RuntimeException("Fifa version not found for this player"));
+
+    // Only proceed if team name actually changed
+    if (!existingTeam.getTeam_name().equals(targetStat.getTeam().getTeam_name())) {
+        List<plays_in_team> teams = existingPlayerNode.getTeamMNodes();
+        if (teams == null || teams.isEmpty()) {
+            throw new RuntimeException("Player has no teams in Neo4j");
         }
 
+        // Remove the old team mapping for the fifaVersion
+        teams.removeIf(team -> team.getFifaV().equals(fifaV));
+
+        // Add the new one
+        plays_in_team newTeamRelation = new plays_in_team(existingTeamNode, fifaV);
+        teams.add(newTeamRelation);
+        existingPlayerNode.setTeamMNodes(teams);  // Ensure list is set after modification
+        Pmr.save(existingPlayerNode);
+
+        // Update MongoDB reference
+        targetStat.getTeam().setTeam_name(request.getTeam_name());
+        return PMr.save(existingPlayer);
     }
+
+    return existingPlayer; // No change needed
+}
+
     //DELETE
     @Transactional
     public void deletePlayer(String id){
         Optional<Players> player = PMr.findById(id);
         Optional<PlayersNode> playerNode = Pmr.findByMongoId(id);
         if(player.isPresent()){
-            List<Teams> teams = TMr.findTeamsByPlayerIdInFifaStats(player.get().getPlayer_id());
-            if(!teams.isEmpty()){
-                for(Teams team : teams){
-                    List<FifaStatsTeam> statsTeam = team.getFifaStats();
-                    for(FifaStatsTeam stat: statsTeam){
-                        if(stat.getLeft_short_free_kick().equals(player.get().getPlayer_id())){
-                            stat.setLeft_short_free_kick(null);
-                        }
-                        if(stat.getRight_short_free_kick().equals(player.get().getPlayer_id())){
-                            stat.setRight_short_free_kick(null);
-                        }
-                        if(stat.getShort_free_kick().equals(player.get().getPlayer_id())){
-                            stat.setShort_free_kick(null);
-                        }
-                        if(stat.getLong_free_kick().equals(player.get().getPlayer_id())){
-                            stat.setLong_free_kick(null);
-                        }
-                        if(stat.getPenalties().equals(player.get().getPlayer_id())){
-                            stat.setPenalties(null);
-                        }
-                        if(stat.getLeft_corner().equals(player.get().getPlayer_id())){
-                            stat.setLeft_corner(null);
-                        }
-                        if(stat.getRight_corner().equals(player.get().getPlayer_id())){
-                            stat.setRight_corner(null);
-                        }
-                        if(stat.getCaptain().equals(player.get().getPlayer_id())){
-                            stat.setCaptain(null);
-                        }
-                        TMr.save(team);
-                    }
-                }
-            }
             PMr.deleteById(id);
         }
         else{
@@ -557,41 +318,7 @@ public class Players_service {
                         break;
                     }
                 }
-                // Delete attribute istances in teams
-                List<Teams> teams = TMr.findTeamsByPlayerIdInFifaStats(existingPlayer.getPlayer_id());
-                for(Teams team : teams){
-                    List<FifaStatsTeam> statsTeam = team.getFifaStats();
-                    for(FifaStatsTeam stat: statsTeam){
-                        if(stat.getFifa_version().equals(fifaV)){
-                            if(stat.getLeft_short_free_kick().equals(existingPlayer.getPlayer_id())){
-                                stat.setLeft_short_free_kick(null);
-                            }
-                            if(stat.getRight_short_free_kick().equals(existingPlayer.getPlayer_id())){
-                                stat.setRight_short_free_kick(null);
-                            }
-                            if(stat.getShort_free_kick().equals(existingPlayer.getPlayer_id())){
-                                stat.setShort_free_kick(null);
-                            }
-                            if(stat.getLong_free_kick().equals(existingPlayer.getPlayer_id())){
-                                stat.setLong_free_kick(null);
-                            }
-                            if(stat.getPenalties().equals(existingPlayer.getPlayer_id())){
-                                stat.setPenalties(null);
-                            }
-                            if(stat.getLeft_corner().equals(existingPlayer.getPlayer_id())){
-                                stat.setLeft_corner(null);
-                            }
-                            if(stat.getRight_corner().equals(existingPlayer.getPlayer_id())){
-                                stat.setRight_corner(null);
-                            }
-                            if(stat.getCaptain().equals(existingPlayer.getPlayer_id())){
-                                stat.setCaptain(null);
-                            }
-                            TMr.save(team);
-                            break;
-                        }
-                    }
-                }
+               
                 
                 PMr.save(existingPlayer);
             }
@@ -607,8 +334,8 @@ public class Players_service {
     }
 
     //OPERATIONS TO SHOW PLAYER STATS
-    public FifaStatsPlayer showCurrentYear(Integer playerId){
-        Optional<Players> optionalPlayer = PMr.findByPlayerId(playerId);
+    public FifaStatsPlayer showCurrentYear(String id){
+        Optional<Players> optionalPlayer = PMr.findById(id);
         if(optionalPlayer.isPresent()){
             Players existingPlayer = optionalPlayer.get();
             Optional<FifaStatsPlayer> optionalFifaStats = existingPlayer.getFifaStats().
@@ -622,12 +349,12 @@ public class Players_service {
             }
         }
         else{
-            throw new RuntimeErrorException(null, "Player with id:"+playerId+"not found");
+            throw new RuntimeErrorException(null, "Player with id:"+id+"not found");
         }
     }
 
-    public FifaStatsPlayer showSpecificStats(Integer playerId, Integer fifaV){
-        Optional<Players> optionalPlayer = PMr.findByPlayerId(playerId);
+    public FifaStatsPlayer showSpecificStats(String id, Integer fifaV){
+        Optional<Players> optionalPlayer = PMr.findById(id);
         if(optionalPlayer.isPresent()){
             Players existingPlayer = optionalPlayer.get();
             Optional<FifaStatsPlayer> optionalFifaStats = existingPlayer.getFifaStats().
@@ -641,7 +368,7 @@ public class Players_service {
             }
         }
         else{
-            throw new RuntimeErrorException(null, "Player with id:"+playerId+"not found");
+            throw new RuntimeErrorException(null, "Player with id:"+id+"not found");
         }
     }
 }

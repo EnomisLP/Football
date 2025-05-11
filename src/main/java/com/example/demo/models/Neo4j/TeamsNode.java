@@ -27,10 +27,8 @@ public class TeamsNode {
     @Property(name ="mongoId")
     @Indexed(unique = true)
     private String mongoId;
-    @Property(name = "teamId")
-    @Indexed(unique = true)
-    private Long teamId;
     @Property(name ="teamName")
+    @Indexed(unique = true)
     private String teamName;
 
     @Property(name="gender")

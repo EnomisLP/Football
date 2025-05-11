@@ -13,11 +13,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class updateFifaTeam {
     private Integer fifa_version;
-    private Long league_id;
-    private String league_name;
-    private Integer league_level;
-    private Long nationality_id;
-    private String nationality_name;
     private String home_stadium;
     private Integer overall;
     private Long club_worth_eur;

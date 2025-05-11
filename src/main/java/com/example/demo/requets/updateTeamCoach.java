@@ -12,6 +12,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class updateTeamCoach {
-    private Long team_id;
     private String team_name;
 }   

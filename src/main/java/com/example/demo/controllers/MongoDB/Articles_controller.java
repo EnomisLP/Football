@@ -1,9 +1,7 @@
 package com.example.demo.controllers.MongoDB;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.demo.requets.updateArticle;
 import com.example.demo.models.MongoDB.Articles;
 import com.example.demo.services.MongoDB.Articles_service;
 
