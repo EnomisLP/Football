@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.aggregations.DTO.ClubAverage;
 import com.example.demo.aggregations.DTO.DreamTeamPlayer;
 import com.example.demo.aggregations.DTO.TopPlayersByCoach;
-import com.example.demo.aggregations.DTO.monthSummary;
+import com.example.demo.aggregations.DTO.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -64,6 +64,17 @@ public class FootballController {
     @Operation(summary = "Get the summary of the subscriptions for each month of a specific year")
     public List<monthSummary> getSubscriptionYearSummary(@PathVariable Integer year) {
         return footballService.getSubscriptionYearSummary(year);
+    }
+    
+    @GetMapping("user/analytics/evaluateTeamImprovementBeetweenYears/{team}/{year1}/{year2}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved information"),
+            @ApiResponse(responseCode = "404", description = "Team not found"),
+            @ApiResponse(responseCode = "500", description = "Years not available")
+    })
+    @Operation(summary = "Get the percentage improvements in terms of attack, defense and midfield of a team, between 2 years")
+    public TeamImprovements getSubscriptionYearSummary(@PathVariable String team,@PathVariable String year1,@PathVariable String year2) {
+        return footballService.getTeamImprovements(team,year1,year2);
     }
     
 }
