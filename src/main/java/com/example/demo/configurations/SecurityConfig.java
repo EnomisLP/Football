@@ -13,6 +13,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -36,7 +42,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/Articles/user/**", "/api/v1/Coaches/user/**", "/api/v1/Players/user/**",
                 "/api/v1/Teams/user/**","/api/v1/Users/user/**","/api/v1/Coaches_Node/user/**","/api/v1/Players_node/user/**", 
                 "/api/v1/Teams_Node/user/**","/api/v1/Users_Node/user/**").hasRole("USER")
-                .requestMatchers("/api/v1/Users/registration").permitAll()
+                .requestMatchers("/api/v1/Users/registration").anonymous()
                 .anyRequest().permitAll()
             )
             .userDetailsService(mongoUserDetailService)
