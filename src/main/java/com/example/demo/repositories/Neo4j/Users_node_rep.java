@@ -56,8 +56,8 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
 
   @Query("MATCH (u:UsersNode) -[r:HAS_IN_M_TEAM|HAS_IN_F_TEAM]->(p:PlayersNode ) "+
   "WHERE r.fifaVersion = $fifaV " +
-  "AND p.longName = $long_name " +
+  "AND p.mongoId = $mongoId " +
   "RETURN u")
-  List<UsersNode> findUsersByLongNameAndFifaVersion(String long_name, Integer fifaV);
+  List<UsersNode> findUsersByMongoIdAndFifaVersion(String mongoId, Integer fifaV);
 
 }

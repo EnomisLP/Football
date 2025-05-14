@@ -25,5 +25,5 @@ public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
 )
     Page<PlayersNode> findAllByGenderWithPagination(String gender, PageRequest page);
     List<PlayersNode> findAllByGender(String gender);
-    Optional<PlayersNode> findByLongName(String playerName);
+    
 }

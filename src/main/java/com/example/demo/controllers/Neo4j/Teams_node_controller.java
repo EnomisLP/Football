@@ -26,10 +26,10 @@ public class Teams_node_controller {
     }
 
     // READ: Get one team node by ID
-    @GetMapping("/{id}")
+    @GetMapping("/{_id}")
     @Operation(summary = "READ operation: Get a Team node by ID")
-    public TeamsNode getTeamById(@PathVariable Long id) {
-        return teamsNodeService.getTeams(id);
+    public TeamsNode getTeamById(@PathVariable String _id) {
+        return teamsNodeService.getTeams(_id);
     }
 
     // READ: Get all teams by gender
@@ -48,27 +48,27 @@ public class Teams_node_controller {
         return teamsNodeService.MapAllTheNodes();
     }
 
-    @GetMapping("/user/{teamName}/currentFormation")
+    @GetMapping("/user/{_id}/currentFormation")
     @Operation(summary = "Show formation of a Team for the current Year")
-    public List<plays_in_team> showCurrentFormation(@PathVariable String teamName){
-        return teamsNodeService.showCurrentFormation(teamName);
+    public List<plays_in_team> showCurrentFormation(@PathVariable String _id){
+        return teamsNodeService.showCurrentFormation(_id);
     }
 
-    @GetMapping("/user/{teamName}/specificFormation")
+    @GetMapping("/user/{_id}/specificFormation")
     @Operation(summary = "Show formation of a Team for a specific Year")
-    public List<plays_in_team> showSpecificFormation(@PathVariable String teamName, @PathVariable Integer fifaV){
-        return teamsNodeService.showSpecificFormation(teamName, fifaV);
+    public List<plays_in_team> showSpecificFormation(@PathVariable String _id, @PathVariable Integer fifaV){
+        return teamsNodeService.showSpecificFormation(_id, fifaV);
     }
 
-    @GetMapping("/user/{teamName}/currentCoach")
+    @GetMapping("/user/{_id}/currentCoach")
     @Operation(summary = "Show Coach of a Team for the current Year")
-    public manages_team showCurrentCoach(@PathVariable String teamName){
-        return teamsNodeService.showCurrentCoach(teamName);
+    public manages_team showCurrentCoach(@PathVariable String _id){
+        return teamsNodeService.showCurrentCoach(_id);
     }
 
-    @GetMapping("/user/{teamName}/specificCoach")
+    @GetMapping("/user/{_id}/specificCoach")
     @Operation(summary = "Show coach of a Team for a specific Year")
-    public manages_team showSpecificCoach(@PathVariable String teamName, @PathVariable Integer fifaV){
-        return teamsNodeService.showSpecificCoach(teamName, fifaV);
+    public manages_team showSpecificCoach(@PathVariable String _id, @PathVariable Integer fifaV){
+        return teamsNodeService.showSpecificCoach(_id, fifaV);
     }
 }

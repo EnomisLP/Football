@@ -137,7 +137,7 @@ public class Players_service {
                                     }
                                 }
                             }
-                            List<UsersNode> users = Unr.findUsersByLongNameAndFifaVersion(existingPlayer.getLong_name(),fifaV);
+                            List<UsersNode> users = Unr.findUsersByMongoIdAndFifaVersion(existingPlayer.get_id(),fifaV);
                             if(users != null){
                                 for(UsersNode user : users){
                                     Optional<UsersNode> hydratatedUser = Unr.findByUserName(user.getUserName());
@@ -236,10 +236,10 @@ public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer reque
     PlayersNode existingPlayerNode = Pmr.findByMongoId(existingPlayer.get_id())
         .orElseThrow(() -> new RuntimeException("Player not found in Neo4j"));
 
-    Teams existingTeam = TMr.findByTeamName(request.getTeam_name())
+    Teams existingTeam = TMr.findById(request.getTeam_mongo_id())
         .orElseThrow(() -> new RuntimeException("Team not found in MongoDB"));
 
-    TeamsNode existingTeamNode = TMs.findByTeamName(request.getTeam_name())
+    TeamsNode existingTeamNode = TMs.findByMongoId(request.getTeam_mongo_id())
         .orElseThrow(() -> new RuntimeException("Team not found in Neo4j"));
 
     List<FifaStatsPlayer> existingStats = existingPlayer.getFifaStats();
@@ -249,7 +249,7 @@ public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer reque
         .orElseThrow(() -> new RuntimeException("Fifa version not found for this player"));
 
     // Only proceed if team name actually changed
-    if (!existingTeam.getTeam_name().equals(targetStat.getTeam().getTeam_name())) {
+    if (!existingTeam.get_id().equals(targetStat.getTeam().getTeam_mongo_id())) {
         List<plays_in_team> teams = existingPlayerNode.getTeamMNodes();
         if (teams == null || teams.isEmpty()) {
             throw new RuntimeException("Player has no teams in Neo4j");
@@ -265,7 +265,7 @@ public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer reque
         Pmr.save(existingPlayerNode);
 
         // Update MongoDB reference
-        targetStat.getTeam().setTeam_name(request.getTeam_name());
+        targetStat.getTeam().setTeam_name(existingTeam.get_id());
         return PMr.save(existingPlayer);
     }
 
@@ -285,7 +285,7 @@ public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer reque
         }
         if(playerNode.isPresent()){
             PlayersNode existing = playerNode.get();
-            PMs.deletePlayer(existing.get_id());
+            PMs.deletePlayer(existing.getMongoId());
         }
         else{
             throw new RuntimeErrorException(null, "Player not found with id: " + id);

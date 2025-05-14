@@ -26,11 +26,11 @@ public interface Players_repository extends MongoRepository<Players,String>{
     {
         "fifaStats": {
             "$elemMatch": {
-                "team_name": ?0
+                "team_mongo_id": ?0
             }
         }
     }
     """)
-    List<Players> findByClubTeamNameInFifaStats(String team_name);
+    List<Players> findByClubTeamMongoIdInFifaStats(String team_mongo_id);
 
 }

@@ -32,5 +32,5 @@ public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
     "AND t.teamName = $teamName " +
     "RETURN r")
     manages_team findFifaVersionByTeamNameAndFifaV(String teamName, Integer fifaV);
-    Optional<CoachesNode> findByLongName(String coachName);
+    
 }

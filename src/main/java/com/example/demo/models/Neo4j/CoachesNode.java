@@ -34,7 +34,7 @@ public class CoachesNode {
     private String mongoId;
 
     @Property(name = "longName")
-    @Indexed(unique = true)
+    @Indexed
     private String longName;
 
     @Property(name = "nationalityName")

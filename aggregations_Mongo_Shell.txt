@@ -1,0 +1,159 @@
+db.Users.aggregate([
+  // Step 1: Match by year
+  {
+    $match: {
+      signup_date: { $regex: year.toString() }
+    }
+  },
+  // Step 2: Add field and split the string date
+  {
+    $addFields: {
+      dateTokens: { $split: ["$signup_date", "/"] }
+    }
+  },
+  // Step 3: Create a new field which is the signup month
+  {
+    $addFields: {
+      signup_month: { $arrayElemAt: ["$dateTokens", 1] }
+    }
+  },
+  // Step 4: Group by month and count new subscribers
+  {
+    $group: {
+      _id: "$signup_month",
+      new_users: { $sum: 1 }
+    }
+  },
+  // Step 5: Sort by month
+  {
+    $sort: {
+      _id: 1
+    }
+  }
+]);
+___________________________________________________________
+
+db.Players.aggregate([
+  // Step 1: Unwind the fifaStats array to process each player's stats
+  {
+    $unwind: "$fifaStats"
+  },
+  // Step 2: Match based on the fifa_version
+  {
+    $match: {
+      "fifaStats.fifa_version": fifaVersion
+    }
+  },
+  // Step 3: Split player_positions into an array
+  {
+    $addFields: {
+      positions: { $split: ["$fifaStats.player_positions", ", "] }
+    }
+  },
+  // Step 4: Unwind the positions array
+  {
+    $unwind: "$positions"
+  },
+  // Step 5: Match only the desired positions
+  {
+    $match: {
+      positions: { $in: dreamTeamPositions }
+    }
+  },
+  // Step 6: Group by position and calculate the maximum overall rating
+  {
+    $group: {
+      _id: "$positions",
+      overall: { $max: "$fifaStats.overall" },
+      position: { $first: "$fifaStats.player_positions" },
+      playerName: { $first: "$long_name" }
+    }
+  },
+  // Step 7: Project the final output with position, maxOverall, and player details
+  {
+    $project: {
+      position: 1,
+      overall: 1,
+      playerName: 1,
+      _id: 0
+    }
+  }
+]);
+________________________________________________________________________
+
+db.Teams.aggregate([
+  // Stage 1: Match
+  {
+    $match: {
+      team_name: team
+    }
+  },
+  // Stage 2: Project filtered stats for FIFA 24 and 23
+  {
+    $project: {
+      first_stats: {
+        $arrayElemAt: [
+          {
+            $filter: {
+              input: "$fifaStats",
+              as: "st",
+              cond: { $eq: ["$$st.fifa_version", secondYear] }
+            }
+          },
+          0
+        ]
+      },
+      second_stats: {
+        $arrayElemAt: [
+          {
+            $filter: {
+              input: "$fifaStats",
+              as: "st",
+              cond: { $eq: ["$$st.fifa_version", firstYear] }
+            }
+          },
+          0
+        ]
+      }
+    }
+  },
+  // Stage 3: Project improvement percentages
+  {
+    $project: {
+      _id: 0,
+      attack_improvement: {
+        $multiply: [
+          {
+            $divide: [
+              { $subtract: ["$second_stats.attack", "$first_stats.attack"] },
+              "$first_stats.attack"
+            ]
+          },
+          100
+        ]
+      },
+      midfield_improvement: {
+        $multiply: [
+          {
+            $divide: [
+              { $subtract: ["$second_stats.midfield", "$first_stats.midfield"] },
+              "$first_stats.midfield"
+            ]
+          },
+          100
+        ]
+      },
+      defence_improvement: {
+        $multiply: [
+          {
+            $divide: [
+              { $subtract: ["$second_stats.defence", "$first_stats.defence"] },
+              "$first_stats.defence"
+            ]
+          },
+          100
+        ]
+      }
+    }
+  }
+]);

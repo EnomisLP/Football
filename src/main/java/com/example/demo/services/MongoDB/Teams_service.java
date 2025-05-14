@@ -86,7 +86,7 @@ public class Teams_service {
                 TeamsNode existingTeamNode = optionalTeamNode.get();
                 if(!existingTeam.getTeam_name().equals(teamsDetails.getTeam_name())){
                     //Updating attribute istances
-                    List<Players> players = PMr.findByClubTeamNameInFifaStats(existingTeam.getTeam_name());
+                    List<Players> players = PMr.findByClubTeamMongoIdInFifaStats(existingTeam.get_id());
                     if(!players.isEmpty()){
                         for (Players player : players) {
                             List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
@@ -98,7 +98,7 @@ public class Teams_service {
                             }
                         }
                     }
-                    List<Coaches> coaches = CMr.findByClubTeamNameInTeams(existingTeam.getTeam_name());
+                    List<Coaches> coaches = CMr.findByTeamMongoIdInTeams(existingTeam.get_id());
                     if(!coaches.isEmpty()){
                         for(Coaches coach : coaches){
                             List<TeamObj> teams = coach.getTeams();
@@ -161,7 +161,7 @@ public class Teams_service {
                         }
 
                         //Updating attribute istances
-                        List<Players> players = PMr.findByClubTeamNameInFifaStats(existingTeam.getTeam_name());
+                        List<Players> players = PMr.findByClubTeamMongoIdInFifaStats(existingTeam.get_id());
                         for(Players player : players){
                             List<FifaStatsPlayer> playerFifaStats = player.getFifaStats();
                             for(FifaStatsPlayer playerFifaStat : playerFifaStats){
@@ -184,7 +184,7 @@ public class Teams_service {
                                 }
                             }
                         }
-                        List<Coaches> coaches = CMr.findByClubTeamNameInTeams(existingTeam.getTeam_name());
+                        List<Coaches> coaches = CMr.findByTeamMongoIdInTeams(existingTeam.get_id());
                         for(Coaches coach : coaches){
                             List<TeamObj> teams = coach.getTeams();
                             for(TeamObj team : teams){
@@ -221,7 +221,7 @@ public class Teams_service {
     public Teams updateCoachTeam(String id, Integer fifaV, updateCoachTeam request){
         Optional<Teams> optionalTeam = TMr.findById(id);
         Optional<TeamsNode> optionalTeamNode = Tmr.findByMongoId(id);
-        Optional<Coaches> optionalCoach = CMr.findByCoachLongName(request.getLong_name());
+        Optional<Coaches> optionalCoach = CMr.findById(request.getCoach_mongo_id());
         if(optionalTeam.isPresent() && optionalTeamNode.isPresent()){
             Teams existingTeam = optionalTeam.get();
             TeamsNode existingTeamNode = optionalTeamNode.get();
@@ -231,7 +231,7 @@ public class Teams_service {
                 Coaches existingCoach = optionalCoach.get();
                 for(FifaStatsTeam stats : existingFifaStats){
                     if(stats.getFifa_version().equals(fifaV)){
-                        if(request.getLong_name().equals(stats.getCoach().getCoach_name())){
+                        if(request.getCoach_mongo_id().equals(stats.getCoach().getCoach_mongo_id())){
                             return existingTeam;
                         }
                         List<TeamObj> teams = existingCoach.getTeams();
@@ -245,7 +245,7 @@ public class Teams_service {
                         CMr.save(existingCoach);
                             
                         //Update Coach Neo4j
-                        List<Coaches> optCoach = CMr.findByClubTeamNameInTeams(existingTeam.getTeam_name());
+                        List<Coaches> optCoach = CMr.findByTeamMongoIdInTeams(existingTeam.get_id());
                         for(Coaches coach : optCoach){
                             for(TeamObj team : teams){
                                 if(team.getFifa_version().equals(fifaV)){
@@ -277,11 +277,11 @@ public class Teams_service {
                                 CMn.save(existingCoachNode);
                             }
                             else{
-                                throw new RuntimeErrorException(null, "Coach not found with name: " + request.getLong_name());
+                                throw new RuntimeErrorException(null, "Coach not found with id: " + request.getCoach_mongo_id());
                             }
                             //Update Team MongoDB
                             
-                            stats.getCoach().setCoach_name(request.getLong_name());
+                            stats.getCoach().setCoach_name(existingCoach.getLong_name());
                             stats.getCoach().setCoach_mongo_id(existingCoach.get_id());
                             TMr.save(existingTeam);
                         }
@@ -293,7 +293,7 @@ public class Teams_service {
                 
             }
             else{
-                throw new RuntimeErrorException(null, "Coach not found with name: " + request.getLong_name());
+                throw new RuntimeErrorException(null, "Coach not found with id: " + request.getCoach_mongo_id());
             }
 
         }
@@ -311,7 +311,7 @@ public class Teams_service {
             Teams existingTeam = team.get();
 
             //Deleting attribute istances
-            List<Players> players = PMr.findByClubTeamNameInFifaStats(existingTeam.getTeam_name());
+            List<Players> players = PMr.findByClubTeamMongoIdInFifaStats(existingTeam.get_id());
             if(!players.isEmpty()){
                 for (Players player : players) {
                     List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
@@ -377,7 +377,7 @@ public class Teams_service {
 
                 //Deleting attribute istances
                 
-                List<Players> players = PMr.findByClubTeamNameInFifaStats(existingTeam.getTeam_name());
+                List<Players> players = PMr.findByClubTeamMongoIdInFifaStats(existingTeam.get_id());
                 if(!players.isEmpty()){
                     for (Players player : players) {
                         List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();

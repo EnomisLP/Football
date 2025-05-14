@@ -45,12 +45,12 @@ public class Players_node_service {
     }
 
     // READ
-    public PlayersNode getPlayers(Long id) {
-        Optional<PlayersNode> optionalPlayer = PMn.findById(id);
+    public PlayersNode getPlayers(String mongoId) {
+        Optional<PlayersNode> optionalPlayer = PMn.findByMongoId(mongoId);
         if (optionalPlayer.isPresent()) {
             return optionalPlayer.get();
         } else {
-            throw new RuntimeErrorException(null, "Player not found with id: " + id);
+            throw new RuntimeErrorException(null, "Player not found with id: " + mongoId);
         }
     }
 
@@ -86,7 +86,7 @@ public class Players_node_service {
         System.out.println("Players found :" + Allplayers.size());
         for (Players player : Allplayers) {
             // Check if the player node already exists in Neo4j
-            if (PMn.existsByMongoId(String.valueOf(player.get_id()))) {
+            if (PMn.existsByMongoId(player.get_id())) {
                 continue;
             }
 
@@ -107,6 +107,11 @@ public class Players_node_service {
         List<PlayersNode> list = PMn.findAllByGender(gender);
 
         for (PlayersNode playerNode : list) {
+            System.out.println("PlayerNode: " + playerNode.get_id());
+             if (playerNode.getMongoId() == null) {
+                System.err.println("ERROR: playerNode.getMongoId() is null for playerNode: " + playerNode.get_id());
+                continue;
+            }
             Optional<Players> optionalPlayer = PMr.findById(playerNode.getMongoId());
             if (optionalPlayer.isEmpty()) {
                 System.err.printf("No Player found in MongoDB", playerNode.getMongoId());
@@ -116,12 +121,14 @@ public class Players_node_service {
             Players existingPlayer = optionalPlayer.get();
                 for (FifaStatsPlayer fifaStat : existingPlayer.getFifaStats()) {
                 // Check if teamObj is not null
-                    if (fifaStat.getTeam() == null) {
-                    System.out.println("TeamObj is null for a player's FIFA stat.");
-                    continue;
+                    
+                    String teamMongoId = fifaStat.getTeam().getTeam_mongo_id();
+                    System.out.println("Team mongo ID: " + teamMongoId);
+                    if(teamMongoId == null) {
+                        System.err.println("Team mongo ID is null for team: " + fifaStat.getTeam().getTeam_name());
+                        continue;
                     }
-
-                    Optional<Teams> optionalTeam = TMr.findByTeamName(fifaStat.getTeam().getTeam_name());
+                    Optional<Teams> optionalTeam = TMr.findById(teamMongoId);
                     if (optionalTeam.isEmpty()) {
                         System.out.printf("No Team found in MongoDB for team name:", fifaStat.getTeam().getTeam_name());
                         continue;
@@ -143,7 +150,7 @@ public class Players_node_service {
                         + playerNode.get_id() + " and Team" + existingTeamNode.get_id()
                         +" in fifa Version:"+ fifaStat.getFifa_version()+ " already exist");
                         existingRelationship = true;
-                        break; // Skip this player
+                        continue; // Skip this player
                     }
                 }
                 // Check if the relationship already exists
@@ -161,21 +168,21 @@ public class Players_node_service {
     }
 
     // DELETE
-    public void deletePlayer(Long id) {
-        Optional<PlayersNode> optionalPlayer = PMn.findById(id);
+    public void deletePlayer(String mongoId) {
+        Optional<PlayersNode> optionalPlayer = PMn.findByMongoId(mongoId);
         if (optionalPlayer.isPresent()) {
             PlayersNode existing = optionalPlayer.get();
             existing.getTeamMNodes().clear();
             PMn.save(existing);
-            PMn.deleteById(id);
+            PMn.delete(existing);
         } else {
-            throw new RuntimeErrorException(null, "Player not found with id: " + id);
+            throw new RuntimeErrorException(null, "Player not found with id: " + mongoId);
         }
     }
     
     //OPERATIONS TO MANAGE TEAM
-    public plays_in_team showCurrentTeam(String playerName){
-        Optional<PlayersNode> optionalPlayerNode = PMn.findByLongName(playerName);
+    public plays_in_team showCurrentTeam(String playerMongoId){
+        Optional<PlayersNode> optionalPlayerNode = PMn.findByMongoId(playerMongoId);
         Optional<plays_in_team> optionalTeam = optionalPlayerNode.flatMap(playerNode -> 
         playerNode.getTeamMNodes().stream().filter(teamNode -> teamNode.getFifaV()
         .equals(CURRENT_YEAR)).findFirst());
@@ -185,12 +192,12 @@ public class Players_node_service {
            
         }
         else{
-            throw new RuntimeErrorException(null, "Player with name:" + playerName +"not found or team not mapped for current year");
+            throw new RuntimeErrorException(null, "Player with id:" + playerMongoId +"not found or team not mapped for current year");
         }
     }
 
-    public plays_in_team showSpecificTeam(String playerName, Integer fifaVersion){
-        Optional<PlayersNode> optionalPlayerNode = PMn.findByLongName(playerName);
+    public plays_in_team showSpecificTeam(String playerMongoId, Integer fifaVersion){
+        Optional<PlayersNode> optionalPlayerNode = PMn.findByMongoId(playerMongoId);
         Optional<plays_in_team> optionalTeam = optionalPlayerNode.flatMap(playerNode -> 
         playerNode.getTeamMNodes().stream().filter(teamNode -> teamNode.getFifaV()
         .equals(fifaVersion)).findFirst());
@@ -200,7 +207,7 @@ public class Players_node_service {
            
         }
         else{
-            throw new RuntimeErrorException(null, "Player with name:" + playerName +"not found or team not mapped for current year");
+            throw new RuntimeErrorException(null, "Player with id:" + playerMongoId +"not found or team not mapped for current year");
         }
     }
 

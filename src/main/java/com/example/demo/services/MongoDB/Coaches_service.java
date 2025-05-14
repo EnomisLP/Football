@@ -123,7 +123,7 @@ public class Coaches_service {
     @Transactional
     public Coaches updateTeamCoach(String id, Integer fifaV, updateTeamCoach request){
         Optional<Coaches> optionalCoach = CMr.findById(id);
-        Optional<Teams> optionalTeam = TMs.findByTeamName(request.getTeam_name());
+        Optional<Teams> optionalTeam = TMs.findById(request.getTeam_mongo_id());
         Optional<CoachesNode> optionalCoachNode = Cmr.findByMongoId(id);
         if (optionalCoach.isPresent() && optionalCoachNode.isPresent()) {
             Coaches existingCoach = optionalCoach.get();
@@ -134,7 +134,7 @@ public class Coaches_service {
                     List<TeamObj> Check = existingCoach.getTeams();
                     for(TeamObj team : Check){
                         if(team.getFifa_version().equals(fifaV)){
-                            if(team.getTeam_name().equals(request.getTeam_name())){
+                            if(team.getTeam_mongo_id().equals(request.getTeam_mongo_id())){
                                 return existingCoach;
                             }
                         }
@@ -151,7 +151,7 @@ public class Coaches_service {
                      }
 
                     //Updating Neo4j
-                    Optional<TeamsNode> optionalTeamsNode = TMr.findByTeamName(request.getTeam_name());
+                    Optional<TeamsNode> optionalTeamsNode = TMr.findByMongoId(request.getTeam_mongo_id());
                     if(optionalTeamsNode.isPresent()){
                         TeamsNode existingTeamsNode = optionalTeamsNode.get();
                         List<manages_team> manages = existingCoachNode.getTeamMNodes();
@@ -171,7 +171,7 @@ public class Coaches_service {
                     //Updating coach MongoDB
                     for(TeamObj team : teamObj){
                         if(team.getFifa_version().equals(fifaV)){
-                            team.setTeam_name(request.getTeam_name());
+                            team.setTeam_name(existingTeam.getTeam_name());
                             team.setTeam_mongo_id(existingTeam.get_id());
                             CMr.save(existingCoach);
                             break;
@@ -182,7 +182,7 @@ public class Coaches_service {
             return existingCoach;
             }
             else{
-                throw new RuntimeException("Teams not found with name: " + request.getTeam_name());
+                throw new RuntimeException("Teams not found with id: " + request.getTeam_mongo_id());
             }     
         }
         else {
@@ -214,7 +214,7 @@ public class Coaches_service {
                 }
                 for(FifaStatsTeam stat : stats){
                     if(stat.getFifa_version().equals(newFifaV)){
-                        Optional<TeamsNode> optionalTeamsNode = TMr.findByTeamName(team.getTeam_name());
+                        Optional<TeamsNode> optionalTeamsNode = TMr.findByMongoId(team.get_id());
                         if(optionalTeamsNode.isPresent()){
                             manages_team newManage = new manages_team(optionalTeamsNode.get(), newFifaV);
                             existingCoachNode.getTeamMNodes().add(newManage);
@@ -273,7 +273,7 @@ public class Coaches_service {
                 }
             }
             // Delete the coach from MongoDB and Neo4j
-            CMs.deleteCoach(existing.get_id());
+            CMs.deleteCoach(existing.getMongoId());
             CMr.deleteById(coach.get().get_id());
         }
         else{

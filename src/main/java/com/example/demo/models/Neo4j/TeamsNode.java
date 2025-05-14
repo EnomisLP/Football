@@ -28,7 +28,7 @@ public class TeamsNode {
     @Indexed(unique = true)
     private String mongoId;
     @Property(name ="teamName")
-    @Indexed(unique = true)
+    @Indexed
     private String teamName;
 
     @Property(name="gender")

@@ -121,7 +121,7 @@ public class Users_service {
         }
         if(userNode.isPresent()){
             UsersNode existing = userNode.get();
-            UNs.deleteUser(existing.get_id());
+            UNs.deleteUser(existing.getMongoId());
         }
         else{
             throw new RuntimeErrorException(null, "User not found with id: " + id);

@@ -12,5 +12,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class updateTeamCoach {
-    private String team_name;
+    private String team_mongo_id;
 }   

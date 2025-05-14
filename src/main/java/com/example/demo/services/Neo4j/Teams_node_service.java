@@ -36,12 +36,12 @@ public class Teams_node_service {
     }
 
     // READ
-    public TeamsNode getTeams(Long id) {
-        Optional<TeamsNode> optionalTeam = TMn.findById(id);
+    public TeamsNode getTeams(String mongoId) {
+        Optional<TeamsNode> optionalTeam = TMn.findByMongoId(mongoId);
         if (optionalTeam.isPresent()) {
             return optionalTeam.get();
         } else {
-            throw new RuntimeErrorException(null, "Team not found with id: " + id);
+            throw new RuntimeErrorException(null, "Team not found with id: " + mongoId);
         }
     }
 
@@ -71,7 +71,7 @@ public class Teams_node_service {
         System.out.println("Teams found :" + Allteams.size());
         for (Teams team : Allteams) {
             // Check if the team node already exists in Neo4j
-            if (TMn.existsByMongoId(String.valueOf(team.get_id()))) {
+            if (TMn.existsByMongoId(team.get_id())) {
                 continue;
             }
             
@@ -93,52 +93,52 @@ public class Teams_node_service {
     }
 
     // DELETE
-    public void deleteTeam(Long id) {
-        Optional<TeamsNode> optionalTeam = TMn.findById(id);
+    public void deleteTeam(String mongoId) {
+        Optional<TeamsNode> optionalTeam = TMn.findByMongoId(mongoId);
         if (optionalTeam.isPresent()) {
-            TMn.deleteById(id);
+            TMn.delete(optionalTeam.get());
         } else {
-            throw new RuntimeErrorException(null, "Team not found with id: " + id);
+            throw new RuntimeErrorException(null, "Team not found with id: " + mongoId);
         }
     }
 
-    public List<plays_in_team> showCurrentFormation(String teamName){
-        Optional<TeamsNode> optionalTeamsNode = TMn.findByTeamName(teamName);
+    public List<plays_in_team> showCurrentFormation(String mongoId){
+        Optional<TeamsNode> optionalTeamsNode = TMn.findByMongoId(mongoId);
         if(optionalTeamsNode.isPresent()){
-            return TMn.findFormation(teamName, CURRENT_YEAR);
+            return TMn.findFormation(mongoId, CURRENT_YEAR);
         }
         else{
-            throw new RuntimeErrorException(null, "Team not found with name" + teamName);
+            throw new RuntimeErrorException(null, "Team not found with id" + mongoId);
         }
     }
 
-    public List<plays_in_team> showSpecificFormation(String teamName, Integer fifaV){
-        Optional<TeamsNode> optionalTeamsNode = TMn.findByTeamName(teamName);
+    public List<plays_in_team> showSpecificFormation(String mongoId, Integer fifaV){
+        Optional<TeamsNode> optionalTeamsNode = TMn.findByMongoId(mongoId);
         if(optionalTeamsNode.isPresent()){
-            return TMn.findFormation(teamName, fifaV);
+            return TMn.findFormation(mongoId, fifaV);
         }
         else{
-            throw new RuntimeErrorException(null, "Team not found with name" + teamName);
+            throw new RuntimeErrorException(null, "Team not found with id" + mongoId);
         }
     }
 
-    public manages_team showCurrentCoach(String teamName){
-         Optional<TeamsNode> optionalTeamsNode = TMn.findByTeamName(teamName);
+    public manages_team showCurrentCoach(String mongoId){
+         Optional<TeamsNode> optionalTeamsNode = TMn.findByMongoId(mongoId);
         if(optionalTeamsNode.isPresent()){
-            return TMn.findCoach(teamName, CURRENT_YEAR);
+            return TMn.findCoach(mongoId, CURRENT_YEAR);
         }
         else{
-            throw new RuntimeErrorException(null, "Team not found with name" + teamName);
+            throw new RuntimeErrorException(null, "Team not found with mongoId" + mongoId);
         }
     }
 
-    public manages_team showSpecificCoach(String teamName, Integer fifaV){
-         Optional<TeamsNode> optionalTeamsNode = TMn.findByTeamName(teamName);
+    public manages_team showSpecificCoach(String mongoId, Integer fifaV){
+         Optional<TeamsNode> optionalTeamsNode = TMn.findByMongoId(mongoId);
         if(optionalTeamsNode.isPresent()){
-            return TMn.findCoach(teamName, fifaV);
+            return TMn.findCoach(mongoId, fifaV);
         }
         else{
-            throw new RuntimeErrorException(null, "Team not found with name" + teamName);
+            throw new RuntimeErrorException(null, "Team not found with name" + mongoId);
         }
     }
 }

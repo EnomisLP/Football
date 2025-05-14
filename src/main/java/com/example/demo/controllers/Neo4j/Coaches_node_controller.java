@@ -27,10 +27,10 @@ public class Coaches_node_controller{
     }
 
     // READ: Get coaches nodes
-    @GetMapping("/{coachName}")
+    @GetMapping("/{_id}")
     @Operation(summary = "READ operation: Get coaches nodes")
-    public CoachesNode getCoach(@PathVariable String coachName) {
-        return coachesMNodeService.getCoach(coachName);
+    public CoachesNode getCoach(@PathVariable String _id) {
+        return coachesMNodeService.getCoach(_id);
     }
 
     @GetMapping("/admin/user/byGender/{gender}")
@@ -41,22 +41,22 @@ public class Coaches_node_controller{
         PageRequest pageable = PageRequest.of(page, size);
         return coachesMNodeService.getAllCoaches(pageable, gender);
     }
-    @GetMapping("/{coachName}/history")
+    @GetMapping("/{_id}/history")
     @Operation(summary = "show team trained Hystory")
-    public List<manages_team> showTrainedHistory(String coachName){
-        return coachesMNodeService.showTrainedHistory(coachName);
+    public List<manages_team> showTrainedHistory(String _id){
+        return coachesMNodeService.showTrainedHistory(_id);
     }
 
-    @GetMapping("/{coachName}/CurrentTeam")
+    @GetMapping("/{_id}/CurrentTeam")
     @Operation(summary = "show current team training")
-    public manages_team showCurrentTeam(String coachName){
-        return coachesMNodeService.showCurrentTeam(coachName);
+    public manages_team showCurrentTeam(String _id){
+        return coachesMNodeService.showCurrentTeam(_id);
     }
 
-    @GetMapping("/{coachName}/{fifaV}")
+    @GetMapping("/{_id}/{fifaV}")
     @Operation(summary = "show specific team training")
-    public manages_team showSpecificTeam(String coachName, Integer fifaV){
-        return coachesMNodeService.showSpecificTeam(coachName, fifaV);
+    public manages_team showSpecificTeam(String _id, Integer fifaV){
+        return coachesMNodeService.showSpecificTeam(_id, fifaV);
     }
     // MAP: Map all Coaches from MongoDB to Neo4j nodes
     @PostMapping("/admin/map-all")

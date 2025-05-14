@@ -55,18 +55,19 @@ db.male_players.aggregate([
   {
     $lookup: {
       from: "male_teams",
-      let: { clubId: "$club_team_id", clubName: "$club_name" },
+      let: { clubId: "$club_team_id" , clubName: "$club_name"},
       pipeline: [
         {
           $match: {
             $expr: {
               $and: [
-                { $eq: ["$team_id", "$$clubId"] },
+                { $eq: ["$team_id", "$$clubId"]} ,
                 { $eq: ["$team_name", "$$clubName"] }
               ]
             }
           }
-        }
+        },
+        { $limit: 1 }
       ],
       as: "team_info"
     }
@@ -77,20 +78,6 @@ db.male_players.aggregate([
       preserveNullAndEmptyArrays: true
     }
   },
-
-  {
-    $group: {
-      _id: {
-        player_id: "$player_id",
-        fifa_version: "$fifa_version"
-      },
-      doc: { $first: "$$ROOT" }
-    }
-  },
-  {
-    $replaceWith: "$doc"
-  },
-
 
   {
     $group: {

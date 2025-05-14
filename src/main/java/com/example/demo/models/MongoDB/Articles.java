@@ -23,6 +23,7 @@ public class Articles {
     @GeneratedValue
     private String _id;
     @Field(name ="author")
+    @Indexed
     private String author;
     @Field(name ="content")
     private String content;

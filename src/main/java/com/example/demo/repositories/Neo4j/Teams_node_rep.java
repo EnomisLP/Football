@@ -29,13 +29,12 @@ public interface Teams_node_rep extends Neo4jRepository<TeamsNode,Long>{
 )
     Page<TeamsNode> findAllByGenderWithPagination(String gender, PageRequest pageRequest);
     List<TeamsNode> findAllByGender(String gender);
-    Optional<TeamsNode> findByTeamName(String team_name);
-    @Query( "MATCH (t:TeamsNode {teamName: $teamName})<-[r:PLAYS_IN_TEAM]-(p:PlayersNode)"+
+    @Query( "MATCH (t:TeamsNode {teamName: $mongoId})<-[r:PLAYS_IN_TEAM]-(p:PlayersNode)"+
     "WHERE r.fifaV = $fifaV"+
     "RETURN r")
-    List<plays_in_team> findFormation(String teamName, Integer fifaV);
-    @Query( "MATCH (t:TeamsNode {teamName: $teamName})<-[r:MANAGES_TEAM]-(p:CoachesNode)"+
+    List<plays_in_team> findFormation(String mongoId, Integer fifaV);
+    @Query( "MATCH (t:TeamsNode {teamName: $mongoId})<-[r:MANAGES_TEAM]-(p:CoachesNode)"+
     "WHERE r.fifaV = $fifaV"+
     "RETURN r")
-    manages_team findCoach(String teamName, Integer fifaV);
+    manages_team findCoach(String mongoId, Integer fifaV);
 }
