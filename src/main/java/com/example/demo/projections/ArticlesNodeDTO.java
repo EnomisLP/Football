@@ -9,11 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CoachesNodeProjection {
 
-    private String mongoId;
-    private String longName;
-    private Integer fifaVersion;
-    private String gender;
-
+public class ArticlesNodeDTO {
+    public String mongoId;
+    public String title;
+    public String author;
 }

@@ -8,9 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
-
-
 import com.example.demo.models.Neo4j.PlayersNode;
+import com.example.demo.projections.PlayersNodeDTO;
 @Repository
 public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
 
@@ -27,5 +26,10 @@ public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
     List<PlayersNode> findAllByGender(String gender);
     Optional<PlayersNode> findByLongName(String string);
 
-    
+    @Query("MATCH (n:PlayersNode {gender : $gender}) RETURN n.mongoId AS mongoId, n.longName AS longName, n.gender AS gender")
+    List<PlayersNodeDTO> findAllLightByGender(String gender);
+
+    @Query("MATCH (p:PlayersNode {mongoId: $mongoId}), (t:TeamsNode {mongoId: $teamId}) " +
+    "MERGE (p)-[r:PLAYS_IN_TEAM {fifaVersion: $fifaV}]->(t) ")
+    void createPlaysInTeamRelationToTeam(String mongoId, String teamId, Integer fifaV);
 }

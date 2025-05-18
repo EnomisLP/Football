@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.models.MongoDB.Teams;
 
 import com.example.demo.models.Neo4j.TeamsNode;
-import com.example.demo.projections.CoachesNodeProjection;
+import com.example.demo.projections.CoachesNodeDTO;
 import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.repositories.MongoDB.Teams_repository;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
@@ -110,11 +110,11 @@ public class Teams_node_service {
         return TMn.findFormation(mongoId, fifaV);
     }
 
-    public CoachesNodeProjection showCurrentCoach(String mongoId){
+    public CoachesNodeDTO showCurrentCoach(String mongoId){
         return TMn.findCoach(mongoId, CURRENT_YEAR);
     }
 
-    public CoachesNodeProjection showSpecificCoach(String mongoId, Integer fifaV){
+    public CoachesNodeDTO showSpecificCoach(String mongoId, Integer fifaV){
         return TMn.findCoach(mongoId, fifaV);
     }
 }

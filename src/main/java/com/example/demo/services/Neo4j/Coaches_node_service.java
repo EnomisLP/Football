@@ -17,6 +17,7 @@ import com.example.demo.models.MongoDB.FifaStatsTeam;
 import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.models.Neo4j.CoachesNode;
 import com.example.demo.models.Neo4j.TeamsNode;
+import com.example.demo.projections.TeamsNodeDTO;
 import com.example.demo.relationships.manages_team;
 import com.example.demo.repositories.MongoDB.Coaches_repository;
 import com.example.demo.repositories.MongoDB.Teams_repository;
@@ -120,11 +121,11 @@ public class Coaches_node_service {
 
     public String MapAllManagesTeam(String gender) {
         int counter = 0;
-        List<TeamsNode> listOfTeams = TMn.findAllByGender(gender);
+        List<TeamsNodeDTO> listOfTeams = TMn.findAllLightByGender(gender);
     
-        for (TeamsNode teamNode : listOfTeams) {
+        for (TeamsNodeDTO teamNode : listOfTeams) {
             if(teamNode.getMongoId() == null){
-                System.err.println("Team node with id: " + teamNode.get_id() + " has no mongoId");
+                System.err.println("Team node with id: " + teamNode.getMongoId() + " has no mongoId");
                 continue;
             }
             Optional<Teams> optionalTeam = TMr.findById(teamNode.getMongoId());
@@ -148,28 +149,12 @@ public class Coaches_node_service {
     
                 Coaches existingCoach = optionalCoach.get();
                 Optional<CoachesNode> optionalCoachNode = CMn.findByMongoId(existingCoach.get_id());
-                if (optionalCoachNode.isEmpty()) {
-                    System.err.println("Coach node with id: " + existingCoach.get_id() + " not correctly mapped in Neo4j");
+                Optional<TeamsNode> optionalTeamNode = TMn.findByMongoId(teamNode.getMongoId());
+                if (optionalCoachNode.isEmpty() || optionalTeamNode.isEmpty()) {
+                    System.err.println("Team node with id: " + teamNode.getMongoId() + " not correctly mapped in Neo4j or Coach node with id: " + existingCoach.get_id());
                     continue;
                 }
-    
-                CoachesNode existingCoachNode = optionalCoachNode.get();
-    
-                // Check for existing relationship
-                boolean existingRelationship = existingCoachNode.getTeamMNodes().stream()
-                        .anyMatch(rel -> rel.alreadyExist(teamNode, fifaStat.getFifa_version()));
-    
-                if (existingRelationship) {
-                    System.err.println("Relationship already exists for Coach node with id: " + existingCoach.get_id() +
-                                       " and Team node " + teamNode.get_id() +
-                                       " in fifaVersion " + fifaStat.getFifa_version());
-                    continue;
-                }
-    
-                // Create new relationship
-                manages_team newRelationship = new manages_team(teamNode, fifaStat.getFifa_version());
-                existingCoachNode.getTeamMNodes().add(newRelationship);
-                CMn.save(existingCoachNode);
+                CMn.createManagesRelationToTeam(optionalCoachNode.get().getMongoId(), optionalTeamNode.get().getMongoId(), fifaStat.getFifa_version());
                 
                 counter++;
             }

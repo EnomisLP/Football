@@ -7,6 +7,7 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.example.demo.models.Neo4j.UsersNode;
+import com.example.demo.projections.UsersNodeDTO;
 import com.example.demo.projections.UsersNodeProjection;
 
 
@@ -97,4 +98,8 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
     DETACH DELETE u
 """)
 void deleteUserByMongoId(@Param("mongoId") String mongoId);
+
+@Query("MATCH (n:UsersNode) RETURN n.mongoId AS mongoId, n.userName AS userName")
+List<UsersNodeDTO> findAllLight();
+
 }

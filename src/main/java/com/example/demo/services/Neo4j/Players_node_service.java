@@ -17,6 +17,7 @@ import com.example.demo.models.MongoDB.Players;
 import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.models.Neo4j.PlayersNode;
 import com.example.demo.models.Neo4j.TeamsNode;
+import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.relationships.plays_in_team;
 import com.example.demo.repositories.MongoDB.Players_repository;
 import com.example.demo.repositories.MongoDB.Teams_repository;
@@ -104,12 +105,12 @@ public class Players_node_service {
     }
     public String MapAllPlaysInTeamRel(String gender) {
         int counter = 0;
-        List<PlayersNode> list = PMn.findAllByGender(gender);
+        List<PlayersNodeDTO> list = PMn.findAllLightByGender(gender);
 
-        for (PlayersNode playerNode : list) {
-            System.out.println("PlayerNode: " + playerNode.get_id());
+        for (PlayersNodeDTO playerNode : list) {
+            System.out.println("PlayerNode: " + playerNode.getMongoId());
              if (playerNode.getMongoId() == null) {
-                System.err.println("ERROR: playerNode.getMongoId() is null for playerNode: " + playerNode.get_id());
+                System.err.println("ERROR: playerNode.getMongoId() is null for playerNode: " + playerNode.getMongoId());
                 continue;
             }
             Optional<Players> optionalPlayer = PMr.findById(playerNode.getMongoId());
@@ -136,35 +137,18 @@ public class Players_node_service {
 
                 Teams existingTeam = optionalTeam.get();
                 Optional<TeamsNode> optionalTeamNode = TMn.findByMongoId(existingTeam.get_id());
-
-                if (optionalTeamNode.isEmpty()) {
-                    System.err.printf("Team not mapped in Neo4j", existingTeam.get_id());
+                Optional<PlayersNode> optionalPlayerNode = PMn.findByMongoId(playerNode.getMongoId());
+                if (optionalTeamNode.isEmpty() || optionalPlayerNode.isEmpty()) {
+                    System.err.printf("No Team or Player found in Neo4j for team name:", existingTeam.get_id());
                     continue;
                 }
-
-                TeamsNode existingTeamNode = optionalTeamNode.get();
-                boolean existingRelationship = false;
-                for(plays_in_team test : playerNode.getTeamMNodes()){
-                    if(test.alreadyExist(existingTeamNode,fifaStat.getFifa_version())){
-                        System.err.println("WARNING: Relationship between Player: "
-                        + playerNode.get_id() + " and Team" + existingTeamNode.get_id()
-                        +" in fifa Version:"+ fifaStat.getFifa_version()+ " already exist");
-                        existingRelationship = true;
-                        continue; // Skip this player
-                    }
-                }
-                // Check if the relationship already exists
-                if(!existingRelationship){
-                    plays_in_team relationship = new plays_in_team(existingTeamNode, fifaStat.getFifa_version());
-                    playerNode.getTeamMNodes().add(relationship);
-                    //PMn.addInTeam(playerNode.getMongoId(), existingTeamNode.getMongoId(), fifaStat.getFifa_version());
+                PMn.createPlaysInTeamRelationToTeam(playerNode.getMongoId(), existingTeam.get_id(), fifaStat.getFifa_version());
+                
                     counter++;
-                    
-                    PMn.save(playerNode);
+                
                     
                 }
             }
-        }
         
         return "Number of relationships created: " + counter;
     }

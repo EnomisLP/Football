@@ -11,6 +11,7 @@ import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import com.example.demo.relationships.plays_in_team;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -50,7 +51,7 @@ public class PlayersNode{
     @Indexed
     private String gender;
 
-    
+    @JsonIgnore
     @Relationship(type ="PLAYS_IN_TEAM", direction = Relationship.Direction.OUTGOING)
     private List<plays_in_team> teamMNodes = new ArrayList<>();
 

@@ -29,7 +29,7 @@ import com.example.demo.models.MongoDB.Users;
 import com.example.demo.models.Neo4j.ArticlesNode;
 import com.example.demo.models.Neo4j.PlayersNode;
 import com.example.demo.models.Neo4j.UsersNode;
-import com.example.demo.projections.PlayersNodeProjection;
+import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.projections.UsersNodeProjection;
 import com.example.demo.relationships.has_in_F_team;
 import com.example.demo.relationships.has_in_M_team;
@@ -150,21 +150,18 @@ public class Users_node_service {
         return listToReturn;
     }
 
-    public List<PlayersNodeProjection> ShowUserMPlayers(String username) {
+    public List<PlayersNodeDTO> ShowUserMPlayers(String username) {
         Optional<UsersNode> userNodeOpt = Unr.findByUserName(username);
         if(userNodeOpt.isPresent()){
             UsersNode user = userNodeOpt.get();
             List<has_in_M_team> relationships = user.getPlayersMNodes();
-            List<PlayersNodeProjection> playersList = new ArrayList<>();
+            List<PlayersNodeDTO> playersList = new ArrayList<>();
             for (has_in_M_team relationship : relationships) {
                 PlayersNode player = relationship.getPlayer();
-                PlayersNodeProjection playerProjection = new PlayersNodeProjection();
+                PlayersNodeDTO playerProjection = new PlayersNodeDTO();
                 playerProjection.setLongName(player.getLongName());
                 playerProjection.setMongoId(player.getMongoId());
-                playerProjection.setAge(player.getAge());
-                playerProjection.setNationalityName(player.getNationalityName());
                 playerProjection.setGender(player.getGender());
-                playerProjection.setFifaV(relationship.getFifaV());
                 playersList.add(playerProjection);
             }
             return playersList;
@@ -175,21 +172,18 @@ public class Users_node_service {
         
 }
     
-    public List<PlayersNodeProjection> ShowUserFPlayers(String username) {
+    public List<PlayersNodeDTO> ShowUserFPlayers(String username) {
         Optional<UsersNode> userNodeOpt = Unr.findByUserName(username);
         if(userNodeOpt.isPresent()){
             UsersNode user = userNodeOpt.get();
             List<has_in_F_team> relationships = user.getPlayersFNodes();
-            List<PlayersNodeProjection> playersList = new ArrayList<>();
+            List<PlayersNodeDTO> playersList = new ArrayList<>();
             for (has_in_F_team relationship : relationships) {
                 PlayersNode player = relationship.getPlayer();
-                PlayersNodeProjection playerProjection = new PlayersNodeProjection();
+                PlayersNodeDTO playerProjection = new PlayersNodeDTO();
                 playerProjection.setLongName(player.getLongName());
                 playerProjection.setMongoId(player.getMongoId());
-                playerProjection.setAge(player.getAge());
-                playerProjection.setNationalityName(player.getNationalityName());
                 playerProjection.setGender(player.getGender());
-                playerProjection.setFifaV(relationship.getFifaV());
                 playersList.add(playerProjection);
             }
             return playersList;

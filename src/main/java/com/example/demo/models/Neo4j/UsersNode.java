@@ -14,6 +14,7 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 import com.example.demo.configurations.UsersNodeJsonComponent;
 import com.example.demo.relationships.has_in_F_team;
 import com.example.demo.relationships.has_in_M_team;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -43,30 +44,39 @@ public class UsersNode {
     @Indexed(unique = true)
     private String userName;
    
+    @JsonIgnore
     @Relationship(type = "HAS_IN_M_TEAM", direction = Relationship.Direction.OUTGOING)
     private List<has_in_M_team> playersMNodes = new ArrayList<>();
    
+     @JsonIgnore
     @Relationship(type = "HAS_IN_F_TEAM", direction = Relationship.Direction.OUTGOING)
     private List<has_in_F_team> playersFNodes = new ArrayList<>();
     
+     @JsonIgnore
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
     private List<UsersNode> followings = new ArrayList<>();
+
+     @JsonIgnore
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.INCOMING)
-    
     private List<UsersNode> followers = new ArrayList<>();
     
+     @JsonIgnore
     @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
     private List<TeamsNode> teamsNodes = new ArrayList<>();
     
+     @JsonIgnore
     @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
     private List<CoachesNode> coachesNodes = new ArrayList<>();
     
+     @JsonIgnore
     @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
     private List<PlayersNode> playerNodes = new ArrayList<>();
     
+     @JsonIgnore
     @Relationship(type = "WROTE", direction = Relationship.Direction.OUTGOING)
     private List<ArticlesNode> articlesNodes = new ArrayList<>();
     
+     @JsonIgnore
     @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
     private List<ArticlesNode> likedArticlesNodes = new ArrayList<>();
 }

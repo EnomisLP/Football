@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.Neo4j.ArticlesNode;
 import com.example.demo.models.Neo4j.UsersNode;
-import com.example.demo.projections.PlayersNodeProjection;
+import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.projections.UsersNodeProjection;
 import com.example.demo.services.Neo4j.Users_node_service;
 
@@ -77,12 +77,12 @@ public class Users_node_controller {
     }
 
     @GetMapping("/user/MPlayers")
-    public List<PlayersNodeProjection> geMPlayers(Authentication auth) {
+    public List<PlayersNodeDTO> geMPlayers(Authentication auth) {
         return Uns.ShowUserMPlayers(auth.getName());
     }
 
     @GetMapping("/user/FPlayers")
-    public List<PlayersNodeProjection> getFPlayers(Authentication auth) {
+    public List<PlayersNodeDTO> getFPlayers(Authentication auth) {
         return Uns.ShowUserFPlayers(auth.getName());
     }
 

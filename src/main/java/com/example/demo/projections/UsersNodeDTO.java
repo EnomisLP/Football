@@ -9,9 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlayersNodeDTO {
-
+public class UsersNodeDTO {
     private String mongoId;
-    private String longName;
-    private String gender;
+    private String userName;
 }

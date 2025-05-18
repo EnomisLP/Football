@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.Neo4j.TeamsNode;
-import com.example.demo.projections.CoachesNodeProjection;
+import com.example.demo.projections.CoachesNodeDTO;
 import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.services.Neo4j.Teams_node_service;
 
@@ -62,13 +62,13 @@ public class Teams_node_controller {
 
     @GetMapping("/{_id}/currentCoach")
     @Operation(summary = "Show Coach of a Team for the current Year")
-    public CoachesNodeProjection showCurrentCoach(@PathVariable String _id){
+    public CoachesNodeDTO showCurrentCoach(@PathVariable String _id){
         return teamsNodeService.showCurrentCoach(_id);
     }
 
     @GetMapping("/{_id}/{fifaV}/specificCoach")
     @Operation(summary = "Show coach of a Team for a specific Year")
-    public CoachesNodeProjection showSpecificCoach(@PathVariable String _id, @PathVariable Integer fifaV){
+    public CoachesNodeDTO showSpecificCoach(@PathVariable String _id, @PathVariable Integer fifaV){
         return teamsNodeService.showSpecificCoach(_id, fifaV);
     }
 }

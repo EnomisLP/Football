@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.models.MongoDB.Articles;
 import com.example.demo.models.Neo4j.ArticlesNode;
-import com.example.demo.models.Neo4j.UsersNode;
+import com.example.demo.projections.ArticlesNodeDTO;
+import com.example.demo.projections.UsersNodeDTO;
 import com.example.demo.repositories.MongoDB.Articles_repository;
 import com.example.demo.repositories.Neo4j.Articles_node_rep;
 import com.example.demo.repositories.Neo4j.Users_node_rep;
@@ -43,29 +44,26 @@ public class Articles_node_service {
         return Ar.findAll(page);
     }
 
-    //CALL THIS METHOD ONLY ONCE
-    public String MappAllWroteRelationships() {
-        int count = 0;
-        List<UsersNode> users = Un.findAll();
-        for(UsersNode user: users){
-            List<ArticlesNode> userArticles = Ar.findByAuthor(user.getUserName());
-            if(userArticles.isEmpty()){
-                continue;
-            }
-            for(ArticlesNode article : userArticles){
-                if(user.getArticlesNodes().contains(article)){
-                    continue;
-                }
-                user.getArticlesNodes().add(article);
-                Un.save(user);
+    //CALL THIS METHOD ONLY before mapping everithing
+   public String MappAllWroteRelationships() {
+    int count = 0;
+    List<UsersNodeDTO> users = Un.findAllLight();
+    List<ArticlesNodeDTO> articles = Ar.findAllLight();
+
+    for (UsersNodeDTO user : users) {
+        for(ArticlesNodeDTO article : articles) {
+            if (user.getUserName().equals(article.getAuthor())) {
+               Un.createWroteRelationToArticle(user.getUserName(), article.getMongoId());
                 count++;
             }
-
-
         }
 
-        return "Mapped " + count + " wrote relationships successfully.";
+        
     }
+
+    return "Mapped " + count + " wrote relationships successfully.";
+}
+
 
     private void ensureArticlesNodeIndexes() {
         neo4jClient.query("""

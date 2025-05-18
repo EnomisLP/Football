@@ -8,9 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
-
-
 import com.example.demo.models.Neo4j.CoachesNode;
+import com.example.demo.projections.CoachesNodeDTO;
 import com.example.demo.relationships.manages_team;
 @Repository
 public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
@@ -34,5 +33,12 @@ public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
     manages_team findFifaVersionByLongNameAndFifaV(String teamName, Integer fifaV);
     Optional<CoachesNode> findByLongName(String string);
 
-    
+    @Query("MATCH (n:CoachesNode {gender : $gender}) RETURN n.mongoId AS mongoId, n.longName AS longName, n.gender AS gender")
+    List<CoachesNodeDTO> findAllLightByGender( String gender);
+
+    @Query("MATCH (c:CoachesNode {mongoId: $mongoId}), (t:TeamsNode {mongoId: $teamId}) " +
+    "MERGE (c)-[r:MANAGES_TEAM {fifaVersion: $fifaV}]->(t) ")
+    void createManagesRelationToTeam(String mongoId, String teamId, Integer fifaV);
+
+
 }

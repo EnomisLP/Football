@@ -8,11 +8,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
-
-
 import com.example.demo.models.Neo4j.TeamsNode;
-import com.example.demo.projections.CoachesNodeProjection;
+import com.example.demo.projections.CoachesNodeDTO;
 import com.example.demo.projections.PlayersNodeDTO;
+import com.example.demo.projections.TeamsNodeDTO;
 
 
 @Repository
@@ -37,6 +36,10 @@ public interface Teams_node_rep extends Neo4jRepository<TeamsNode,Long>{
     @Query( "MATCH (t:TeamsNode {mongoId: $mongoId})<-[r:MANAGES_TEAM]-(p:CoachesNode) "+
     "WHERE r.fifaVersion = $fifaV "+
     "RETURN { mongoId: p.mongoId, longName: p.longName, gender: p.gender} AS CoachesNodeProjection")
-    CoachesNodeProjection findCoach(String mongoId, Integer fifaV);
+    CoachesNodeDTO findCoach(String mongoId, Integer fifaV);
     Optional<TeamsNode> findByLongName(String string);
+
+    @Query("MATCH (n:TeamsNode {gender : $gender}) RETURN n.mongoId AS mongoId, n.longName AS longName, n.gender AS gender")
+    List<TeamsNodeDTO> findAllLightByGender(String gender);
+
 }
