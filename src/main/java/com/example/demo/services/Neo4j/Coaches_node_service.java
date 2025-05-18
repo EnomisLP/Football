@@ -123,6 +123,10 @@ public class Coaches_node_service {
         List<TeamsNode> listOfTeams = TMn.findAllByGender(gender);
     
         for (TeamsNode teamNode : listOfTeams) {
+            if(teamNode.getMongoId() == null){
+                System.err.println("Team node with id: " + teamNode.get_id() + " has no mongoId");
+                continue;
+            }
             Optional<Teams> optionalTeam = TMr.findById(teamNode.getMongoId());
             if (optionalTeam.isEmpty()) {
                 System.err.println("Team with id: " + teamNode.getMongoId() + " not correctly mapped in MongoDB");
@@ -131,9 +135,14 @@ public class Coaches_node_service {
             Teams existingTeam = optionalTeam.get();
     
             for (FifaStatsTeam fifaStat : existingTeam.getFifaStats()) {
-                Optional<Coaches> optionalCoach = Cmr.findById(fifaStat.getCoach().getCoach_mongo_id());
+                String mongoId = fifaStat.getCoach().getCoach_mongo_id();
+                if(mongoId == null){
+                    System.err.println("Coach mongo ID is null for coach: " + fifaStat.getCoach().getCoach_name());
+                    continue;
+                }
+                Optional<Coaches> optionalCoach = Cmr.findById(mongoId);
                 if (optionalCoach.isEmpty()) {
-                    System.err.println("Coach with id: " + fifaStat.getCoach().getCoach_name() + " not correctly mapped in MongoDB");
+                    System.err.println("Coach with id: " + mongoId + " not correctly mapped in MongoDB");
                     continue;
                 }
     
@@ -161,6 +170,7 @@ public class Coaches_node_service {
                 manages_team newRelationship = new manages_team(teamNode, fifaStat.getFifa_version());
                 existingCoachNode.getTeamMNodes().add(newRelationship);
                 CMn.save(existingCoachNode);
+                
                 counter++;
             }
         }

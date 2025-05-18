@@ -17,13 +17,15 @@ public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
     boolean existsByMongoId(String mongoId);
     Optional<PlayersNode> findByMongoId(String get_id);
     @Query(
-    value = "MATCH (p:PlayersNode {gender: $gender}) " +
+    value = "MATCH (p:PlayersNode {gender: }) " +
             "OPTIONAL MATCH (p)-[:PLAYS_IN_TEAM]->(t:TeamsNode) " +
             "OPTIONAL MATCH (u:UsersNode)-[:HAS_IN_M_TEAM|HAS_IN_F_TEAM]->(p) " +
             "RETURN DISTINCT p, COLLECT(DISTINCT t) AS teams, COLLECT(DISTINCT u) AS users",
-    countQuery = "MATCH (p:PlayersNode {gender: $gender}) RETURN count(DISTINCT p)"
+    countQuery = "MATCH (p:PlayersNode {gender: }) RETURN count(DISTINCT p)"
 )
     Page<PlayersNode> findAllByGenderWithPagination(String gender, PageRequest page);
     List<PlayersNode> findAllByGender(String gender);
+    Optional<PlayersNode> findByLongName(String string);
+
     
 }

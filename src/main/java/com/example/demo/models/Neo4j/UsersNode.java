@@ -10,8 +10,12 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
+
+import com.example.demo.configurations.UsersNodeJsonComponent;
 import com.example.demo.relationships.has_in_F_team;
 import com.example.demo.relationships.has_in_M_team;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,6 +27,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonSerialize(using = UsersNodeJsonComponent.UsersNodeSerializer.class)
+@JsonDeserialize(using = UsersNodeJsonComponent.UsersNodeDeserializer.class)
 public class UsersNode {
 
     @Id
@@ -36,31 +42,31 @@ public class UsersNode {
     @Property(name = "userName")
     @Indexed(unique = true)
     private String userName;
-
+   
     @Relationship(type = "HAS_IN_M_TEAM", direction = Relationship.Direction.OUTGOING)
     private List<has_in_M_team> playersMNodes = new ArrayList<>();
-
+   
     @Relationship(type = "HAS_IN_F_TEAM", direction = Relationship.Direction.OUTGOING)
     private List<has_in_F_team> playersFNodes = new ArrayList<>();
-
+    
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.OUTGOING)
     private List<UsersNode> followings = new ArrayList<>();
-
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.INCOMING)
+    
     private List<UsersNode> followers = new ArrayList<>();
-
-    @Relationship(type = "LIKES_TEAM", direction = Relationship.Direction.OUTGOING)
+    
+    @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
     private List<TeamsNode> teamsNodes = new ArrayList<>();
-
-    @Relationship(type = "LIKES_COACH", direction = Relationship.Direction.OUTGOING)
+    
+    @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
     private List<CoachesNode> coachesNodes = new ArrayList<>();
-
-    @Relationship(type = "LIKES_PLAYER", direction = Relationship.Direction.OUTGOING)
+    
+    @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
     private List<PlayersNode> playerNodes = new ArrayList<>();
-
+    
     @Relationship(type = "WROTE", direction = Relationship.Direction.OUTGOING)
     private List<ArticlesNode> articlesNodes = new ArrayList<>();
-
-    @Relationship(type = "LIKES_ARTICLE", direction = Relationship.Direction.OUTGOING)
+    
+    @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
     private List<ArticlesNode> likedArticlesNodes = new ArrayList<>();
 }

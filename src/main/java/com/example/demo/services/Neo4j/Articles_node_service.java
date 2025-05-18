@@ -43,20 +43,27 @@ public class Articles_node_service {
         return Ar.findAll(page);
     }
 
-    @Transactional
+    //CALL THIS METHOD ONLY ONCE
     public String MappAllWroteRelationships() {
         int count = 0;
         List<UsersNode> users = Un.findAll();
-        List<ArticlesNode> articles = Ar.findAll();
-        for (UsersNode user : users) {
-            for (ArticlesNode article : articles) {
-                if (user.getUserName().equals(article.getAuthor()) && !user.getArticlesNodes().contains(article)) {
-                    user.getArticlesNodes().add(article);
-                    count++;
-                }
+        for(UsersNode user: users){
+            List<ArticlesNode> userArticles = Ar.findByAuthor(user.getUserName());
+            if(userArticles.isEmpty()){
+                continue;
             }
+            for(ArticlesNode article : userArticles){
+                if(user.getArticlesNodes().contains(article)){
+                    continue;
+                }
+                user.getArticlesNodes().add(article);
+                Un.save(user);
+                count++;
+            }
+
+
         }
-        Un.saveAll(users);
+
         return "Mapped " + count + " wrote relationships successfully.";
     }
 

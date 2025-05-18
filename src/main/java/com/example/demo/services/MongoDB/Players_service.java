@@ -192,7 +192,6 @@ public class Players_service {
                         stat.setSkill_long_passing(request.getSkill_long_passing());
                         stat.setSkill_ball_control(request.getSkill_ball_control());
                         stat.setMovement_acceleration(request.getMovement_acceleration());
-                        stat.setMovement_sprintSpeed(request.getMovement_sprintSpeed());
                         stat.setMovement_agility(request.getMovement_agility());
                         stat.setMovement_reactions(request.getMovement_reactions());
                         stat.setMovement_balance(request.getMovement_balance());

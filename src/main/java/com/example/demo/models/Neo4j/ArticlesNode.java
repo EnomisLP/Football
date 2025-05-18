@@ -29,5 +29,9 @@ public class ArticlesNode {
     private String author;
     @Property(name = "title")
     private String title;
+    public Object alreadyExists(ArticlesNode article) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'alreadyExists'");
+    }
 
 }

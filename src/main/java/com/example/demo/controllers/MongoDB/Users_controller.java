@@ -13,7 +13,6 @@ import com.example.demo.models.MongoDB.Users;
 import com.example.demo.requets.ChangePasswordRequest;
 import com.example.demo.requets.RegisterUserRequest;
 import com.example.demo.requets.createArticleRequest;
-import com.example.demo.requets.createUserRequest;
 import com.example.demo.services.MongoDB.Users_service;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,12 +42,6 @@ public class Users_controller {
     @Operation(summary = "READ operation - Get user by Username")
     public Users getUserById(@PathVariable String username) {
         return usersService.getUserByUsername(username);
-    }
-
-    @PostMapping("/admin")
-    @Operation(summary = "CREATE operation - Create a new user")
-    public Users createUser(@RequestBody createUserRequest user) {
-        return usersService.createUser(user);
     }
 
     @PutMapping("/admin/{id}")

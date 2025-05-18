@@ -33,6 +33,6 @@ public class Coaches{
     @Field("gender")
     @Indexed
     private String gender;
-    private List<TeamObj> teams;
+    private List<TeamObj> team;
     //Constructors, Getters and Setters automatically Generated
 }

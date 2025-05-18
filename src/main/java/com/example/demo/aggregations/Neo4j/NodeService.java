@@ -24,7 +24,7 @@ public class NodeService {
             "MATCH (p:PlayersNode)-[r:PLAYS_IN_TEAM]->(t:TeamsNode) " +
             "WHERE r.fifaVersion = $fifaVersion " +
             "WITH t, p " +
-            "MATCH (u:UsersNode)-[l:LIKES_PLAYER]->(p) " +
+            "MATCH (u:UsersNode)-[l:LIKES]->(p) " +
             "WITH t, COUNT(l) AS fame " +
             "WITH t, SUM(fame) AS totalFame " +
             "RETURN t AS teamNode, totalFame " +
@@ -40,7 +40,7 @@ public class NodeService {
                     else{
                     TeamsNode team = new TeamsNode();
                     team.setMongoId(teamNode.get("mongoId").asString());
-                    team.setTeamName(teamNode.get("teamName").asString());
+                    team.setLongName(teamNode.get("teamName").asString());
                     team.setGender(teamNode.get("gender").asString());
                     Integer totalFame = record.get("totalFame").asInt();
                     return new TopTeam(team, totalFame);
@@ -54,14 +54,14 @@ public class NodeService {
         return this.neo4jClient.query(
                 "MATCH (p:PlayersNode) " +
                 "OPTIONAL MATCH (p)-[a:PLAYS_IN_TEAM]->(t:TeamsNode) " +
-                "OPTIONAL MATCH (u:UsersNode)-[b:LIKES_PLAYER]->(p) " +
+                "OPTIONAL MATCH (u:UsersNode)-[b:LIKES]->(p) " +
                 "OPTIONAL MATCH (u:UsersNode)-[c:HAS_IN_M_TEAM]->(p) " +
                 "OPTIONAL MATCH (u:UsersNode)-[d:HAS_IN_F_TEAM]->(p) " +
-                "OPTIONAL MATCH (u)-[:FOLLOWER|FOLLOWING]->(f:UsersNode) " +
-                "WITH p, COUNT(DISTINCT a) AS playsInTeamCount, COUNT(DISTINCT b) AS likesCount, " +
+                "OPTIONAL MATCH (u)-[:FOLLOWS]->(f:UsersNode) " +
+                "WITH p,COUNT(DISTINCT a) AS playsInTeamCount, COUNT(DISTINCT b) AS likes, " +
                 "COUNT(DISTINCT c) AS hasInMTeamCount, COUNT(DISTINCT d) AS hasInFTeamCount, " +
                 "COUNT(DISTINCT f) AS followerCount " +
-                "WITH p, playsInTeamCount + likesCount + hasInMTeamCount + hasInFTeamCount + followerCount AS totalEngagement " +
+                "WITH p, playsInTeamCount + likes + hasInMTeamCount + hasInFTeamCount + followerCount AS totalEngagement " +
                 "RETURN p AS playerNode, totalEngagement " +
                 "ORDER BY totalEngagement DESC " +
                 "LIMIT 1")
@@ -83,15 +83,13 @@ public class NodeService {
     // Method to find the top 10 users with the most diverse interests based on the number of different entities they like
     // and the number of teams they have in their teams
     public Collection<UserInterestDiversity> findUserInterestDiversity() {
-        return this.neo4jClient.query("MATCH (u:UsersNode)-[r:LIKES_TEAM|LIKES_COACH|LIKES_PLAYER|HAS_IN_M_TEAM|HAS_IN_F_TEAM]->(entity) " +
+        return this.neo4jClient.query("MATCH (u:UsersNode)-[r:LIKES|HAS_IN_M_TEAM|HAS_IN_F_TEAM]->(entity) " +
             "WITH u, " +
-            "COUNT(DISTINCT CASE WHEN TYPE(r) = 'LIKES_TEAM' THEN entity END) AS likesTeamCount, " +
-            "COUNT(DISTINCT CASE WHEN TYPE(r) = 'LIKES_COACH' THEN entity END) AS likesCoachCount, " +
-            "COUNT(DISTINCT CASE WHEN TYPE(r) = 'LIKES_PLAYER' THEN entity END) AS likesPlayerCount, " +
+            "COUNT(DISTINCT CASE WHEN TYPE(r) = 'LIKES' THEN entity END) AS likes, " +
             "COUNT(DISTINCT CASE WHEN TYPE(r) = 'HAS_IN_M_TEAM' THEN entity END) AS hasInMTeamCount, " +
             "COUNT(DISTINCT CASE WHEN TYPE(r) = 'HAS_IN_F_TEAM' THEN entity END) AS hasInFTeamCount " +
             "WITH u, " +
-            "(likesTeamCount + likesCoachCount + likesPlayerCount + hasInMTeamCount + hasInFTeamCount) / 5.0 AS avgInterestCount " +
+            "(likes + hasInMTeamCount + hasInFTeamCount) / 3.0 AS avgInterestCount " +
             "RETURN u.userName AS userName, avgInterestCount " +
             "ORDER BY avgInterestCount DESC " +
             "LIMIT 10")

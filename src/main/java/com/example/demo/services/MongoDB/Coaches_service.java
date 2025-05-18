@@ -131,7 +131,7 @@ public class Coaches_service {
             if(optionalTeam.isPresent()){
                 Teams existingTeam = optionalTeam.get();
                     List<Teams> teams = TMs.findByCoachMongoId(id);
-                    List<TeamObj> Check = existingCoach.getTeams();
+                    List<TeamObj> Check = existingCoach.getTeam();
                     for(TeamObj team : Check){
                         if(team.getFifa_version().equals(fifaV)){
                             if(team.getTeam_mongo_id().equals(request.getTeam_mongo_id())){
@@ -167,7 +167,7 @@ public class Coaches_service {
                     }
 
                    
-                    List<TeamObj> teamObj = existingCoach.getTeams();
+                    List<TeamObj> teamObj = existingCoach.getTeam();
                     //Updating coach MongoDB
                     for(TeamObj team : teamObj){
                         if(team.getFifa_version().equals(fifaV)){
@@ -228,7 +228,7 @@ public class Coaches_service {
             }
 
             //Updating Coach MongoDB
-            List<TeamObj> teamObj = existingCoach.getTeams();
+            List<TeamObj> teamObj = existingCoach.getTeam();
             for(TeamObj team : teamObj){
                 if(team.getFifa_version().equals(oldFifaV)){
                     team.setFifa_version(newFifaV);

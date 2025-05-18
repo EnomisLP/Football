@@ -69,7 +69,7 @@ public class Teams_service {
         Teams teamM = TMr.save(team);
         TeamsNode newTeam = new TeamsNode();
         newTeam.setMongoId(teamM.get_id());
-        newTeam.setTeamName(teamM.getTeam_name());
+        newTeam.setLongName(teamM.getTeam_name());
         newTeam.setGender(teamM.getGender());
         Tmr.save(newTeam);
         return teamM;
@@ -93,7 +93,7 @@ public class Teams_service {
                             for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
                                 playerFifaStat.getTeam().setTeam_name(teamsDetails.getTeam_name());
                                 existingTeam.setTeam_name(teamsDetails.getTeam_name());
-                                existingTeamNode.setTeamName(teamsDetails.getTeam_name());
+                                existingTeamNode.setLongName(teamsDetails.getTeam_name());
                                 PMr.save(player);
                             }
                         }
@@ -101,7 +101,7 @@ public class Teams_service {
                     List<Coaches> coaches = CMr.findByTeamMongoIdInTeams(existingTeam.get_id());
                     if(!coaches.isEmpty()){
                         for(Coaches coach : coaches){
-                            List<TeamObj> teams = coach.getTeams();
+                            List<TeamObj> teams = coach.getTeam();
                             for(TeamObj team : teams){
                                 team.setTeam_name(teamsDetails.getTeam_name());
                                 CMr.save(coach);
@@ -186,7 +186,7 @@ public class Teams_service {
                         }
                         List<Coaches> coaches = CMr.findByTeamMongoIdInTeams(existingTeam.get_id());
                         for(Coaches coach : coaches){
-                            List<TeamObj> teams = coach.getTeams();
+                            List<TeamObj> teams = coach.getTeam();
                             for(TeamObj team : teams){
                                 if(team.getFifa_version().equals(fifaV)){
                                     team.setFifa_version(request.getFifa_version());
@@ -234,7 +234,7 @@ public class Teams_service {
                         if(request.getCoach_mongo_id().equals(stats.getCoach().getCoach_mongo_id())){
                             return existingTeam;
                         }
-                        List<TeamObj> teams = existingCoach.getTeams();
+                        List<TeamObj> teams = existingCoach.getTeam();
                         for(TeamObj team : teams){
                             if(team.getFifa_version().equals(fifaV)){
                                 team.setTeam_name(existingTeam.getTeam_name());
@@ -354,7 +354,7 @@ public class Teams_service {
                         Optional<CoachesNode> optionalCoach = CMn.findByMongoId(fifaStat.getCoach().getCoach_mongo_id());
                         if(optionalCoach.isPresent()){
                             CoachesNode existingCoach = optionalCoach.get();
-                            manages_team relationship = CMn.findFifaVersionByTeamNameAndFifaV(existingTeamNode.getTeamName(), fifaV);
+                            manages_team relationship = CMn.findFifaVersionByLongNameAndFifaV(existingTeamNode.getLongName(), fifaV);
                             if (relationship != null) {
                                 existingCoach.getTeamMNodes().remove(relationship);
                                 CMn.save(existingCoach);

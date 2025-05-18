@@ -51,39 +51,45 @@ ________________________________________________________________________________
 CODE
 _____________________________________________________________________________________
 db.male_players.aggregate([
-  // Match with team info
+  // Lookup matching teams by club ID, club name, and fifa_version
   {
     $lookup: {
       from: "male_teams",
-      let: { clubId: "$club_team_id" , clubName: "$club_name"},
+      let: { 
+        clubId: "$club_team_id", 
+        clubName: "$club_name", 
+        vivaV: "$fifa_version" 
+      },
       pipeline: [
         {
           $match: {
             $expr: {
               $and: [
-                { $eq: ["$team_id", "$$clubId"]} ,
-                { $eq: ["$team_name", "$$clubName"] }
+                { $eq: ["$team_id", "$$clubId"] }, // Match by team_id
+                { $eq: ["$team_name", "$$clubName"] }, // Match by team_name
+                { $eq: ["$fifa_version", "$$vivaV"] } // Match by fifa_version
               ]
             }
           }
-        },
-        { $limit: 1 }
+        }
       ],
       as: "team_info"
     }
   },
-  {
-    $unwind: {
-      path: "$team_info",
-      preserveNullAndEmptyArrays: true
-    }
+
+  { 
+    $unwind: { 
+      path: "$team_info", 
+      preserveNullAndEmptyArrays: true 
+    } 
   },
 
+  // Group by player_id to consolidate entries
   {
     $group: {
       _id: "$player_id",
+      player_id: {$first: "$player_id"},
       original_id: { $first: "$_id" },
-      player_id: { $first: "$player_id" },
       short_name: { $first: "$short_name" },
       long_name: { $first: "$long_name" },
       age: { $first: "$age" },
@@ -94,6 +100,7 @@ db.male_players.aggregate([
       nationality_id: { $first: "$nationality_id" },
       nationality_name: { $first: "$nationality_name" },
       gender: { $first: "male" },
+
       fifaStats: {
         $push: {
           fifa_version: "$fifa_version",
@@ -113,8 +120,11 @@ db.male_players.aggregate([
           release_clause_eur: "$release_clause_eur",
           team: {
             team_mongo_id: "$team_info._id",
-            team_name: "$team_info.team_name"
+            team_name: "$team_info.team_name",
+            team_id: "$team_info.team_id"
           },
+
+          // All player stats preserved
           pace: "$pace",
           shooting: "$shooting",
           passing: "$passing",
@@ -160,14 +170,15 @@ db.male_players.aggregate([
     }
   },
 
-  // Use the original document's _id if needed
+  // Set the _id back to the original _id
   {
     $set: {
       _id: "$original_id"
     }
   },
+
   {
-    $unset: ["original_id", "player_id"]
+    $unset: ["original_id"]
   },
 
   // Merge into final collection
@@ -181,65 +192,57 @@ db.male_players.aggregate([
 ]);
 
 
+
 _____________________________________________________________________________
 
-db.male_coaches.aggregate([
-  {
-    $lookup: {
-      from: "male_teams",
-      let: { coachId: "$coach_id" },
-      pipeline: [
-        {
-          $match: {
-            $expr: {
-              $eq: ["$coach_id", "$$coachId"]
-            }
+  db.male_coaches.aggregate([
+    {
+      $lookup: {
+        from: "male_teams",
+        localField: "coach_id",
+        foreignField: "coach_id",
+        as: "team_info"
+      }
+    },
+    {
+      $unwind: { path: "$team_info", preserveNullAndEmptyArrays: true }
+    },
+    {
+      $group: {
+        _id: "$coach_id",
+        coach_id: { $first: "$coach_id" },
+        short_name: { $first: "$short_name" },
+        long_name: { $first: "$long_name" },
+        nationality_name: { $first: "$nationality_name" },
+        gender: { $first: "male" },
+        team: {
+          $push: {
+            fifa_version: "$team_info.fifa_version",
+            team_mongo_id: "$team_info._id",
+            team_id: "$team_info.team_id",
+            team_name: "$team_info.team_name"
           }
         }
-      ],
-      as: "team_info"
-    }
-  },
-  {
-    $unwind: {
-      path: "$team_info",
-      preserveNullAndEmptyArrays: true
-    }
-  },
-  {
-    $group: {
-      _id: "$coach_id",
-      original_id: { $first: "$_id" },
-      coach_id: { $first: "$coach_id" },
-      short_name: { $first: "$short_name" },
-      long_name: { $first: "$long_name" },
-      nationality_name: { $first: "$nationality_name" },
-      gender: { $first: "male" },
-      team: {
-        $push: {
-          team_mongo_id: "$team_info._id",
-          team_name: "$team_info.team_name",
-          fifa_version: "$team_info.fifa_version"
-        }
+      }
+    },
+    {
+      $set: {
+        _id: "$original_id"
+      }
+    },
+    {
+      $unset: ["original_id"]
+    },
+    {
+      $merge: {
+        into: "Coaches",
+        whenMatched: "merge",
+        whenNotMatched: "insert"
       }
     }
-  },
-  {
-    $set: {
-      _id: "$original_id"
-    }
-  },
-  {
-    $unset: ["original_id", "coach_id"]
-  },
-  {
-    $merge: {
-      into: "Coaches",
-      whenMatched: "merge",
-      whenNotMatched: "insert"
-    }
-  }
-])
+  ])
+
+
 
 _____________________________________________________________________________________________
 db.male_teams.aggregate([
@@ -251,12 +254,8 @@ db.male_teams.aggregate([
       as: "coach_info"
     }
   },
-  {
-    $unwind: {
-      path: "$coach_info",
-      preserveNullAndEmptyArrays: true
-    }
-  },
+  { $unwind: { path: "$coach_info", preserveNullAndEmptyArrays: true } },
+
   {
     $group: {
       _id: "$team_id",
@@ -264,17 +263,13 @@ db.male_teams.aggregate([
       team_id: { $first: "$team_id" },
       team_name: { $first: "$team_name" },
       gender: { $first: "male" },
-      league_id: { $first: "$league_id"},
-      league_name: {$first: "$league_name"},
-      league_level: {$first: "$league_level"},
-      nationality_id: {$first: "$nationality_id"},
-      nationality_name: {$first: "$nationality_name"},
+      league_id: { $first: "$league_id" },
+      league_name: { $first: "$league_name" },
+      league_level: { $first: "$league_level" },
+      nationality_id: { $first: "$nationality_id" },
+      nationality_name: { $first: "$nationality_name" },
       fifaStats: {
         $push: {
-          coach: {
-            coach_mongo_id: "$coach_info._id",
-            coach_name: "$coach_info.long_name"
-          },
           fifa_version: "$fifa_version",
           home_stadium: "$home_stadium",
           overall: "$overall",
@@ -284,7 +279,12 @@ db.male_teams.aggregate([
           club_worth_eur: "$club_worth_eur",
           off_players_in_box: "$off_players_in_box",
           off_corners: "$off_corners",
-          off_free_kicks: "$off_free_kicks"
+          off_free_kicks: "$off_free_kicks",
+          coach: {
+            coach_id: "$coach_id",
+            coach_mongo_id:"$coach_info._id",
+            coach_name: "$coach_info.long_name"
+          }
         }
       }
     }
@@ -295,7 +295,7 @@ db.male_teams.aggregate([
     }
   },
   {
-    $unset: ["original_id", "team_id"]
+    $unset: ["original_id"]
   },
   {
     $merge: {
@@ -307,8 +307,441 @@ db.male_teams.aggregate([
 ])
 
 
-________________________________________________________________________________________________________________________________________
 
+________________________________________________________________________________________________________________________________________
+---------After the second aggregation-----------------
+db.Coaches.updateMany(
+  {}, // Empty filter to match all documents
+  [
+    {
+      $set: {
+        team: {
+          $map: {
+            input: "$team",
+            as: "t",
+            in: {
+              team_mongo_id: "$$t.team_mongo_id", // Retain team_mongo_id
+              team_name: "$$t.team_name",           // Retain team_name
+              fifa_version: "$$t.fifa_version"
+            }
+          }
+        }
+      }
+    },
+    {
+      $unset: "coach_id" // Unset coach_id field from the document
+    }
+  ]
+);
+
+_____________________________________________________________________________________________________________________________________
+---------After the first aggregation-----------------
+db.Coaches.aggregate([
+  // Match documents with at least one team.team_id
+  {
+    $match: {
+      "team.team_id": { $exists: true }
+    }
+  },
+
+  // Extract all team_ids from the array
+  {
+    $addFields: {
+      teamIds: {
+        $map: {
+          input: "$team",
+          as: "t",
+          in: "$$t.team_id"
+        }
+      }
+    }
+  },
+
+  // Get unique team_ids
+  {
+    $addFields: {
+      uniqueTeamIds: { $setUnion: "$teamIds" }
+    }
+  },
+
+  // Only keep docs where all team_ids are the same (length = 1)
+  {
+    $match: {
+      $expr: { $eq: [{ $size: "$uniqueTeamIds" }, 1] }
+    }
+  },
+
+  // Lookup the canonical team_mongo_id from Teams
+  {
+    $lookup: {
+      from: "Teams",
+      localField: "uniqueTeamIds.0",
+      foreignField: "team_id",
+      as: "matchedTeam"
+    }
+  },
+
+  // Extract the canonical team _id
+  {
+    $addFields: {
+      canonicalTeamMongoId: { $arrayElemAt: ["$matchedTeam._id", 0] }
+    }
+  },
+
+  // Replace all team[i].team_mongo_id with the canonical one
+  {
+    $addFields: {
+      team: {
+        $map: {
+          input: "$team",
+          as: "t",
+          in: {
+            $mergeObjects: [
+              "$$t",
+              { team_mongo_id: "$canonicalTeamMongoId" }
+            ]
+          }
+        }
+      }
+    }
+  },
+
+  // Cleanup temporary fields
+  {
+    $unset: ["teamIds", "uniqueTeamIds", "matchedTeam", "canonicalTeamMongoId"]
+  },
+
+  // Merge back into the Coaches collection
+  {
+    $merge: {
+      into: "Coaches",
+      whenMatched: "merge",
+      whenNotMatched: "discard"
+    }
+  }
+]);
+
+________________________________________________________________________________________________________________________________________
+---------After the second aggregation-----------------
+db.Teams.updateMany(
+  {}, // Empty filter to match all documents
+  [
+    {
+      $set: {
+        fifaStats: {
+          $map: {
+            input: "$fifaStats",
+            as: "stat",
+            in: {
+              $mergeObjects: [
+                "$$stat",
+                {
+                  coach: {
+                    coach_mongo_id: "$$stat.coach.coach_mongo_id", 
+                    coach_name: "$$stat.coach.coach_name"           
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      $unset: "team_id" 
+    }
+  ]
+);
+
+_____________________________________________________________________________________________________________________________________
+---------After the first aggregation-----------------
+db.Teams.aggregate([
+  // Match Teams that have fifaStats with coach entries
+  {
+    $match: {
+      "fifaStats.coach.coach_id": { $exists: true }
+    }
+  },
+
+  // Step 1: Extract all coach_ids from fifaStats
+  {
+    $addFields: {
+      coachIds: {
+        $setUnion: {
+          $map: {
+            input: "$fifaStats",
+            as: "fs",
+            in: "$$fs.coach.coach_id"
+          }
+        }
+      }
+    }
+  },
+
+  // Step 2: Lookup canonical coach Mongo IDs from Coaches collection
+  {
+    $lookup: {
+      from: "Coaches",
+      let: { ids: "$coachIds" },
+      pipeline: [
+        {
+          $match: {
+            $expr: { $in: ["$coach_id", "$$ids"] }
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            coach_id: 1
+          }
+        }
+      ],
+      as: "canonicalCoaches"
+    }
+  },
+
+  // Step 3: Build map { coach_id -> coach_mongo_id }
+  {
+    $addFields: {
+      coachMap: {
+        $arrayToObject: {
+          $map: {
+            input: "$canonicalCoaches",
+            as: "c",
+            in: {
+              k: { $toString: "$$c.coach_id" },
+              v: "$$c._id"
+            }
+          }
+        }
+      }
+    }
+  },
+
+  // Step 4: Update fifaStats[].coach.coach_mongo_id using the map
+  {
+    $addFields: {
+      fifaStats: {
+        $map: {
+          input: "$fifaStats",
+          as: "fs",
+          in: {
+            $mergeObjects: [
+              "$$fs",
+              {
+                coach: {
+                  $mergeObjects: [
+                    "$$fs.coach",
+                    {
+                      coach_mongo_id: {
+                        $let: {
+                          vars: {
+                            entry: {
+                              $first: {
+                                $filter: {
+                                  input: { $objectToArray: "$coachMap" },
+                                  as: "pair",
+                                  cond: {
+                                    $eq: ["$$pair.k", { $toString: "$$fs.coach.coach_id" }]
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          in: "$$entry.v"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+
+  // Step 5: Cleanup helper fields
+  {
+    $unset: ["coachIds", "canonicalCoaches", "coachMap"]
+  },
+
+  // Step 6: Merge back into Teams collection
+  {
+    $merge: {
+      into: "Teams",
+      whenMatched: "merge",
+      whenNotMatched: "discard"
+    }
+  }
+]);
+
+
+_____________________________________________________________________________________________________________________________________
+---------After the first aggregation-----------------
+db.Players.aggregate([
+  // Step 1: Filter players where at least one fifaStats.team.team_id exists
+  {
+    $match: {
+      "fifaStats.team.team_id": { $exists: true }
+    }
+  },
+
+  // Step 2: Collect all team_ids from fifaStats
+  {
+    $addFields: {
+      teamIds: {
+        $setUnion: {
+          $map: {
+            input: "$fifaStats",
+            as: "fs",
+            in: "$$fs.team.team_id"
+          }
+        }
+      }
+    }
+  },
+
+  // Step 3: Lookup canonical team Mongo IDs from Teams collection
+  {
+    $lookup: {
+      from: "Teams",
+      let: { ids: "$teamIds" },
+      pipeline: [
+        {
+          $match: {
+            $expr: { $in: ["$team_id", "$$ids"] }
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            team_id: 1
+          }
+        }
+      ],
+      as: "canonicalTeams"
+    }
+  },
+
+  // Step 4: Build map { team_id -> team_mongo_id }
+  {
+    $addFields: {
+      canonicalTeamMap: {
+        $arrayToObject: {
+          $map: {
+            input: "$canonicalTeams",
+            as: "ct",
+            in: {
+              k: { $toString: "$$ct.team_id" },
+              v: "$$ct._id"
+            }
+          }
+        }
+      }
+    }
+  },
+
+  // Step 5: Update fifaStats[].team.team_mongo_id using the map
+  {
+    $addFields: {
+      fifaStats: {
+        $map: {
+          input: "$fifaStats",
+          as: "fs",
+          in: {
+            $mergeObjects: [
+              "$$fs",
+              {
+                team: {
+                  $mergeObjects: [
+                    "$$fs.team",
+                    {
+                    team_mongo_id: {
+                                  $let: {
+    vars: {
+      entry: {
+        $first: {
+          $filter: {
+            input: { $objectToArray: "$canonicalTeamMap" },
+            as: "pair",
+            cond: {
+              $eq: ["$$pair.k", { $toString: "$$fs.team.team_id" }]
+            }
+          }
+        }
+      }
+    },
+    in: "$$entry.v"
+  }
+}
+
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+
+  // Step 6: Clean up helper fields
+  {
+    $unset: ["teamIds", "canonicalTeams", "canonicalTeamMap"]
+  },
+
+  // Step 7: Merge updated docs back into Players collection
+  {
+    $merge: {
+      into: "Players",
+      whenMatched: "merge",
+      whenNotMatched: "discard"
+    }
+  }
+]);
+
+
+________________________________________________________________________________________________________________________________________
+---------After the second aggregation-----------------
+db.Players.updateMany(
+  {}, // Empty filter to match all documents
+  [
+    {
+      $set: {
+        fifaStats: {
+          $map: {
+            input: "$fifaStats",
+            as: "stat",
+            in: {
+              $mergeObjects: [
+                "$$stat",
+                {
+                  team: {
+                    team_mongo_id: "$$stat.team.team_mongo_id", // Retain team_mongo_id
+                    team_name: "$$stat.team.team_name"           // Retain team_name
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      $unset: "player_id" // Unset coach_id field from the document
+    }
+  ]
+);
+
+
+
+_____________________________________________________________________________________________________________________________________
+//Function for hashing the password
+
+//Function for hashing the password
 
 //Function for hashing the password
 const crypto = require('crypto');

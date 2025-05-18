@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/Articles/user/**", "/api/v1/Coaches/user/**", "/api/v1/Players/user/**",
                 "/api/v1/Teams/user/**","/api/v1/Users/user/**","/api/v1/Coaches_Node/user/**","/api/v1/Players_node/user/**", 
                 "/api/v1/Teams_Node/user/**","/api/v1/Users_Node/user/**").hasRole("USER")
+                .requestMatchers("/api/v1/Users/registration").anonymous()
                 .anyRequest().permitAll()
             )
             .userDetailsService(mongoUserDetailService)
@@ -63,3 +64,4 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
+

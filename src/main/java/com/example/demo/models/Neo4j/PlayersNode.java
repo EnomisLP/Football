@@ -50,6 +50,7 @@ public class PlayersNode{
     @Indexed
     private String gender;
 
+    
     @Relationship(type ="PLAYS_IN_TEAM", direction = Relationship.Direction.OUTGOING)
     private List<plays_in_team> teamMNodes = new ArrayList<>();
 

@@ -6,8 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.Neo4j.TeamsNode;
-import com.example.demo.relationships.manages_team;
-import com.example.demo.relationships.plays_in_team;
+import com.example.demo.projections.CoachesNodeProjection;
+import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.services.Neo4j.Teams_node_service;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,27 +48,27 @@ public class Teams_node_controller {
         return teamsNodeService.MapAllTheNodes();
     }
 
-    @GetMapping("/user/{_id}/currentFormation")
+    @GetMapping("/{_id}/currentFormation")
     @Operation(summary = "Show formation of a Team for the current Year")
-    public List<plays_in_team> showCurrentFormation(@PathVariable String _id){
+    public List<PlayersNodeDTO> showCurrentFormation(@PathVariable String _id){
         return teamsNodeService.showCurrentFormation(_id);
     }
 
-    @GetMapping("/user/{_id}/specificFormation")
+    @GetMapping("/{_id}/{fifaV}/specificFormation")
     @Operation(summary = "Show formation of a Team for a specific Year")
-    public List<plays_in_team> showSpecificFormation(@PathVariable String _id, @PathVariable Integer fifaV){
+    public List<PlayersNodeDTO> showSpecificFormation(@PathVariable String _id, @PathVariable Integer fifaV){
         return teamsNodeService.showSpecificFormation(_id, fifaV);
     }
 
-    @GetMapping("/user/{_id}/currentCoach")
+    @GetMapping("/{_id}/currentCoach")
     @Operation(summary = "Show Coach of a Team for the current Year")
-    public manages_team showCurrentCoach(@PathVariable String _id){
+    public CoachesNodeProjection showCurrentCoach(@PathVariable String _id){
         return teamsNodeService.showCurrentCoach(_id);
     }
 
-    @GetMapping("/user/{_id}/specificCoach")
+    @GetMapping("/{_id}/{fifaV}/specificCoach")
     @Operation(summary = "Show coach of a Team for a specific Year")
-    public manages_team showSpecificCoach(@PathVariable String _id, @PathVariable Integer fifaV){
+    public CoachesNodeProjection showSpecificCoach(@PathVariable String _id, @PathVariable Integer fifaV){
         return teamsNodeService.showSpecificCoach(_id, fifaV);
     }
 }

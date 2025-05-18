@@ -1,5 +1,4 @@
 package com.example.demo.models.MongoDB;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -40,7 +39,6 @@ public class FifaStatsPlayer {
     private Integer skill_long_passing;
     private Integer skill_ball_control;
     private Integer movement_acceleration;
-    private Integer movement_sprintSpeed;
     private Integer movement_agility;
     private Integer movement_reactions;
     private Integer movement_balance;

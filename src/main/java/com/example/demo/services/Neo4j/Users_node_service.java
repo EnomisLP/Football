@@ -27,10 +27,9 @@ import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.MongoDB.Players;
 import com.example.demo.models.MongoDB.Users;
 import com.example.demo.models.Neo4j.ArticlesNode;
-import com.example.demo.models.Neo4j.CoachesNode;
 import com.example.demo.models.Neo4j.PlayersNode;
-import com.example.demo.models.Neo4j.TeamsNode;
 import com.example.demo.models.Neo4j.UsersNode;
+import com.example.demo.projections.PlayersNodeProjection;
 import com.example.demo.projections.UsersNodeProjection;
 import com.example.demo.relationships.has_in_F_team;
 import com.example.demo.relationships.has_in_M_team;
@@ -151,92 +150,90 @@ public class Users_node_service {
         return listToReturn;
     }
 
-    public List<has_in_M_team> ShowUserMPlayers(String username) {
-        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        if (optionalUserNode.isPresent()) {
-            UsersNode existingUsersNode = optionalUserNode.get();
-            return existingUsersNode.getPlayersMNodes();
-        } else {
-            throw new RuntimeException("User with id: " + username + " not found");
+    public List<PlayersNodeProjection> ShowUserMPlayers(String username) {
+        Optional<UsersNode> userNodeOpt = Unr.findByUserName(username);
+        if(userNodeOpt.isPresent()){
+            UsersNode user = userNodeOpt.get();
+            List<has_in_M_team> relationships = user.getPlayersMNodes();
+            List<PlayersNodeProjection> playersList = new ArrayList<>();
+            for (has_in_M_team relationship : relationships) {
+                PlayersNode player = relationship.getPlayer();
+                PlayersNodeProjection playerProjection = new PlayersNodeProjection();
+                playerProjection.setLongName(player.getLongName());
+                playerProjection.setMongoId(player.getMongoId());
+                playerProjection.setAge(player.getAge());
+                playerProjection.setNationalityName(player.getNationalityName());
+                playerProjection.setGender(player.getGender());
+                playerProjection.setFifaV(relationship.getFifaV());
+                playersList.add(playerProjection);
+            }
+            return playersList;
         }
-    }
+        else{
+            throw new IllegalArgumentException("User with id: " + username + " not found");
+        }
+        
+}
     
-    public List<has_in_F_team> ShowUserFPlayers(String username) {
-        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        if (optionalUserNode.isPresent()) {
-            UsersNode existingUsersNode = optionalUserNode.get();
-            return existingUsersNode.getPlayersFNodes();
-        } else {
-            throw new RuntimeException("User with id: " + username + " not found");
+    public List<PlayersNodeProjection> ShowUserFPlayers(String username) {
+        Optional<UsersNode> userNodeOpt = Unr.findByUserName(username);
+        if(userNodeOpt.isPresent()){
+            UsersNode user = userNodeOpt.get();
+            List<has_in_F_team> relationships = user.getPlayersFNodes();
+            List<PlayersNodeProjection> playersList = new ArrayList<>();
+            for (has_in_F_team relationship : relationships) {
+                PlayersNode player = relationship.getPlayer();
+                PlayersNodeProjection playerProjection = new PlayersNodeProjection();
+                playerProjection.setLongName(player.getLongName());
+                playerProjection.setMongoId(player.getMongoId());
+                playerProjection.setAge(player.getAge());
+                playerProjection.setNationalityName(player.getNationalityName());
+                playerProjection.setGender(player.getGender());
+                playerProjection.setFifaV(relationship.getFifaV());
+                playersList.add(playerProjection);
+            }
+            return playersList;
+        }
+        else{
+            throw new IllegalArgumentException("User with id: " + username + " not found");
         }
     }
 
     public List<UsersNodeProjection> getFollowings(String username) {
-        //return Unr.findFollowingsByUserName(username);
-        Optional<UsersNode> optionalUsersNode = Unr.findByUserName(username);
-        if(optionalUsersNode.isPresent()){
-            UsersNode existingUsersNode = optionalUsersNode.get();
-            List<UsersNodeProjection> listOfFollowings = new ArrayList<>();
-            List<UsersNode> existingFollowing = existingUsersNode.getFollowings();
-            for(UsersNode user : existingFollowing){
-                UsersNodeProjection projectionToInsert = new UsersNodeProjection();
-                projectionToInsert.setMongoId(user.getMongoId());
-                projectionToInsert.setUserName(user.getUserName());
-                listOfFollowings.add(projectionToInsert);
-            }
-            return listOfFollowings;
-        }
-        else{
-            throw new RuntimeErrorException(null, "User not found");
-        }
+        return Unr.findFollowingsByUserName(username);
     }
     
     public List<UsersNodeProjection> getFollowedBy(String username) {
-        //return Unr.findFollowersByUserName(username);
-        Optional<UsersNode> optionalUsersNode = Unr.findByUserName(username);
-        if(optionalUsersNode.isPresent()){
-            UsersNode existingUsersNode = optionalUsersNode.get();
-            List<UsersNodeProjection> listOfFollowers = new ArrayList<>();
-            List<UsersNode> existingFollowers = existingUsersNode.getFollowers();
-            for(UsersNode user : existingFollowers){
-                UsersNodeProjection projectionToInsert = new UsersNodeProjection();
-                projectionToInsert.setMongoId(user.getMongoId());
-                projectionToInsert.setUserName(user.getUserName());
-                listOfFollowers.add(projectionToInsert);
-            }
-            return listOfFollowers;
-        }
-        else{
-            throw new RuntimeErrorException(null, "User not found");
-        }
+        return Unr.findFollowersByUserName(username);
     }
     
     public Page<ArticlesNode> getUserArticles(String username, PageRequest page){
-        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        if(optionalUserNode.isPresent()){
-            UsersNode existingUsersNode = optionalUserNode.get();
-            return AR.findAllByAuthor(existingUsersNode.getUserName(), page);
-        }
-        else{
-            throw new RuntimeException("User with id: " + username + " not found");
-        }
+        
+    return AR.findAllByAuthor(username, page);
+       
     }
     
     public ArticlesNode getSpecificUserArticle(String username, String articleId){
-        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
+        /*Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
         Optional<ArticlesNode> optionalArticleNode = AR.findByMongoId(articleId);
         if(optionalUserNode.isPresent() && optionalArticleNode.isPresent()){
             UsersNode existingUsersNode = optionalUserNode.get();
             ArticlesNode existingArticlesNode = optionalArticleNode.get();
-            if(existingUsersNode.getArticlesNodes().contains(existingArticlesNode)){
-                return existingArticlesNode;
+            for(articles_wrote articlesWrote : existingUsersNode.getArticlesNodes()){
+                if(articlesWrote.getArticlesNode().equals(existingArticlesNode)){
+                    return existingArticlesNode;
+                }
             }
-            else{
-                throw new RuntimeException("Article with id: " + articleId + " not found for user: " + username);
-            }
+            throw new RuntimeException("Article with id: " + articleId + " not found for user: " + username);
         }
         else{
             throw new RuntimeException("User with id: " + username + " or Article with id: " + articleId + " not found");
+        }*/
+        Optional<ArticlesNode> optionalArticleNode = AR.findOneByAuthorAndMongoId(username, articleId);
+        if (optionalArticleNode.isPresent()) {
+            return optionalArticleNode.get();
+        } else {
+            throw new RuntimeException("Article with id: " + articleId + " not found for user: " + username);
         }
     }
     //OPERATIONS TO MANAGE PLAYERS IN THE TEAM OF A USER
@@ -360,7 +357,7 @@ public class Users_node_service {
             
             if(existingPlayersNode.getGender().equals("male")) {
                 // Use removeIf to safely remove the players from the M team
-                existingUsersNode.getPlayersMNodes().removeIf(existing -> existing.alreadyExistPlayer(existingPlayersNode));
+                existingUsersNode.getPlayersMNodes().removeIf(existing -> existing.getPlayer().getMongoId().equals(existingPlayersNode.getMongoId()));
                 
                 // Save the updated UsersNode
                 Unr.save(existingUsersNode);
@@ -380,7 +377,7 @@ public class Users_node_service {
             UsersNode existingUsersNode = optionalUserNode.get();
             if(existingPlayersNode.getGender().equals("female")){
                 // Use removeIf to safely remove the players from the M team
-                existingUsersNode.getPlayersFNodes().removeIf(existing -> existing.alreadyExistPlayer(existingPlayersNode));
+                existingUsersNode.getPlayersFNodes().removeIf(existing -> existing.getPlayer().getMongoId().equals(existingPlayersNode.getMongoId()));  
                 
                 // Save the updated UsersNode
                 Unr.save(existingUsersNode);
@@ -402,22 +399,11 @@ public class Users_node_service {
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public CompletableFuture<String> LIKE_ARTICLE(String username, String articleId) {
-        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<ArticlesNode> optionalArticleNode = AR.findByMongoId(articleId);
-    
-        if (optionalUserNode.isPresent() && optionalArticleNode.isPresent()) {
-            UsersNode usersNode = optionalUserNode.get();
-            ArticlesNode articlesNode = optionalArticleNode.get();
-    
-            // Add the article to the user's liked articles
-            usersNode.getLikedArticlesNodes().add(articlesNode);
-            Unr.save(usersNode);
+        
+            Unr.createLikeRelationToArticle(username, articleId);
     
             return CompletableFuture.completedFuture("User: " + username + " now likes article with id: " + articleId);
-        } else {
-            throw new RuntimeException("User: " + username + " or Article with id: " + articleId + " not found");
-        }
-    }
+        } 
 
 
     @Async("customAsyncExecutor")
@@ -428,22 +414,10 @@ public class Users_node_service {
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public CompletableFuture<String> UNLIKE_ARTICLE(String username, String articleId) {
-        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<ArticlesNode> optionalArticleNode = AR.findByMongoId(articleId);
-    
-        if (optionalUserNode.isPresent() && optionalArticleNode.isPresent()) {
-            UsersNode existingUsersNode = optionalUserNode.get();
-            ArticlesNode existingArticlesNode = optionalArticleNode.get();
-    
-            // Remove the article from the user's liked articles
-            existingUsersNode.getLikedArticlesNodes().remove(existingArticlesNode);
-            Unr.save(existingUsersNode);
-    
+        
+            Unr.deleteLikeRelationToArticle(username, articleId);
             return CompletableFuture.completedFuture("User: " + username + " is not liking article with id: " + articleId + " anymore");
-        } else {
-            throw new RuntimeException("User: " + username + " or Article with id: " + articleId + " not found");
-        }
-    }
+        } 
 
     @Async("customAsyncExecutor")
     @Transactional
@@ -453,33 +427,10 @@ public class Users_node_service {
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public CompletableFuture<String> FOLLOW(String Username, String targetUsername) {
-    if (Username.equals(targetUsername)) return CompletableFuture.completedFuture("You cannot follow yourself.");
-    long startTime = System.currentTimeMillis(); // Start timer
-    System.out.println("FOLLOW request started: "+ Username +" -> " + targetUsername);
-    //Log to see which thread is executing the request
-    // This will help in debugging and understanding the flow of execution
-    System.out.println("Running in thread: " + Thread.currentThread().getName());
-    interactionCounter.incrementAndGet(); // Count interaction
-    Optional<UsersNode> Opt = Unr.findByUserName(Username);
-    Optional<UsersNode> targetOpt = Unr.findByUserName(targetUsername);
-
-    if (Opt.isPresent() && targetOpt.isPresent()) {
-        UsersNode user = Opt.get();
-        UsersNode target = targetOpt.get();
-        //Doing stuffs only in one side because the relationship has the same name and it is automatically mapped
-        //by neo4j from the other side (target). I don't need to save both nodes, because they're nested
-        if (!user.getFollowings().contains(target) && !target.getFollowers().contains(user)) {
-            user.getFollowings().add(target);
-        }
+    Unr.createFollowRelation(Username, targetUsername);
     
-        Unr.save(user); 
-        long endTime = System.currentTimeMillis(); // End timer
-        System.out.println("FOLLOW completed in " + (endTime - startTime) +" ms. Total calls: "+ interactionCounter.get());
-        return CompletableFuture.completedFuture("User: " + Username + " now follows user: " + targetUsername);
-    } else {
-        throw new RuntimeException("User(s) not found");
-        }
-    }
+    return CompletableFuture.completedFuture("User: " + Username + " now follows user: " + targetUsername);
+    } 
 
     @Async("customAsyncExecutor")
     @Transactional
@@ -489,26 +440,10 @@ public class Users_node_service {
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public CompletableFuture<String> UNFOLLOW(String Username, String targetUsername) {
-        if (Username.equals(targetUsername)) return CompletableFuture.completedFuture("You cannot unfollow yourself.");
-    
-        Optional<UsersNode> Opt = Unr.findByUserName(Username);
-        Optional<UsersNode> targetOpt = Unr.findByUserName(targetUsername);
-    
-        if (Opt.isPresent() && targetOpt.isPresent()) {
-            UsersNode user = Opt.get();
-            UsersNode target = targetOpt.get();
-            if(user.getFollowings().contains(target) && target.getFollowers().contains(user)){
-                 user.getFollowings().remove(target);
-            }
-            
-            Unr.save(user); 
-             //Since some times it doesn't delete the relationship       
-
+       
+            Unr.removeFollowRelationship(Username, targetUsername);
             return CompletableFuture.completedFuture("User: " + Username + " no longer follows user: " + targetUsername);
-        } else {
-            throw new RuntimeException("User(s) not found");
-        }
-    }
+        } 
     
     @Async("customAsyncExecutor")
     @Transactional
@@ -518,22 +453,10 @@ public class Users_node_service {
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public CompletableFuture<String> team_LIKE(String username, String teamMongoId) {
-        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<TeamsNode> optionalTeamNode = TMn.findByMongoId(teamMongoId);
-    
-        if (optionalUserNode.isPresent() && optionalTeamNode.isPresent()) {
-            UsersNode usersNode = optionalUserNode.get();
-            TeamsNode teamsNode = optionalTeamNode.get();
-    
-            // Add the team to the user's liked teams
-            usersNode.getTeamsNodes().add(teamsNode);
-            Unr.save(usersNode);
-    
+        Unr.LikeToTeam(username, teamMongoId);
+        
             return CompletableFuture.completedFuture("User: " + username + " now likes team with id: " + teamMongoId);
-        } else {
-            throw new RuntimeException("User: " + username + " or Team with id: " + teamMongoId + " not found");
-        }
-    }
+        } 
     @Async("customAsyncExecutor")
     @Transactional
     @Retryable(
@@ -542,22 +465,10 @@ public class Users_node_service {
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public CompletableFuture<String> team_UNLIKE(String username, String teamMongoId) {
-        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<TeamsNode> optionalTeamNode = TMn.findByMongoId(teamMongoId);
-    
-        if (optionalUserNode.isPresent() && optionalTeamNode.isPresent()) {
-            UsersNode existingUsersNode = optionalUserNode.get();
-            TeamsNode existingTeamsNode = optionalTeamNode.get();
-    
-            // Remove the team from the user's liked teams
-            existingUsersNode.getTeamsNodes().remove(existingTeamsNode);
-            Unr.save(existingUsersNode);
-    
+       
+            Unr.deleteLikeRelationToTeam(username, teamMongoId);
             return CompletableFuture.completedFuture("User: " + username + " is not liking team with id: " + teamMongoId + " anymore");
-        } else {
-            throw new RuntimeException("User: " + username + " or Team with id: " + teamMongoId + " not found");
-        }
-    }
+        } 
     @Async("customAsyncExecutor")
     @Transactional
     @Retryable(
@@ -567,22 +478,10 @@ public class Users_node_service {
     )
     public CompletableFuture<String> coach_LIKE(String username, String coachMongoId) {
         System.out.println("Attempting to find user: " + username);
-        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<CoachesNode> optionalCoachNode = CMn.findByMongoId(coachMongoId);
-    
-        if (optionalUserNode.isPresent() && optionalCoachNode.isPresent()) {
-            UsersNode usersNode = optionalUserNode.get();
-            CoachesNode coachesNode = optionalCoachNode.get();
-    
-            // Add the coach to the user's liked coaches
-            usersNode.getCoachesNodes().add(coachesNode);
-            Unr.save(usersNode);
-    
+        
+            Unr.LikeToCoach(username, coachMongoId);
             return CompletableFuture.completedFuture("User: " + username + " now likes coach with id: " + coachMongoId);
-        } else {
-            throw new RuntimeException("User: " + username + " or Coach with id: " + coachMongoId + " not found");
-        }
-    }
+        } 
     @Async("customAsyncExecutor")
     @Transactional
     @Retryable(
@@ -591,22 +490,10 @@ public class Users_node_service {
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public CompletableFuture<String> coach_UNLIKE(String username, String coachMongoId) {
-        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<CoachesNode> optionalCoachNode = CMn.findByMongoId(coachMongoId);
-    
-        if (optionalUserNode.isPresent() && optionalCoachNode.isPresent()) {
-            UsersNode existingUsersNode = optionalUserNode.get();
-            CoachesNode existingCoachesNode = optionalCoachNode.get();
-    
-            // Remove the coach from the user's liked coaches
-            existingUsersNode.getCoachesNodes().remove(existingCoachesNode);
-            Unr.save(existingUsersNode);
-    
+       
+            Unr.deleteLikeRelationToCoach(username, coachMongoId);
             return CompletableFuture.completedFuture("User: " + username + " is not liking coach with id: " + coachMongoId + " anymore");
-        } else {
-            throw new RuntimeException("User: " + username + " or Coach with id: " + coachMongoId + " not found");
-        }
-    }
+        } 
     @Async("customAsyncExecutor")
     @Retryable(
         value = { Exception.class },
@@ -615,21 +502,10 @@ public class Users_node_service {
     )
     public CompletableFuture<String> player_LIKE(String username, String playerMongoId) {
         System.out.println("Attempting to find user: " + username);
-        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<PlayersNode> optionalPlayerNode = PMNr.findByMongoId(playerMongoId);
-    
-        if (optionalUserNode.isPresent() && optionalPlayerNode.isPresent()) {
-            UsersNode usersNode = optionalUserNode.get();
-            PlayersNode playerNode = optionalPlayerNode.get();
-    
-            usersNode.getPlayerNodes().add(playerNode);
-            Unr.save(usersNode);
-    
+        
+            Unr.LikeToPlayer(username, playerMongoId);
             return CompletableFuture.completedFuture("User: " + username + " now likes player with id: " + playerMongoId);
-        } else {
-            throw new RuntimeException("User: " + username + " or Player with id: " + playerMongoId + " not found");
-        }
-    }
+        } 
     @Async("customAsyncExecutor")
     @Transactional
     @Retryable(
@@ -638,22 +514,10 @@ public class Users_node_service {
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public CompletableFuture<String> player_UNLIKE(String username, String playerMongoId) {
-        Optional<UsersNode> optionalUserNode = Unr.findByUserName(username);
-        Optional<PlayersNode> optionalPlayerNode = PMNr.findByMongoId(playerMongoId);
-    
-        if (optionalUserNode.isPresent() && optionalPlayerNode.isPresent()) {
-            UsersNode existingUsersNode = optionalUserNode.get();
-            PlayersNode existingPlayersNode = optionalPlayerNode.get();
-    
-            
-            existingUsersNode.getPlayerNodes().remove(existingPlayersNode);
-            Unr.save(existingUsersNode);
-    
+        
+            Unr.deleteLikeRelationToPlayer(username, playerMongoId);
             return CompletableFuture.completedFuture("User: " + username + " is not liking player with id: " + playerMongoId + " anymore");
-        } else {
-            throw new RuntimeException("User: " + username + " or Player with id: " + playerMongoId + " not found");
-        }
-    }
+        } 
     
     //--------------------------ADMIN--------------------------
     public static String getLoggedInUsername() {
@@ -667,21 +531,12 @@ public class Users_node_service {
     }
 
     public void deleteUser(String mongoId) {
-        Optional<UsersNode> optionalUser = Unr.findByMongoId(mongoId);
-        if (optionalUser.isPresent()) {
-            UsersNode existingUsersNode = optionalUser.get();
-            existingUsersNode.getFollowers().clear();
-            existingUsersNode.getFollowings().clear();
-            existingUsersNode.getCoachesNodes().clear();
-            existingUsersNode.getPlayersFNodes().clear();
-            existingUsersNode.getPlayersMNodes().clear();
-            existingUsersNode.getTeamsNodes().clear();
-            existingUsersNode.getLikedArticlesNodes().clear();
-            existingUsersNode.getArticlesNodes().clear();
-            Unr.save(existingUsersNode);
-            Unr.delete(existingUsersNode);
-        } else {
-            throw new RuntimeErrorException(null, "User not found with id: " + mongoId);
+        if(Unr.existsByMongoId(mongoId)){
+            Unr.deleteUserByMongoId(mongoId);
+
+        }
+        else{
+            throw new RuntimeErrorException(null, "User not found with mongoId: " + mongoId);
         }
     }
 
@@ -733,7 +588,7 @@ public class Users_node_service {
                 this.Unr.createFollowRelation(values[0],values[1]);
             }
         }catch(Exception e){
-          System.out.println(e);  
+          System.out.println(e);
         }
         
         return "Finished";

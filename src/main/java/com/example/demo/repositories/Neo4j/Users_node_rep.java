@@ -22,9 +22,10 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
 
     //REPOSITORIES FOR USERS INTERACTIONS
 
-    @Query("MATCH (u:UsersNode {userName: $username})-[:FOLLOWS]->(f:UsersNode) "+
-        "RETURN f { .userName, .mongoId } AS UsersNodeProjection")
+   @Query("MATCH (u:UsersNode {userName: $username})-[:FOLLOWS]->(f:UsersNode)"+
+    "RETURN f.userName AS userName, f.mongoId AS mongoId")
     List<UsersNodeProjection> findFollowingsByUserName(String username);
+
 
     @Query("MATCH (u:UsersNode {userName: $username})<-[:FOLLOWS]-(f:UsersNode) "+
       "RETURN f { .userName, .mongoId } AS UsersNodeProjection")
@@ -42,13 +43,24 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
     "MERGE (a)-[:LIKES]->(b) ")
     void createLikeRelationToCoach(@Param("from") String fromUsername, @Param("to") String toCoachName);
     
-    @Query("MATCH (a:UsersNode {userName: $from}), (b:TeamsNode {teamName: $to}) "+
+    @Query("MATCH (a:UsersNode {userName: $from}), (b:TeamsNode {longName: $to}) "+
     "MERGE (a)-[:LIKES]->(b) ")
     void createLikeRelationToTeam(@Param("from") String fromUsername, @Param("to") String toTeamsName);
 
+      @Query("MATCH (a:UsersNode {userName: $from}), (b:PlayersNode {mongoId: $to}) "+
+      "MERGE (a)-[:LIKES]->(b) ")
+      void LikeToPlayer(@Param("from") String fromUsername, @Param("to") String toPlayerId);
+      @Query("MATCH (a:UsersNode {userName: $from}), (b:CoachesNode {mongoId: $to}) "+
+      "MERGE (a)-[:LIKES]->(b) ")
+      void LikeToCoach(@Param("from") String fromUsername, @Param("to") String toCoachId);
+      @Query("MATCH (a:UsersNode {userName: $from}), (b:TeamsNode {mongoId: $to}) "+
+      "MERGE (a)-[:LIKES]->(b) ")
+      void LikeToTeam(@Param("from") String fromUsername, @Param("to") String toTeamId);
+
+
     @Query("MATCH (a:UsersNode {userName: $from})-[r:FOLLOWS]->(b:UsersNode {userName: $to}) "+
     "DELETE r")
-    void removeFollowingRelationship(String from, String to);
+    void removeFollowRelationship(String from, String to);
     
     @Query("MATCH (u:UsersNode {userName: $username})-[r:LIKES_TEAM|HAS_IN_M_TEAM|HAS_IN_F_TEAM|FOLLOW|FOLLOWED_BY]->(related) " +
        "RETURN u, collect(related) AS relatedNodes")
@@ -59,5 +71,30 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
   "AND p.mongoId = $mongoId " +
   "RETURN u")
   List<UsersNode> findUsersByMongoIdAndFifaVersion(String mongoId, Integer fifaV);
+  @Query("MATCH (u:UsersNode {userName: $from}), (a:ArticlesNode {mongoId: $articleId}) "+
+  "MERGE (u)-[:LIKES]->(a)")
+  void createLikeRelationToArticle(@Param("from") String username, @Param("articleId") String articleId);
 
+  @Query("MATCH (u:UsersNode {userName: $from}), (a:ArticlesNode {mongoId: $articleId}) "+
+  "MERGE (u)-[:WROTE]->(a)")
+  void createWroteRelationToArticle(@Param("from") String username, @Param("articleId") String articleId);
+  @Query("MATCH (u:UsersNode {userName: $from}) -[r:LIKES]->(a:ArticlesNode {mongoId: $articleId}) "+
+  "DELETE r")
+  void deleteLikeRelationToArticle(@Param("from") String username, @Param("articleId") String articleId);
+
+  @Query("MATCH (u:UsersNode {userName: $username})-[r:LIKES]->(t:TeamsNode {mongoId: $teamMongoId}) " +
+        "DELETE r")
+  void deleteLikeRelationToTeam(@Param("username") String username, @Param("teamMongoId") String teamMongoId);
+  @Query("MATCH (u:UsersNode {userName: $username})-[r:LIKES]->(p:CoachesNode {mongoId: $coachMongoId}) " +
+        "DELETE r")
+  void deleteLikeRelationToCoach(@Param("username") String username, @Param("coachMongoId") String coachMongoId);
+  @Query("MATCH (u:UsersNode {userName: $username})-[r:LIKES]->(p:PlayersNode {mongoId: $playerMongoId}) " +
+        "DELETE r")
+  void deleteLikeRelationToPlayer(@Param("username") String username, @Param("playerMongoId") String playerMongoId);
+
+  @Query("""
+    MATCH (u:UsersNode {mongoId: $mongoId})
+    DETACH DELETE u
+""")
+void deleteUserByMongoId(@Param("mongoId") String mongoId);
 }

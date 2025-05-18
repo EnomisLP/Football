@@ -29,8 +29,10 @@ public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
 
     @Query("MATCH (c:CoachesNode) -[r:MANAGES_TEAM]-> (t:TeamsNode) " +
     "WHERE r.fifaVersion = $fifaV " +
-    "AND t.teamName = $teamName " +
+    "AND t.longName = $longName " +
     "RETURN r")
-    manages_team findFifaVersionByTeamNameAndFifaV(String teamName, Integer fifaV);
+    manages_team findFifaVersionByLongNameAndFifaV(String teamName, Integer fifaV);
+    Optional<CoachesNode> findByLongName(String string);
+
     
 }

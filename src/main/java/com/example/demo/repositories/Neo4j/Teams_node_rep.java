@@ -11,8 +11,9 @@ import org.springframework.stereotype.Repository;
 
 
 import com.example.demo.models.Neo4j.TeamsNode;
-import com.example.demo.relationships.manages_team;
-import com.example.demo.relationships.plays_in_team;
+import com.example.demo.projections.CoachesNodeProjection;
+import com.example.demo.projections.PlayersNodeDTO;
+
 
 @Repository
 public interface Teams_node_rep extends Neo4jRepository<TeamsNode,Long>{
@@ -29,12 +30,13 @@ public interface Teams_node_rep extends Neo4jRepository<TeamsNode,Long>{
 )
     Page<TeamsNode> findAllByGenderWithPagination(String gender, PageRequest pageRequest);
     List<TeamsNode> findAllByGender(String gender);
-    @Query( "MATCH (t:TeamsNode {teamName: $mongoId})<-[r:PLAYS_IN_TEAM]-(p:PlayersNode)"+
-    "WHERE r.fifaV = $fifaV"+
-    "RETURN r")
-    List<plays_in_team> findFormation(String mongoId, Integer fifaV);
-    @Query( "MATCH (t:TeamsNode {teamName: $mongoId})<-[r:MANAGES_TEAM]-(p:CoachesNode)"+
-    "WHERE r.fifaV = $fifaV"+
-    "RETURN r")
-    manages_team findCoach(String mongoId, Integer fifaV);
+    @Query( "MATCH (t:TeamsNode {mongoId: $mongoId})<-[r:PLAYS_IN_TEAM]->(p:PlayersNode) "+
+    "WHERE r.fifaVersion = $fifaV "+
+    "RETURN { mongoId: p.mongoId, longName: p.longName, gender: p.gender} AS playerProjection")
+    List<PlayersNodeDTO> findFormation(String mongoId, Integer fifaV);
+    @Query( "MATCH (t:TeamsNode {mongoId: $mongoId})<-[r:MANAGES_TEAM]-(p:CoachesNode) "+
+    "WHERE r.fifaVersion = $fifaV "+
+    "RETURN { mongoId: p.mongoId, longName: p.longName, gender: p.gender} AS CoachesNodeProjection")
+    CoachesNodeProjection findCoach(String mongoId, Integer fifaV);
+    Optional<TeamsNode> findByLongName(String string);
 }

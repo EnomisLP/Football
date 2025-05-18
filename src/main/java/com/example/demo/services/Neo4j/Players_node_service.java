@@ -159,7 +159,9 @@ public class Players_node_service {
                     playerNode.getTeamMNodes().add(relationship);
                     //PMn.addInTeam(playerNode.getMongoId(), existingTeamNode.getMongoId(), fifaStat.getFifa_version());
                     counter++;
+                    
                     PMn.save(playerNode);
+                    
                 }
             }
         }

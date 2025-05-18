@@ -1,4 +1,5 @@
 package com.example.demo.models.MongoDB;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -14,7 +15,6 @@ public class FifaStatsTeam {
     private Integer fifa_version;
     private String home_stadium;
     private Integer overall;
-    private Integer captain;
     private Long club_worth_eur;
     private Integer attack;
     private Integer defence;

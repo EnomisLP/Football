@@ -46,7 +46,7 @@ public class plays_in_team {
    public void setFifaV(Integer fifa_version) {
     this.fifaVersion = fifa_version;
    }
-   public void setTeam_name(String team_name) {
-    this.TMn.setTeamName(team_name);
+   public void setLongName(String longName) {
+    this.TMn.setLongName(longName);
    }
 }

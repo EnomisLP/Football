@@ -11,9 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.Neo4j.ArticlesNode;
 import com.example.demo.models.Neo4j.UsersNode;
+import com.example.demo.projections.PlayersNodeProjection;
 import com.example.demo.projections.UsersNodeProjection;
-import com.example.demo.relationships.has_in_F_team;
-import com.example.demo.relationships.has_in_M_team;
 import com.example.demo.services.Neo4j.Users_node_service;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,10 +37,10 @@ public class Users_node_controller {
     }
 
     // READ
-    @GetMapping("/user/{_id}")
+    @GetMapping("/user/{username}")
     @Operation(summary = "READ operation: get users_nodes")
-    public UsersNode getUser(@PathVariable String id) {
-        return Uns.getUsers(id);
+    public UsersNode getUser(@PathVariable String username) {
+        return Uns.getUsers(username);
     }
 
     @GetMapping("/admin")
@@ -52,13 +51,13 @@ public class Users_node_controller {
         return Uns.getAllUsers(pageable);
     }
 
-    @GetMapping("/user/articles")
+    @GetMapping("/user/{userName}/articles")
     @Operation(summary = "READ: get all articles of a user")
-    public Page<ArticlesNode> getUserArticles(Authentication auth,
+    public Page<ArticlesNode> getUserArticles(@PathVariable String userName,
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
-        return Uns.getUserArticles(auth.getName(), pageable);
+        return Uns.getUserArticles(userName, pageable);
     }
 
     @GetMapping("/user/articles/{articleId}")
@@ -78,23 +77,23 @@ public class Users_node_controller {
     }
 
     @GetMapping("/user/MPlayers")
-    public List<has_in_M_team> geMPlayers(Authentication auth) {
+    public List<PlayersNodeProjection> geMPlayers(Authentication auth) {
         return Uns.ShowUserMPlayers(auth.getName());
     }
 
     @GetMapping("/user/FPlayers")
-    public List<has_in_F_team> getFPlayers(Authentication auth) {
+    public List<PlayersNodeProjection> getFPlayers(Authentication auth) {
         return Uns.ShowUserFPlayers(auth.getName());
     }
 
-    @GetMapping("/user/followings")
-    public List<UsersNodeProjection> getFollowings(Authentication auth) {
-        return Uns.getFollowings(auth.getName());
+    @GetMapping("/user/{userName}/followings")
+    public List<UsersNodeProjection> getFollowings(@PathVariable String userName) {
+        return Uns.getFollowings(userName);
     }
 
-    @GetMapping("/user/followed")
-    public List<UsersNodeProjection> getFollowedBy(Authentication auth) {
-        return Uns.getFollowedBy(auth.getName());
+    @GetMapping("/user/{userName}/followed")
+    public List<UsersNodeProjection> getFollowedBy(@PathVariable String userName) {
+        return Uns.getFollowedBy(userName);
     }
 
     // MAP USERS
