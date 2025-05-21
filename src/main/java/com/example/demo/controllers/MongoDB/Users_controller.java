@@ -38,7 +38,7 @@ public class Users_controller {
         return usersService.getAllUsers(pageable);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{username}")
     @Operation(summary = "READ operation - Get user by Username")
     public Users getUserById(@PathVariable String username) {
         return usersService.getUserByUsername(username);
