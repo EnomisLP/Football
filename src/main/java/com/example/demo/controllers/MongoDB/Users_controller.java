@@ -23,35 +23,35 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("/api/v1/Users")
-@Tag(name = "Users", description = "CRUD operations for Users")
+@RequestMapping("/api/v1/")
+
 public class Users_controller {
 
     @Autowired
     private Users_service usersService;
 
-    @GetMapping("/admin")
-    @Operation(summary = "READ: get all Users")
+    @GetMapping("admin/users")
+    @Operation(summary = "READ: get all Users", tags={"Clarify"})
     public <Pageable> Page<Users> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                               @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
         return usersService.getAllUsers(pageable);
     }
 
-    @GetMapping("/{username}")
-    @Operation(summary = "READ operation - Get user by Username")
+    @GetMapping("user/username/{username}")
+    @Operation(summary = "READ operation - Get user by Username", tags={"Clarify"})
     public Users getUserById(@PathVariable String username) {
         return usersService.getUserByUsername(username);
     }
 
-    @PutMapping("/admin/{id}")
-    @Operation(summary = "UPDATE operation - Update an existing user")
+    @PutMapping("admin/user/modify/{id}")
+    @Operation(summary = "UPDATE operation - Update an existing user", tags={"Admin","User"})
     public Users updateUser(@PathVariable String id, @RequestBody Users updatedUser) {
         return usersService.updateUser(id, updatedUser);
     }
 
-    @DeleteMapping("/admin/{id}")
-    @Operation(summary = "DELETE operation - Delete a user by ID")
+    @DeleteMapping("admin/user/delete/{id}")
+    @Operation(summary = "DELETE operation - Delete a user by ID", tags={"Admin","User"})
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         usersService.deleteUser(id);
         return ResponseEntity.noContent().build();
@@ -59,34 +59,34 @@ public class Users_controller {
 
     // USER INTERACTION IN THE APP
 
-    @PostMapping("/user/articles")
-    @Operation(summary = "CREATE: create an article of a user")
+    @PostMapping("article/new_article")
+    @Operation(summary = "CREATE: create an article of a user", tags={"Article"})
     public CompletableFuture<Articles> createArticle(@RequestBody createArticleRequest request, Authentication auth) {
         return usersService.createArticle(auth.getName(), request);
     }
 
-    @PutMapping("/user/articles/{articleId}")
-    @Operation(summary = "UPDATE: modify a specific User Article")
+    @PutMapping("article/edit/{articleId}")
+    @Operation(summary = "UPDATE: modify a specific User Article", tags={"Article"})
     public CompletableFuture<Articles> modifyArticle(@PathVariable String articleId,
                                   @RequestBody createArticleRequest request,
                                   Authentication auth) {
         return usersService.modifyArticle(auth.getName(), articleId, request);
     }
 
-    @DeleteMapping("/user/articles/{articleId}")
-    @Operation(summary = "DELETE: delete a specific User Article")
+    @DeleteMapping("article/delete/{articleId}")
+    @Operation(summary = "DELETE: delete a specific User Article", tags={"Article"})
     public CompletableFuture<String> deleteArticle(@PathVariable String articleId, Authentication auth) {
         return usersService.deleteArticle(auth.getName(), articleId);
     }
     
-    @PostMapping("/registration")
-    @Operation(summary = "Register a new User")
+    @PostMapping("/signup")
+    @Operation(summary = "Register a new User", tags={"Anonymous"})
     public Users register(@RequestBody RegisterUserRequest request) {
         return usersService.registerUser(request.getUsername(), request.getPassword());
     }
 
-    @PostMapping("/user/password/change")
-    @Operation(summary = "Change password")
+    @PostMapping("user/change_password")
+    @Operation(summary = "Change password", tags={"User"})
     public CompletableFuture<String> changePassword(@RequestBody ChangePasswordRequest request, Authentication auth) {
         return usersService.changePassword(auth.getName(), request.getOldPassword(), request.getNewPassword());
     }

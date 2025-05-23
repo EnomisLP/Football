@@ -13,8 +13,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/v1/Neo4j Aggregations")
-@Tag(name = "Neo4j Aggregations", description = "Aggregations for Neo4j")
+
+@RequestMapping("/api/v1/")
+
+
 public class NodeController {
 
     private final NodeService teamsNodeService;
@@ -23,19 +25,19 @@ public class NodeController {
         this.teamsNodeService = service;
     }
 
-    @GetMapping("/top-by-fame/{fifaVersion}")
-    @Operation(summary = "Get the most famous team by FIFA version")
+    @GetMapping("admin/analytics/team/topByFame/{fifaVersion}")
+    @Operation(summary = "Get the most famous team by FIFA version (Neo4j)", tags={"Admin","Aggregation"})
     public Collection<TopTeam> getTopFamousTeam(@PathVariable Integer fifaVersion) {
         return teamsNodeService.findMostFamousTeam(fifaVersion);
     }
 
-    @GetMapping("/most-engaged-player")
-    @Operation(summary = "Get the most engaged player")
+    @GetMapping("admin/analytics/player/mostEngaged")
+    @Operation(summary = "Get the most engaged player", tags={"Admin","Aggregation"})
     public Collection<MostEngaggedPlayer> getMostEngagedPlayer() {
         return teamsNodeService.findMostEngagedPlayer();
     }
-    @GetMapping("/user-interest-diversity")
-    @Operation(summary = "Get user interest diversity")
+    @GetMapping("admin/analytics/user/interestDiversity")
+    @Operation(summary = "Get user interest diversity", tags={"Admin","Aggregation"})
     public Collection<UserInterestDiversity> getUserInterestDiversity() {
         return teamsNodeService.findUserInterestDiversity();
     }
