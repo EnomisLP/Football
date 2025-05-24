@@ -1,6 +1,8 @@
 package com.example.demo.aggregations.Neo4j;
 
 import java.util.Collection;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 
@@ -10,13 +12,22 @@ import com.example.demo.aggregations.DTO.UserInterestDiversity;
 import com.example.demo.models.Neo4j.PlayersNode;
 import com.example.demo.models.Neo4j.TeamsNode;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class NodeService {
 
     private final Neo4jClient neo4jClient;
 
-    public NodeService(Neo4jClient neo4jClient) {
+    public NodeService(@Autowired(required = false)Neo4jClient neo4jClient) {
         this.neo4jClient = neo4jClient;
+    }
+     public void createNode() {
+        if (neo4jClient == null) {
+            log.warn("Neo4j is unavailable, skipping node creation.");
+            return;
+        }
     }
     // Method to find the most famous team based on the number of likes from users to players of specific FIFA version
     public Collection<TopTeam> findMostFamousTeam(int fifaVersion) {

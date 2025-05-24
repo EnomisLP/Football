@@ -40,5 +40,7 @@ public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
     "MERGE (c)-[r:MANAGES_TEAM {fifaVersion: $fifaV}]->(t) ")
     void createManagesRelationToTeam(String mongoId, String teamId, Integer fifaV);
 
-
+    @Query("MATCH (c:CoachesNode {mongoId: $mongoId}) " +
+    "DETACH DELETE c")
+    void deleteCoachByMongoId(String mongoId);
 }

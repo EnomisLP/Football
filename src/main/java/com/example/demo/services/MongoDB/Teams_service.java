@@ -327,6 +327,18 @@ public class Teams_service {
                     }
                 }
             }
+
+            List<Coaches> coaches = CMr.findByTeamMongoIdInTeams(existingTeam.get_id());
+            if(!coaches.isEmpty()){
+                for(Coaches coach : coaches){
+                    List<TeamObj> teams = coach.getTeam();
+                    for(TeamObj Team : teams){
+                        Team.setTeam_name(null);
+                        Team.setTeam_mongo_id(null);
+                        CMr.save(coach);
+                    }
+                }
+            }
             //deleting team in mongoDB
             TMr.deleteById(id);
         }

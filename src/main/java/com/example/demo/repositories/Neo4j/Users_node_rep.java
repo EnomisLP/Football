@@ -93,6 +93,7 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
         "DELETE r")
   void deleteLikeRelationToPlayer(@Param("username") String username, @Param("playerMongoId") String playerMongoId);
 
+
   @Query("""
     MATCH (u:UsersNode {mongoId: $mongoId})
     DETACH DELETE u

@@ -108,8 +108,8 @@ public class Coaches_node_service {
         Optional<CoachesNode> coach = CMn.findByMongoId(mongoId);
         if (coach.isPresent()) {
             CoachesNode existingCoach = coach.get();
+            // Delete the relationships first
             existingCoach.getTeamMNodes().clear();
-            CMn.save(existingCoach);
             CMn.delete(existingCoach);
         } else {
             throw new RuntimeErrorException(null, "No Coach found with id: " + mongoId);

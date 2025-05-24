@@ -15,6 +15,7 @@ import com.example.demo.services.Neo4j.globalSearchService;
 
 
 @RestController
+
 @RequestMapping("/api/v1/search")
 @Tag(name = "Global search", description = "QUERY FOR SEARCHING DATA")
 

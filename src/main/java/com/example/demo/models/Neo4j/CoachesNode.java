@@ -47,6 +47,7 @@ public class CoachesNode {
     @JsonIgnore
     @Relationship(type = "MANAGES_TEAM", direction = Relationship.Direction.OUTGOING)
     private List<manages_team> teamMNodes = new ArrayList<>();
-
-   
+    @JsonIgnore
+    @Relationship(type = "LIKES", direction = Relationship.Direction.INCOMING)
+    private List<UsersNode> likesNode = new ArrayList<>();
 }

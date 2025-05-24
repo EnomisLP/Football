@@ -55,8 +55,14 @@ public class PlayersNode{
     @Relationship(type ="PLAYS_IN_TEAM", direction = Relationship.Direction.OUTGOING)
     private List<plays_in_team> teamMNodes = new ArrayList<>();
 
+    @JsonIgnore
+    @Relationship(type = "HAS_IN_M_TEAM", direction = Relationship.Direction.INCOMING)
+    private List<UsersNode> playersMNode = new ArrayList<>();
+    @JsonIgnore
+    @Relationship(type = "HAS_IN_F_TEAM", direction = Relationship.Direction.INCOMING)
+    private List<UsersNode> playersFNode = new ArrayList<>();
+    @JsonIgnore
+    @Relationship(type = "LIKES", direction = Relationship.Direction.INCOMING)
+    private List<UsersNode> likesNode = new ArrayList<>();
 
-    // Default constructor
-  
-    
 }

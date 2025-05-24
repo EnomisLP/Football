@@ -1,6 +1,9 @@
 package com.example.demo.services.MongoDB;
+import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -10,19 +13,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.demo.models.MongoDB.Articles;
+import com.example.demo.models.MongoDB.OutboxEvent;
 import com.example.demo.models.MongoDB.ROLES;
 import com.example.demo.models.MongoDB.Users;
-import com.example.demo.models.Neo4j.ArticlesNode;
-import com.example.demo.models.Neo4j.UsersNode;
 import com.example.demo.repositories.MongoDB.Articles_repository;
+import com.example.demo.repositories.MongoDB.OutboxEventRepository;
 import com.example.demo.repositories.MongoDB.Users_repository;
 import com.example.demo.repositories.Neo4j.Articles_node_rep;
 import com.example.demo.repositories.Neo4j.Users_node_rep;
 import com.example.demo.requets.createArticleRequest;
 import com.example.demo.requets.createUserRequest;
 import com.example.demo.services.Neo4j.Users_node_service;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.transaction.Transactional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.retry.annotation.Backoff;
@@ -38,15 +44,19 @@ public class Users_service {
     private final PasswordEncoder passwordEncoder;
     private final Articles_repository Ar;
     private final Articles_node_rep AR;
+    private final OutboxEventRepository outboxEventRepository;
+    private final ObjectMapper objectMapper;
 
     public Users_service(Users_repository ur, Users_node_rep UNR, PasswordEncoder pe,
-    Articles_repository ar, Users_node_service uns, Articles_node_rep articleNode) {
+    Articles_repository ar, Users_node_service uns, Articles_node_rep articleNode, OutboxEventRepository outboxEventRepository, ObjectMapper objectMapper) {
         this.Ur = ur;
         this.UNr = UNR;
         this.passwordEncoder=pe;
         this.Ar = ar;
         this.UNs = uns;
         this.AR = articleNode;
+        this.outboxEventRepository = outboxEventRepository;
+        this.objectMapper = objectMapper;
     }
     
     public Page<Users> getAllUsers(PageRequest page){
@@ -62,12 +72,17 @@ public class Users_service {
             throw new RuntimeErrorException(null, "User not found with username: " + username);
         }
     }
-    @Transactional
-    public Users createUser(createUserRequest request) {
+    @Async("customAsyncExecutor")
+   @Transactional
+    @Retryable(
+    value = { Exception.class },
+    maxAttempts = 3,
+    backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public CompletableFuture<Users> createUser(createUserRequest request) throws JsonProcessingException {
         Optional<Users> optionalUser = Ur.findByUsername(request.getUsername());
         if(!optionalUser.isPresent()){
             Users userNew = new Users();
-            UsersNode userNode = new UsersNode();
             Date signUpDate = new Date();
             
             userNew.setUsername(request.getUsername());
@@ -78,89 +93,135 @@ public class Users_service {
             userNew.setPassword(hashedPassword);
             Ur.save(userNew);
 
-            userNode.setMongoId(userNew.get_id());
-            userNode.setUserName(userNew.getUsername());
-            UNr.save(userNode);
-            return userNew;
+            // Prepare Outbox event to create UsersNode in Neo4j
+            Map<String, Object> neo4jPayload = new HashMap<>();
+            neo4jPayload.put("username", userNew.getUsername());
+            neo4jPayload.put("mongoId", userNew.get_id());
+
+            OutboxEvent neo4jUserCreatedEvent = new OutboxEvent();
+            neo4jUserCreatedEvent.setEventType("Neo4jUserCreated");
+            neo4jUserCreatedEvent.setAggregateId(userNew.get_id());
+            neo4jUserCreatedEvent.setPayload(objectMapper.writeValueAsString(neo4jPayload));
+            neo4jUserCreatedEvent.setPublished(false);
+            neo4jUserCreatedEvent.setCreatedAt(LocalDateTime.now());
+            outboxEventRepository.save(neo4jUserCreatedEvent);
+            return CompletableFuture.completedFuture(userNew);
         }
         else{
             throw new RuntimeException("Username already taken");
         }
         
     }
+    @Async("customAsyncExecutor")
     @Transactional
-    public Users updateUser(String id, Users updatedUser) {
-       Optional<Users> optionalUser = Ur.findById(id);
+    @Retryable(
+    value = { Exception.class },
+    maxAttempts = 3,
+    backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public CompletableFuture<Users> updateUserName(String oldUserName, String newUserName) throws JsonProcessingException {
+        // Check if the user exists in Neo4j
+       Optional<Users> optionalUser = Ur.findByUsername(oldUserName);
         if (optionalUser.isPresent()) {
             Users existingUser = optionalUser.get();
-            Optional<UsersNode> optionalUserNode = UNr.findByMongoId(existingUser.get_id());
-            if(optionalUserNode.isPresent()){
-                UsersNode existingUserNode = optionalUserNode.get();
-                existingUser.setUsername(updatedUser.getUsername());
-                existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword())); // encodeing again if password changes
-                existingUser.setRoles(updatedUser.getRoles());
-                
-                existingUserNode.setUserName(updatedUser.getUsername());
-                UNr.save(existingUserNode);
-                return Ur.save(existingUser);
+                existingUser.setUsername(newUserName);
+                Ur.save(existingUser);
+                 // Prepare Outbox event to update UsersNode in Neo4j
+                Map<String, Object> neo4jPayload = new HashMap<>();
+                neo4jPayload.put("oldUserName", oldUserName);
+                neo4jPayload.put("newUserName", newUserName);
+
+                OutboxEvent neo4jUserUpdateEvent = new OutboxEvent();
+                neo4jUserUpdateEvent.setEventType("Neo4jUserUpdated");
+                neo4jUserUpdateEvent.setAggregateId(existingUser.get_id());
+                neo4jUserUpdateEvent.setPayload(objectMapper.writeValueAsString(neo4jPayload));
+                neo4jUserUpdateEvent.setPublished(false);
+                neo4jUserUpdateEvent.setCreatedAt(LocalDateTime.now());
+                outboxEventRepository.save(neo4jUserUpdateEvent);
+                return CompletableFuture.completedFuture(existingUser);
+
             }
             else{
-                throw new RuntimeException("User with id: " + id + "not correctly mapped in Neo4j");
+                throw new RuntimeException("User with username: " + oldUserName + " not correctly mapped in Neo4j");
             }
-            
-        } else {
-            throw new RuntimeException("User not found with id: " + id);
-        }
     }
+    @Async("customAsyncExecutor")
     @Transactional
-    public void deleteUser(String id) {
-        Optional<Users> user = Ur.findById(id);
-        Optional<UsersNode> userNode = UNr.findByMongoId(id);
+    @Retryable(
+    value = { Exception.class },
+    maxAttempts = 3,
+    backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public CompletableFuture<Void> deleteUser(String username) throws JsonProcessingException {
+        Optional<Users> user = Ur.findByUsername(username);
+        
         if(user.isPresent()){
-            Ur.deleteById(id);
+            Users existingUser = user.get();
+            // Prepare Outbox event to delete UsersNode in Neo4j
+            Map<String, Object> neo4jPayload = new HashMap<>();
+            neo4jPayload.put("username", username);
+            OutboxEvent neo4jUserDeleteEvent = new OutboxEvent();
+            neo4jUserDeleteEvent.setEventType("Neo4jUserDeleted");
+            neo4jUserDeleteEvent.setAggregateId(user.get().get_id());
+            neo4jUserDeleteEvent.setPayload(objectMapper.writeValueAsString(neo4jPayload));
+            neo4jUserDeleteEvent.setPublished(false);
+            neo4jUserDeleteEvent.setCreatedAt(LocalDateTime.now());
+            outboxEventRepository.save(neo4jUserDeleteEvent);
+            Ur.deleteById(existingUser.get_id());
+            
+            return CompletableFuture.completedFuture(null);
         }
-        if(userNode.isPresent()){
-            UsersNode existing = userNode.get();
-            UNs.deleteUser(existing.getMongoId());
-        }
+        
         else{
-            throw new RuntimeErrorException(null, "User not found with id: " + id);
+            throw new RuntimeErrorException(null, "User not found with userName: " + username);
         }
        
     }
     //ARTICLES OPERATIONS
-    @Async("customAsyncExecutor")
-    @Transactional
-    @Retryable(
-        value = { Exception.class },
-        maxAttempts = 3,
-        backoff = @Backoff(delay = 1000, multiplier = 2)
-    )
-    public CompletableFuture<Articles> createArticle(String username, createArticleRequest request){
-        Optional<Users> optionalUser = Ur.findByUsername(username);
-        Optional<UsersNode> optionalUserNode = UNr.findByUserName(username);
-        if(optionalUser.isPresent() && optionalUserNode.isPresent()){
-            Users existiUsers = optionalUser.get();
-            UsersNode existiUsersNode = optionalUserNode.get();
-            Articles newArticle = new Articles();
-            ArticlesNode articleNode = new ArticlesNode();
-            newArticle.setAuthor(existiUsers.getUsername());
-            newArticle.setTitle(request.getTitle());
-            newArticle.setContent(request.getContent());
-            Date publishTime = new Date();
-            newArticle.setPublish_time(publishTime.toString());
-            Articles savedArticle = Ar.save(newArticle);
-            articleNode.setMongoId(savedArticle.get_id());
-            articleNode.setTitle(savedArticle.getTitle());
-            articleNode.setAuthor(existiUsers.getUsername());
-            AR.save(articleNode);
-            existiUsersNode.getArticlesNodes().add(articleNode);
-            UNr.save(existiUsersNode);
-            return CompletableFuture.completedFuture(savedArticle);
-        }else{
-            throw new RuntimeErrorException(null, "User not found with username: " + username);
-        }
+@Async("customAsyncExecutor")
+@Transactional
+@Retryable(
+    value = { Exception.class },
+    maxAttempts = 3,
+    backoff = @Backoff(delay = 1000, multiplier = 2)
+)
+public CompletableFuture<Articles> createArticle(String username, createArticleRequest request) throws JsonProcessingException {
+    // 1. Fetch User from MongoDB
+    Optional<Users> optionalUser = Ur.findByUsername(username);
+    if (optionalUser.isEmpty()) {
+        throw new RuntimeException("User not found with username: " + username);
     }
+    Users existingUser = optionalUser.get();
+
+    // 2. Save Article in MongoDB
+    Articles newArticle = new Articles();
+    newArticle.setAuthor(existingUser.getUsername());
+    newArticle.setTitle(request.getTitle());
+    newArticle.setContent(request.getContent());
+    newArticle.setPublish_time(new Date().toString());
+
+    Articles savedArticle = Ar.save(newArticle);
+
+    // 3. Prepare Outbox event to create ArticleNode in Neo4j and link it to UsersNode
+    Map<String, Object> neo4jPayload = new HashMap<>();
+    neo4jPayload.put("articleId", savedArticle.get_id());
+    neo4jPayload.put("title", savedArticle.getTitle());
+    neo4jPayload.put("author", savedArticle.getAuthor());
+    neo4jPayload.put("username", existingUser.getUsername()); // to find UsersNode in Neo4j
+
+    OutboxEvent neo4jArticleCreatedEvent = new OutboxEvent();
+    neo4jArticleCreatedEvent.setEventType("Neo4jArticleCreated");
+    neo4jArticleCreatedEvent.setAggregateId(savedArticle.get_id());
+    neo4jArticleCreatedEvent.setPayload(objectMapper.writeValueAsString(neo4jPayload));
+    neo4jArticleCreatedEvent.setPublished(false);
+    neo4jArticleCreatedEvent.setCreatedAt(LocalDateTime.now());
+
+    outboxEventRepository.save(neo4jArticleCreatedEvent);
+
+    // 4. Return saved article immediately
+    return CompletableFuture.completedFuture(savedArticle);
+}
+
     @Async("customAsyncExecutor")
     @Transactional
     @Retryable(
@@ -168,22 +229,32 @@ public class Users_service {
         maxAttempts = 3,
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<Articles> modifyArticle(String username, String articleId, createArticleRequest request){
+    public CompletableFuture<Articles> modifyArticle(String username, String articleId, createArticleRequest request) throws JsonProcessingException{
         Optional<Users> optionalUser = Ur.findByUsername(username);
         Optional<Articles> optionalArticle = Ar.findById(articleId);
-        Optional<ArticlesNode> optionalArticleNode = AR.findByMongoId(articleId);
-        if(optionalUser.isPresent() && optionalArticle.isPresent() && optionalArticleNode.isPresent()){
+        if(optionalUser.isPresent() && optionalArticle.isPresent()){
             Articles existingArticle = optionalArticle.get();
             Users existingUser = optionalUser.get();
-            ArticlesNode existingArticleNode = optionalArticleNode.get();
-            if(existingArticle.getAuthor().equals(existingUser.getUsername()) && existingArticleNode.getAuthor().equals(existingUser.getUsername())){
+            if(existingArticle.getAuthor().equals(existingUser.getUsername())){
                 existingArticle.setContent(request.getContent());
                 existingArticle.setTitle(request.getTitle());
-                existingArticleNode.setTitle(request.getTitle());
-                AR.save(existingArticleNode);
                 Date newPublishTime = new Date();
                 existingArticle.setPublish_time(newPublishTime.toString());
-                return CompletableFuture.completedFuture(Ar.save(existingArticle));
+                Ar.save(existingArticle);
+                //prepare Outbox event to update ArticleNode in Neo4j
+                Map<String, Object> neo4jPayload = new HashMap<>();
+                neo4jPayload.put("articleId", existingArticle.get_id());
+                neo4jPayload.put("title", existingArticle.getTitle());
+
+                OutboxEvent neo4jArticleUpdateEvent = new OutboxEvent();
+                neo4jArticleUpdateEvent.setEventType("Neo4jArticleUpdated");
+                neo4jArticleUpdateEvent.setAggregateId(existingArticle.get_id());
+                neo4jArticleUpdateEvent.setPayload(objectMapper.writeValueAsString(neo4jPayload));
+                neo4jArticleUpdateEvent.setPublished(false);
+                neo4jArticleUpdateEvent.setCreatedAt(LocalDateTime.now());
+                
+                outboxEventRepository.save(neo4jArticleUpdateEvent);
+                return CompletableFuture.completedFuture(existingArticle);
             }
             else{
                 throw new RuntimeErrorException(null, "User not found with username: " + username+" or Article not present with id:" + articleId);
@@ -202,20 +273,25 @@ public class Users_service {
         maxAttempts = 3,
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> deleteArticle(String username, String articleId){
+    public CompletableFuture<String> deleteArticle(String username, String articleId ) throws JsonProcessingException{
         Optional<Users> optionalUser = Ur.findByUsername(username);
         Optional<Articles> optionalArticle = Ar.findById(articleId);
-        Optional<ArticlesNode> optionalArticleNode = AR.findByMongoId(articleId);
-        Optional<UsersNode> optionalUserNode = UNr.findByUserName(username);
-        if(optionalUser.isPresent() && optionalArticle.isPresent() && optionalArticleNode.isPresent() && optionalUserNode.isPresent()){
+        if(optionalUser.isPresent() && optionalArticle.isPresent()){
             Articles existingArticle = optionalArticle.get();
             Users existingUser = optionalUser.get();
-            ArticlesNode existingArticleNode = optionalArticleNode.get();
-            UsersNode existingUserNode = optionalUserNode.get();
-            if(existingArticle.getAuthor().equals(existingUser.getUsername()) && existingArticleNode.getAuthor().equals(existingUserNode.getUserName())){
+            if(existingArticle.getAuthor().equals(existingUser.getUsername())){
                 Ar.deleteById(articleId);
-                AR.delete(existingArticleNode);
-                UNr.save(existingUserNode);
+                //prepare Outbox event to delete ArticleNode in Neo4j
+                Map<String, Object> neo4jPayload = new HashMap<>();
+                neo4jPayload.put("articleId", existingArticle.get_id());
+                neo4jPayload.put("username", username);
+                OutboxEvent neo4jArticleDeleteEvent = new OutboxEvent();
+                neo4jArticleDeleteEvent.setEventType("Neo4jArticleDeleted");
+                neo4jArticleDeleteEvent.setAggregateId(articleId);
+                neo4jArticleDeleteEvent.setPayload(objectMapper.writeValueAsString(neo4jPayload));
+                neo4jArticleDeleteEvent.setPublished(false);
+                neo4jArticleDeleteEvent.setCreatedAt(LocalDateTime.now());
+                outboxEventRepository.save(neo4jArticleDeleteEvent);
                 return CompletableFuture.completedFuture("Article deleted correctly!");
             }
             else{
@@ -227,8 +303,14 @@ public class Users_service {
         }
     }
     //OPERATIONS TO MANAGE AUTHENTICATION
+    @Async("customAsyncExecutor")
     @Transactional
-    public Users registerUser(String username, String password) {
+    @Retryable(
+        value = { Exception.class },
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public CompletableFuture<Users> registerUser(String username, String password) throws JsonProcessingException {
         createUserRequest request = new createUserRequest(
             username,
             password,
@@ -237,7 +319,7 @@ public class Users_service {
         return createUser(request);
     }
     @Async("customAsyncExecutor")
-    @Transactional
+   @Transactional
     @Retryable(
         value = { Exception.class },
         maxAttempts = 3,

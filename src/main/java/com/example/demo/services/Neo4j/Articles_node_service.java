@@ -102,4 +102,9 @@ public class Articles_node_service {
         ensureArticlesNodeIndexes();
         return doMappAllArticles();
     }
+
+    public void deleteArticle(String mongoId){
+        ArticlesNode articleNode = Ar.findByMongoId(mongoId).orElseThrow(() -> new RuntimeException("Article not found with id: " + mongoId));
+        Ar.delete(articleNode);
+    }
 }

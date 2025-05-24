@@ -4,7 +4,6 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +13,7 @@ import com.example.demo.requets.ChangePasswordRequest;
 import com.example.demo.requets.RegisterUserRequest;
 import com.example.demo.requets.createArticleRequest;
 import com.example.demo.services.MongoDB.Users_service;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,28 +40,27 @@ public class Users_controller {
 
     @GetMapping("/{username}")
     @Operation(summary = "READ operation - Get user by Username")
-    public Users getUserById(@PathVariable String username) {
+    public Users getUserByUsername(@PathVariable String username) {
         return usersService.getUserByUsername(username);
     }
 
-    @PutMapping("/admin/{id}")
+    @PutMapping("/user/{oldUserName}/{newUserName}")
     @Operation(summary = "UPDATE operation - Update an existing user")
-    public Users updateUser(@PathVariable String id, @RequestBody Users updatedUser) {
-        return usersService.updateUser(id, updatedUser);
+    public CompletableFuture<Users> updateUserName(@PathVariable String oldUserName, @PathVariable String newUserName) throws JsonProcessingException {
+        return usersService.updateUserName(oldUserName, newUserName);
     }
 
-    @DeleteMapping("/admin/{id}")
-    @Operation(summary = "DELETE operation - Delete a user by ID")
-    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
-        usersService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/admin/{username}")
+    @Operation(summary = "DELETE operation - Delete a user by username")
+    public CompletableFuture<Void> deleteUser(@PathVariable String username) throws JsonProcessingException {
+        return usersService.deleteUser(username);
     }
 
     // USER INTERACTION IN THE APP
 
     @PostMapping("/user/articles")
     @Operation(summary = "CREATE: create an article of a user")
-    public CompletableFuture<Articles> createArticle(@RequestBody createArticleRequest request, Authentication auth) {
+    public CompletableFuture<Articles> createArticle(@RequestBody createArticleRequest request, Authentication auth) throws JsonProcessingException {
         return usersService.createArticle(auth.getName(), request);
     }
 
@@ -69,19 +68,19 @@ public class Users_controller {
     @Operation(summary = "UPDATE: modify a specific User Article")
     public CompletableFuture<Articles> modifyArticle(@PathVariable String articleId,
                                   @RequestBody createArticleRequest request,
-                                  Authentication auth) {
+                                  Authentication auth) throws JsonProcessingException {
         return usersService.modifyArticle(auth.getName(), articleId, request);
     }
 
     @DeleteMapping("/user/articles/{articleId}")
     @Operation(summary = "DELETE: delete a specific User Article")
-    public CompletableFuture<String> deleteArticle(@PathVariable String articleId, Authentication auth) {
+    public CompletableFuture<String> deleteArticle(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
         return usersService.deleteArticle(auth.getName(), articleId);
     }
     
     @PostMapping("/registration")
     @Operation(summary = "Register a new User")
-    public Users register(@RequestBody RegisterUserRequest request) {
+    public CompletableFuture<Users> register(@RequestBody RegisterUserRequest request) throws JsonProcessingException {
         return usersService.registerUser(request.getUsername(), request.getPassword());
     }
 

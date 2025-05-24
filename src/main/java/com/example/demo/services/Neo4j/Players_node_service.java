@@ -159,7 +159,6 @@ public class Players_node_service {
         if (optionalPlayer.isPresent()) {
             PlayersNode existing = optionalPlayer.get();
             existing.getTeamMNodes().clear();
-            PMn.save(existing);
             PMn.delete(existing);
         } else {
             throw new RuntimeErrorException(null, "Player not found with id: " + mongoId);

@@ -30,5 +30,5 @@ public interface Articles_node_rep extends Neo4jRepository<ArticlesNode, Long> {
 @Query("MATCH (n:ArticlesNode) RETURN n.mongoId AS mongoId, n.title AS title, n.author AS author")
 List<ArticlesNodeDTO> findAllLight();
 
-    
+
 }

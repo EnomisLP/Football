@@ -42,4 +42,5 @@ public interface Teams_node_rep extends Neo4jRepository<TeamsNode,Long>{
     @Query("MATCH (n:TeamsNode {gender : $gender}) RETURN n.mongoId AS mongoId, n.longName AS longName, n.gender AS gender")
     List<TeamsNodeDTO> findAllLightByGender(String gender);
 
+   
 }

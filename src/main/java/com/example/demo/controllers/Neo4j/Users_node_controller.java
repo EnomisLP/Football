@@ -14,6 +14,7 @@ import com.example.demo.models.Neo4j.UsersNode;
 import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.projections.UsersNodeProjection;
 import com.example.demo.services.Neo4j.Users_node_service;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -125,87 +126,87 @@ public class Users_node_controller {
     // DELETE PLAYERS
     @DeleteMapping("/user/Mplayers/{_id}")
     @Operation(summary = "DELETE a player in male Team by its mongoId")
-    public void removeMPlayer(@PathVariable String _id, Authentication auth) {
-        Uns.removePlayerMTeam(auth.getName(), _id);
+    public CompletableFuture<String> removeMPlayer(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+        return Uns.removePlayerMTeam(auth.getName(), _id);
     }
 
     @DeleteMapping("/user/Fplayers/{_id}")
     @Operation(summary = "DELETE a player in female Team by its mongoId")
-    public void removeFPlayer(@PathVariable String _id, Authentication auth) {
-        Uns.removePlayerFTeam(auth.getName(), _id);
+    public CompletableFuture<String> removeFPlayer(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+        return Uns.removePlayerFTeam(auth.getName(), _id);
     }
 
     // FOLLOW / UNFOLLOW
     @PutMapping("/user/follow/{target}")
-    public CompletableFuture<String> FOLLOW(Authentication auth, @PathVariable String target) {
+    public CompletableFuture<String> FOLLOW(Authentication auth, @PathVariable String target) throws JsonProcessingException {
         return Uns.FOLLOW(auth.getName(), target);
     }
 
     @DeleteMapping("/user/unfollow/{target}")
-    public CompletableFuture<String> UNFOLLOW(Authentication auth, @PathVariable String target) {
+    public CompletableFuture<String> UNFOLLOW(Authentication auth, @PathVariable String target) throws JsonProcessingException {
         return Uns.UNFOLLOW(auth.getName(), target);
     }
 
     //LIKE / UNLIKE ARTICLES
     @PostMapping("/user/like/article/{articleId}")
     @Operation(summary = "LIKE an article by its mongoId")
-    public CompletableFuture<String> articleLIKE(@PathVariable String articleId, Authentication auth) {
+    public CompletableFuture<String> articleLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
         return Uns.LIKE_ARTICLE(auth.getName(), articleId);
     }
 
     @DeleteMapping("/user/unlike/article/{articleId}")
     @Operation(summary = "UNLIKE an article by its mongoId")
-    public CompletableFuture<String> articleUNLIKE(@PathVariable String articleId, Authentication auth) {
+    public CompletableFuture<String> articleUNLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
         return Uns.UNLIKE_ARTICLE(auth.getName(), articleId);
     }
     
     // ADD TO TEAM
     @PostMapping("/user/MaleTeam/{_id}/{fifaValue}")
     @Operation(summary = "ADD a player in male Team by its mongoId")
-    public String add_in_M_Team(@PathVariable String _id, @PathVariable int fifaValue, Authentication auth) {
+    public CompletableFuture<String> add_in_M_Team(@PathVariable String _id, @PathVariable int fifaValue, Authentication auth) throws JsonProcessingException {
         return Uns.addInMTeam(auth.getName(), _id, fifaValue);
     }
 
     @PostMapping("/user/FemaleTeam/{_id}/{fifaValue}")
     @Operation(summary = "ADD a player in Female Team by its mongoId")
-    public String add_in_F_Team(@PathVariable String _id, @PathVariable int fifaValue, Authentication auth) {
+    public CompletableFuture<String> add_in_F_Team(@PathVariable String _id, @PathVariable int fifaValue, Authentication auth) throws JsonProcessingException {
         return Uns.addInFTeam(auth.getName(), _id, fifaValue);
     }
 
     // LIKES
     @PostMapping("/user/like/team/{_id}")
     @Operation(summary = "LIKE a team by its mongoId")
-    public CompletableFuture<String> teamLIKE(@PathVariable String _id, Authentication auth) {
+    public CompletableFuture<String> teamLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.team_LIKE(auth.getName(), _id);
     }
 
     @DeleteMapping("/user/unlike/team/{_id}")
     @Operation(summary = "UNLIKE a team by its mongoId")
-    public CompletableFuture<String> teamUNLIKE(@PathVariable String _id, Authentication auth) {
+    public CompletableFuture<String> teamUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.team_UNLIKE(auth.getName(), _id);
     }
 
     @PostMapping("/user/like/player/{_id}")
     @Operation(summary = "LIKE a player by its mongoId")
-    public CompletableFuture<String> playerLIKE(@PathVariable String _id, Authentication auth) {
+    public CompletableFuture<String> playerLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.player_LIKE(auth.getName(), _id);
     }
 
     @DeleteMapping("/user/unlike/player/{_id}")
     @Operation(summary = "UNLIKE a player by its mongoId")
-    public CompletableFuture<String> playerUNLIKE(@PathVariable String _id, Authentication auth) {
+    public CompletableFuture<String> playerUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.player_UNLIKE(auth.getName(), _id);
     }
 
     @PostMapping("/user/like/coach/{_id}")
     @Operation(summary = "LIKE a coach by its mongoId")
-    public CompletableFuture<String> coachLIKE(@PathVariable String _id, Authentication auth) {
+    public CompletableFuture<String> coachLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.coach_LIKE(auth.getName(), _id);
     }
 
     @DeleteMapping("/user/unlike/coach/{_id}")
     @Operation(summary = "UNLIKE a coach by its mongoId")
-    public CompletableFuture<String> coachUNLIKE(@PathVariable String _id, Authentication auth) {
+    public CompletableFuture<String> coachUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.coach_UNLIKE(auth.getName(), _id);
     }
     

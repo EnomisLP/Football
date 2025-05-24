@@ -32,4 +32,8 @@ public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
     @Query("MATCH (p:PlayersNode {mongoId: $mongoId}), (t:TeamsNode {mongoId: $teamId}) " +
     "MERGE (p)-[r:PLAYS_IN_TEAM {fifaVersion: $fifaV}]->(t) ")
     void createPlaysInTeamRelationToTeam(String mongoId, String teamId, Integer fifaV);
+
+    @Query("MATCH (p:PlayersNode {mongoId: $mongoId}) " +
+    "DETACH DELETE p")
+    void deletePlayerByMongoId(String mongoId);
 }

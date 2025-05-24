@@ -60,7 +60,7 @@ public class UsersNode {
     @Relationship(type = "FOLLOWS", direction = Relationship.Direction.INCOMING)
     private List<UsersNode> followers = new ArrayList<>();
     
-     @JsonIgnore
+    @JsonIgnore
     @Relationship(type = "LIKES", direction = Relationship.Direction.OUTGOING)
     private List<TeamsNode> teamsNodes = new ArrayList<>();
     

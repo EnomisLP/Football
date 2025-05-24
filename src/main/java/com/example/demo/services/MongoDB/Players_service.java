@@ -284,6 +284,7 @@ public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer reque
         }
         if(playerNode.isPresent()){
             PlayersNode existing = playerNode.get();
+            //removing relationship in Neo4j
             PMs.deletePlayer(existing.getMongoId());
         }
         else{
