@@ -34,8 +34,8 @@ public class Teams_node_controller {
     }
 
     // READ: Get all teams by gender
-    @GetMapping("Teams_Node/admin/byGender/{gender}")
-    @Operation(summary = "READ: Get all teams for a specific gender with pagination", tags={"Clarify"})
+    @GetMapping("search/filter/team/list/byGender/{gender}")
+    @Operation(summary = "READ: Get all teams for a specific gender with pagination", tags={"User","Team"})
     public Page<TeamsNode> getAllTeams(@RequestParam(defaultValue = "0") int page,
                                    @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {
         PageRequest pageable = PageRequest.of(page, size);
@@ -56,19 +56,19 @@ public class Teams_node_controller {
     }
 
     @GetMapping("team/{_id}/formation/{fifaV}")
-    @Operation(summary = "Show formation of a Team for a specific Year", tags={"Team","Clarify"})
+    @Operation(summary = "Show formation of a Team for a specific Year", tags={"Team"})
     public List<PlayersNodeDTO> showSpecificFormation(@PathVariable String _id, @PathVariable Integer fifaV){
         return teamsNodeService.showSpecificFormation(_id, fifaV);
     }
 
-    @GetMapping("Teams_Node/{_id}/currentCoach")
-    @Operation(summary = "Show Coach of a Team for the current Year", tags={"Clarify"})
+    @GetMapping("team/{_id}/coach")
+    @Operation(summary = "Show Coach of a Team for the current Year", tags={"Team","Coach"})
     public CoachesNodeDTO showCurrentCoach(@PathVariable String _id){
         return teamsNodeService.showCurrentCoach(_id);
     }
 
-    @GetMapping("Teams_Node/{_id}/{fifaV}/specificCoach")
-    @Operation(summary = "Show coach of a Team for a specific Year", tags={"Clarify"})
+    @GetMapping("team/{_id}/coach/{fifaV}")
+    @Operation(summary = "Show coach of a Team for a specific Year", tags={"Team","Coach"})
     public CoachesNodeDTO showSpecificCoach(@PathVariable String _id, @PathVariable Integer fifaV){
         return teamsNodeService.showSpecificCoach(_id, fifaV);
     }

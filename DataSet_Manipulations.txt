@@ -829,6 +829,95 @@ db.Players.updateMany(
   ]
 );
 
+--------------------------------------------------------------------------------------------------------------------------------------
+
+Same operation above but for Coaches
+
+db.Coaches.updateMany(
+  {}, // Filter for all documents
+  [
+    {
+      $set: {
+        team: {
+          $concatArrays: [
+            "$team", // This is the existing array
+            {
+              $map: {
+                input: {
+                  $range: [
+                    0,
+                    {
+                      $subtract: [
+                        10,
+                        { $size: "$team" }
+                      ]
+                    }
+                  ]
+                },
+                as: "i",
+                in: { // Default object structure
+                  
+					team_mongo_id : "XXXXXXXXXXXX",
+					team_name : "DefaultTeamName",
+					fifa_version : -1
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+);
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+Same operation above but for Teams
+
+db.Teams.updateMany(
+  {}, // Filter for all documents
+  [
+    {
+      $set: {
+        fifaStats: {
+          $concatArrays: [
+            "$fifaStats", // This is the existing array
+            {
+              $map: {
+                input: {
+                  $range: [
+                    0,
+                    {
+                      $subtract: [
+                        10,
+                        { $size: "$fifaStats" }
+                      ]
+                    }
+                  ]
+                },
+                as: "i",
+                in: { // Default object structure
+                  
+					fifa_version : -1,
+					home_stadium : "DefaultStadiumName",
+					overall : -1,
+					attack : -1,
+					midfield : -1,
+					defence : -1,
+					club_worth_eur : -1,
+					coach : {
+						coach_mongo_id: "XXXXXXXXXXXX",
+						coach_name : "DefaultCoachName" }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+);
+
 
 
 _____________________________________________________________________________________________________________________________________

@@ -55,7 +55,7 @@ public class Coaches_controller {
 
     // UPDATE: update team of an existing coach by ID
     @PutMapping("admin/coach/modify/{_id}/{fifaV}")
-    @Operation(summary = "UPDATE: update team of an existing coach by ID", tags={"Admin","Coach","Clarify"})
+    @Operation(summary = "UPDATE: update team of an existing coach by ID", tags={"Admin","Coach"})
     public Coaches updateTeam(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateTeamCoach coachDetails) {
         return coachesMservice.updateTeamCoach(_id, fifaV, coachDetails);
     }

@@ -29,7 +29,7 @@ public class Articles_node_controller {
     }
 
     @GetMapping("admin/articleNode/articles")
-    @Operation(summary = "Get all articles with pagination", tags={"Clarify"})
+    @Operation(summary = "Get all articles with pagination", tags={"Admin"})
     public Page<ArticlesNode> getAllArticles(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         PageRequest pageable = PageRequest.of(page, size);
         return articlesNodeService.getAllArticles(pageable);

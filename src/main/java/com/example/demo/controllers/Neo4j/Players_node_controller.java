@@ -26,14 +26,14 @@ public class Players_node_controller {
 
     // READ: Get player by ID
     @GetMapping("admin/playerNode/{_id}")
-    @Operation(summary = "READ operation: Get a Player node by ID", tags={"Admin","Player","Clarify"})
+    @Operation(summary = "READ operation: Get a Player node by ID", tags={"Admin","Player"})
     public PlayersNode getPlayerById(@PathVariable String _id) {
         return playersNodeService.getPlayers(_id);
     }
 
     // READ: Get all players by gender
-    @GetMapping("Players_Node/admin/byGender/{gender}")
-    @Operation(summary = "READ: Get all players for a specific gender with pagination", tags={"Clarify"})
+    @GetMapping("search/filter/player/list/byGender/{gender}")
+    @Operation(summary = "READ: Get all players for a specific gender with pagination", tags={"User","Player"})
     public Page<PlayersNode> getAllPlayers(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {
         PageRequest pageable = PageRequest.of(page, size);
@@ -41,15 +41,15 @@ public class Players_node_controller {
     }
 
     // READ: Show the current team a player plays in
-    @GetMapping("Players_Node/{_id}/current-team")
-    @Operation(summary = "READ: Show the team a player is currently playing in", tags={"Clarify"})
+    @GetMapping("player/{_id}/team")
+    @Operation(summary = "READ: Show the team a player is currently playing in", tags={"Team","Player"})
     public plays_in_team showCurrentTeam(@PathVariable String _id) {
         return playersNodeService.showCurrentTeam(_id);
     }
 
     // READ: Show a specific team a player played in with a certain FIFA version
-    @GetMapping("Players_Node/{_id}/team/{fifaV}")
-    @Operation(summary = "READ: Show a team a player played in for a specific FIFA version", tags={"Clarify"})
+    @GetMapping("player/{_id}/team/{fifaV}")
+    @Operation(summary = "READ: Show the team in which a player played in specific year", tags={"Team","Player"})
     public plays_in_team showSpecificTeam(@PathVariable String _id, @PathVariable Integer fifaV) {
         return playersNodeService.showSpecificTeam(_id, fifaV);
     }

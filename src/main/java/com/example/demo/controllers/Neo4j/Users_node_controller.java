@@ -38,16 +38,16 @@ public class Users_node_controller {
 
     // READ
     
-    // NOT NEEDED
+    /*// DISABLED
     @GetMapping("Users_Node/user/{username}")
     @Operation(summary = "READ operation: get users_nodes", tags={"Clarify"})
     public UsersNode getUser(@PathVariable String username) {
         return Uns.getUsers(username);
-    }
+    }*/
 
     //???????
-    @GetMapping("Users_Node/admin")
-    @Operation(summary = "READ: get all Users_node", tags={"Clarify"})
+    @GetMapping("admin/user/node/list")
+    @Operation(summary = "READ: get all Users_node", tags={"Admin","User"})
     public Page<UsersNode> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
@@ -63,27 +63,26 @@ public class Users_node_controller {
         return Uns.getUserArticles(userName, pageable);
     }
 
-    //CHECK ????
+    /* DISABLED
     @GetMapping("Users_Node/user/articles/{articleId}")
     @Operation(summary = "READ: get a specific article of a user", tags={"Clarify"})
     public ArticlesNode getUserArticle(Authentication auth, @PathVariable String articleId) {
         return Uns.getSpecificUserArticle(auth.getName(), articleId);
     }
+    */
     
     
-    //?????????
-    @GetMapping("Users_Node/user/fifaMStats")
-    @Operation(tags={"Clarify"})
+    @GetMapping("user/team/male/getStats")
+    @Operation(summary="Retrieve the stats of the players inside the personal team (Male)", tags={"User", "Player"})
     public List<FifaStatsPlayer> getFifaMStats(Authentication auth) {
         return Uns.ShowUserMPlayersStats(auth.getName());
     }
 
-    @GetMapping("Users_Node/user/fifaFStats")
-    @Operation(tags={"Clarify"})
+    @GetMapping("user/team/female/getStats")
+    @Operation(summary="Retrieve the stats of the players inside the personal team (Female)", tags={"User", "Player"})
     public List<FifaStatsPlayer> getFifaFStats(Authentication auth) {
         return Uns.ShowUserFPlayersStats(auth.getName());
     }
-    //????????
 
     @GetMapping("user/team/male")
     @Operation(summary = "Get list of players inside the male team", tags={"User"})

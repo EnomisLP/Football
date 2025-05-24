@@ -34,7 +34,7 @@ public class Coaches_node_controller{
         return coachesMNodeService.getCoach(_id);
     }
 
-    @GetMapping("Coaches_Node/admin/user/byGender/{gender}")
+    @GetMapping("search/filter/coach/list/byGender/{gender}")
     @Operation(summary = "READ: Get all coaches by gender with pagination", tags={"Clarify"})
     public Page<CoachesNode> getAllCoaches(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size, 
@@ -48,14 +48,14 @@ public class Coaches_node_controller{
         return coachesMNodeService.showTrainedHistory(_id);
     }
 
-    @GetMapping("Coaches_Node/{_id}/CurrentTeam")
-    @Operation(summary = "show current team training", tags={"Clarify"})
+    @GetMapping("coach/{_id}/team")
+    @Operation(summary = "Show the team currently trained", tags={"Coach","Team"})
     public manages_team showCurrentTeam(String _id){
         return coachesMNodeService.showCurrentTeam(_id);
     }
 
-    @GetMapping("Coaches_Node/{_id}/{fifaV}")
-    @Operation(summary = "show specific team training", tags={"Clarify"})
+    @GetMapping("coach/{_id}/team/{fifaV}")
+    @Operation(summary = "Show the team trained in a specific year", tags={"Coach","Team"})
     public manages_team showSpecificTeam(String _id, Integer fifaV){
         return coachesMNodeService.showSpecificTeam(_id, fifaV);
     }
@@ -66,7 +66,7 @@ public class Coaches_node_controller{
         return coachesMNodeService.MapAllTheNodes();
     }
     @PostMapping("Coaches_Node/admin/{gender}")
-    @Operation(summary = "MAP all MANAGES_TEAMS relationships", tags={"Clarify"})
+    @Operation(summary = "MAP all MANAGES_TEAMS relationships", tags={"Admin"})
     public String mapManagesTeam(@PathVariable String gender){
         return coachesMNodeService.MapAllManagesTeam(gender);
     }

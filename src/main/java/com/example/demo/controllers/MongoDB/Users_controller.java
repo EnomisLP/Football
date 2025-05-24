@@ -31,15 +31,15 @@ public class Users_controller {
     private Users_service usersService;
 
     @GetMapping("admin/users")
-    @Operation(summary = "READ: get all Users", tags={"Clarify"})
+    @Operation(summary = "READ: get all Users", tags={"Admin"})
     public <Pageable> Page<Users> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                               @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
         return usersService.getAllUsers(pageable);
     }
 
-    @GetMapping("user/username/{username}")
-    @Operation(summary = "READ operation - Get user by Username", tags={"Clarify"})
+    @GetMapping("admin/user/usernameSearch/{username}")
+    @Operation(summary = "READ operation - Get user by Username", tags={"Admin","User"})
     public Users getUserById(@PathVariable String username) {
         return usersService.getUserByUsername(username);
     }

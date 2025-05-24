@@ -35,7 +35,7 @@ public class Players_controller {
 
     // READ: Get all players by gender with pagination
     @GetMapping("admin/player/byGender/{gender}")
-    @Operation(summary = "READ: Get all players for a specific gender with pagination", tags={"Admin","Player","Clarify"})
+    @Operation(summary = "READ: Get all players for a specific gender with pagination", tags={"Admin","Player"})
     public Page<Players> getAllPlayers(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {
         PageRequest pageable = PageRequest.of(page, size);
@@ -58,7 +58,7 @@ public class Players_controller {
 
     // UPDATE: Update FIFA version of a player
     @PutMapping("admin/player/modify/{_id}/{fifaV}")
-    @Operation(summary = "UPDATE: Update a specific FIFA version of a player by its ID", tags={"Admin","Player","Clarify"})
+    @Operation(summary = "UPDATE: Update a specific FIFA version of a player by its ID", tags={"Admin","Player"})
     public Players updateFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV,
                                       @RequestBody updateFifaPlayer playerDetails) {
         return playersMService.updateFifaPlayer(_id, fifaV, playerDetails);
@@ -66,7 +66,7 @@ public class Players_controller {
 
     // UPDATE: Update team of a player
     @PutMapping("admin/player/modify/{_id}/{fifaV}/team")
-    @Operation(summary = "UPDATE: Update the team of a player by its ID", tags={"Admin","Player","Clarify"})
+    @Operation(summary = "UPDATE: Update the team of a player by its ID", tags={"Admin","Player"})
     public Players updateTeam(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateTeamPlayer teamDetails) {
         return playersMService.updateTeamPlayer(_id, fifaV, teamDetails);
     }
@@ -86,14 +86,15 @@ public class Players_controller {
         playersMService.deleteFifaPlayer(_id, fifaV);
         return ResponseEntity.noContent().build();
     }
-
+    
+    /* DISABLED
     // READ: Get the last year stats of the player
     @GetMapping("player/{_id}/lastYearStats")
     @Operation(summary = "READ: Get the stats of the player for the last year", tags={"Player","Clarify"})
     public FifaStatsPlayer getLastYearStats(@PathVariable String _id) {
         return playersMService.showCurrentYear(_id);
     }
-
+    */
     // READ: Get specific year stats of the player
     @GetMapping("player/{_id}/stats/{fifaV}")
     @Operation(summary = "READ: Get the stats of the player for a specific FIFA version", tags={"Player","Clarify"})
