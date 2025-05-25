@@ -1,5 +1,8 @@
 package com.example.demo.services.MongoDB;
-import java.util.Date;
+
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -68,11 +71,13 @@ public class Users_service {
         if(!optionalUser.isPresent()){
             Users userNew = new Users();
             UsersNode userNode = new UsersNode();
-            Date signUpDate = new Date();
+            LocalDateTime currentDate = LocalDateTime.now();
+            DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            String signUpDate=currentDate.format(timeFormat);
             
             userNew.setUsername(request.getUsername());
             userNew.setRoles(request.getRoles());
-            userNew.setSignup_date(signUpDate.toString());
+            userNew.setSignup_date(signUpDate);
             // Hash the password using BCrypt
             String hashedPassword = passwordEncoder.encode(request.getPassword());
             userNew.setPassword(hashedPassword);
@@ -147,8 +152,10 @@ public class Users_service {
             newArticle.setAuthor(existiUsers.getUsername());
             newArticle.setTitle(request.getTitle());
             newArticle.setContent(request.getContent());
-            Date publishTime = new Date();
-            newArticle.setPublish_time(publishTime.toString());
+            LocalDateTime currentDate =  LocalDateTime.now();
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            String publishTime = currentDate.format(timeFormatter);
+            newArticle.setPublish_time(publishTime);
             Articles savedArticle = Ar.save(newArticle);
             articleNode.setMongoId(savedArticle.get_id());
             articleNode.setTitle(savedArticle.getTitle());
@@ -181,8 +188,10 @@ public class Users_service {
                 existingArticle.setTitle(request.getTitle());
                 existingArticleNode.setTitle(request.getTitle());
                 AR.save(existingArticleNode);
-                Date newPublishTime = new Date();
-                existingArticle.setPublish_time(newPublishTime.toString());
+                LocalDateTime currentDate =  LocalDateTime.now();
+                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                String publishTime = currentDate.format(timeFormatter);
+                existingArticle.setPublish_time(publishTime);
                 return CompletableFuture.completedFuture(Ar.save(existingArticle));
             }
             else{

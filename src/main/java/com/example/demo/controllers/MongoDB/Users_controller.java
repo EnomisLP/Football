@@ -31,7 +31,7 @@ public class Users_controller {
     private Users_service usersService;
 
     @GetMapping("admin/users")
-    @Operation(summary = "READ: get all Users", tags={"Admin"})
+    @Operation(summary = "READ: get all Users", tags={"Admin:User"})
     public <Pageable> Page<Users> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                               @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
@@ -39,19 +39,19 @@ public class Users_controller {
     }
 
     @GetMapping("admin/user/usernameSearch/{username}")
-    @Operation(summary = "READ operation - Get user by Username", tags={"Admin","User"})
+    @Operation(summary = "READ operation - Get user by Username", tags={"Admin:User"})
     public Users getUserById(@PathVariable String username) {
         return usersService.getUserByUsername(username);
     }
 
     @PutMapping("admin/user/modify/{id}")
-    @Operation(summary = "UPDATE operation - Update an existing user", tags={"Admin","User"})
+    @Operation(summary = "UPDATE operation - Update an existing user", tags={"Admin:User"})
     public Users updateUser(@PathVariable String id, @RequestBody Users updatedUser) {
         return usersService.updateUser(id, updatedUser);
     }
 
     @DeleteMapping("admin/user/delete/{id}")
-    @Operation(summary = "DELETE operation - Delete a user by ID", tags={"Admin","User"})
+    @Operation(summary = "DELETE operation - Delete a user by ID", tags={"Admin:User"})
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         usersService.deleteUser(id);
         return ResponseEntity.noContent().build();

@@ -17,6 +17,16 @@ import org.springframework.context.annotation.Configuration;
 @Tag(name = "Clarify", description = "To clarify")
 @Tag(name = "Aggregation", description="Aggregation")
 
+//nested tags
+@Tag(name = "Admin:Map", description="Mapping operations")
+@Tag(name = "Admin:Populate", description="Database populating operations")
+@Tag(name = "Admin:Player", description="Operations of admin on players")
+@Tag(name = "Admin:Coach", description="Operations of admin on coaches")
+@Tag(name = "Admin:Team", description="Operations of admin on teams")
+@Tag(name = "Admin:User", description="Operations of admin on users")
+@Tag(name = "Admin:Article", description="Operations of admin on articles")
+@Tag(name = "Admin:Aggregation", description="Aggregation available for an admin")
+
 
 public class TagsConfiguration {
     //Leave empty

@@ -14,7 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/")
-@Tag(name = "Coaches", description = "QUERIES AND AGGREGATION FOR COACHES")
+
+
 public class Coaches_controller {
 
     private final Coaches_service coachesMservice;
@@ -31,7 +32,7 @@ public class Coaches_controller {
 
     // READ: Get all coaches by gender with pagination
     @GetMapping("admin/coach/byGender/{gender}")
-    @Operation(summary = "READ: Get all coaches by gender with pagination", tags={"Admin","Coach","Clarify"})
+    @Operation(summary = "READ: Get all coaches by gender with pagination", tags={"Admin:Coach"})
     public Page<Coaches> getAllCoaches(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size, 
                                        @PathVariable String gender) {
@@ -41,35 +42,35 @@ public class Coaches_controller {
 
     // CREATE: Create a new coach
     @PostMapping("admin/coach/new")
-    @Operation(summary = "CREATE: Create a new coach", tags={"Admin","Coach"})
+    @Operation(summary = "CREATE: Create a new coach", tags={"Admin:Coach"})
     public Coaches createCoach(@RequestBody Coaches coach) {
         return coachesMservice.createCoach(coach);
     }
 
     // UPDATE: Update an existing coach by ID
     @PutMapping("admin/coach/modify/{_id}")
-    @Operation(summary = "UPDATE: Update an existing coach by ID", tags={"Admin","Coach"})
+    @Operation(summary = "UPDATE: Update an existing coach by ID", tags={"Admin:Coach"})
     public Coaches updateCoach(@PathVariable String _id, @RequestBody updateCoach coachDetails) {
         return coachesMservice.updateCoach(_id, coachDetails);
     }
 
     // UPDATE: update team of an existing coach by ID
     @PutMapping("admin/coach/modify/{_id}/{fifaV}")
-    @Operation(summary = "UPDATE: update team of an existing coach by ID", tags={"Admin","Coach"})
+    @Operation(summary = "UPDATE: update team of an existing coach by ID", tags={"Admin:Coach"})
     public Coaches updateTeam(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateTeamCoach coachDetails) {
         return coachesMservice.updateTeamCoach(_id, fifaV, coachDetails);
     }
 
     // UPDATE: Update FIFA version of a coach by ID
     @PutMapping("admin/coach/modify/{_id}/{oldFifa}/{newFifa}")
-    @Operation(summary = "UPDATE: Update FIFA version of a coach by ID")
+    @Operation(summary = "UPDATE: Update FIFA version of a coach by ID", tags={"Admin:Coach"})
     public Coaches updateFifaVersion(@PathVariable String _id, @PathVariable Integer oldFifa, @PathVariable Integer newFifa) {
         return coachesMservice.updateFifaCoach(_id, oldFifa, newFifa);
     }
 
     // DELETE: Delete a coach by ID
     @DeleteMapping("admin/coach/delete/{_id}")
-    @Operation(summary = "DELETE: Delete a coach by ID", tags={"Admin","Coach"})
+    @Operation(summary = "DELETE: Delete a coach by ID", tags={"Admin:Coach"})
     public ResponseEntity<Void> deleteCoach(@PathVariable String _id) {
         coachesMservice.deleteCoach(_id);
         return ResponseEntity.noContent().build();

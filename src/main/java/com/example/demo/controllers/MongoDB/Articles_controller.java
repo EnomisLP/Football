@@ -28,7 +28,7 @@ public class Articles_controller {
 
     // READ: Get all articles with pagination
     @GetMapping("admin/articles")
-    @Operation(summary = "READ: Get all articles with pagination", tags={"Admin","Article"})
+    @Operation(summary = "READ: Get all articles with pagination", tags={"Admin:Article"})
     public Page<Articles> getAllArticles(@RequestParam(defaultValue = "0") int page,
                                          @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);

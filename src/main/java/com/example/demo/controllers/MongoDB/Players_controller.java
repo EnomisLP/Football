@@ -35,7 +35,7 @@ public class Players_controller {
 
     // READ: Get all players by gender with pagination
     @GetMapping("admin/player/byGender/{gender}")
-    @Operation(summary = "READ: Get all players for a specific gender with pagination", tags={"Admin","Player"})
+    @Operation(summary = "READ: Get all players for a specific gender with pagination", tags={"Admin:Player"})
     public Page<Players> getAllPlayers(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {
         PageRequest pageable = PageRequest.of(page, size);
@@ -44,21 +44,21 @@ public class Players_controller {
 
     // CREATE: Create a new player
     @PostMapping("admin/player/new")
-    @Operation(summary = "CREATE: Add a new player", tags={"Admin","Player"})
+    @Operation(summary = "CREATE: Add a new player", tags={"Admin:Player"})
     public Players createPlayer(@RequestBody Players player) {
         return playersMService.createPlayer(player);
     }
 
     // UPDATE: Update an existing player
     @PutMapping("admin/player/modify/{_id}")
-    @Operation(summary = "UPDATE: Update an existing player by its ID", tags={"Admin","Player"})
+    @Operation(summary = "UPDATE: Update an existing player by its ID", tags={"Admin:Player"})
     public Players updatePlayer(@PathVariable String _id, @RequestBody updatePlayer playerDetails) {
         return playersMService.updatePlayer(_id, playerDetails);
     }
 
     // UPDATE: Update FIFA version of a player
     @PutMapping("admin/player/modify/{_id}/{fifaV}")
-    @Operation(summary = "UPDATE: Update a specific FIFA version of a player by its ID", tags={"Admin","Player"})
+    @Operation(summary = "UPDATE: Update a specific FIFA version of a player by its ID", tags={"Admin:Player"})
     public Players updateFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV,
                                       @RequestBody updateFifaPlayer playerDetails) {
         return playersMService.updateFifaPlayer(_id, fifaV, playerDetails);
@@ -66,14 +66,14 @@ public class Players_controller {
 
     // UPDATE: Update team of a player
     @PutMapping("admin/player/modify/{_id}/{fifaV}/team")
-    @Operation(summary = "UPDATE: Update the team of a player by its ID", tags={"Admin","Player"})
+    @Operation(summary = "UPDATE: Update the team of a player by its ID", tags={"Admin:Player"})
     public Players updateTeam(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateTeamPlayer teamDetails) {
         return playersMService.updateTeamPlayer(_id, fifaV, teamDetails);
     }
 
     // DELETE: Delete a player by ID
     @DeleteMapping("admin/player/delete/{_id}")
-    @Operation(summary = "DELETE: Delete a player by its ID", tags={"Admin","Player"})
+    @Operation(summary = "DELETE: Delete a player by its ID", tags={"Admin:Player"})
     public ResponseEntity<Void> deletePlayer(@PathVariable String _id) {
         playersMService.deletePlayer(_id);
         return ResponseEntity.noContent().build();
@@ -81,7 +81,7 @@ public class Players_controller {
 
     //DELETE: Delete fifaVersion of a player by ID
     @DeleteMapping("admin/player/delete/{_id}/{fifaV}")
-    @Operation(summary = "DELETE: Delete a specific FIFA version of a player by its ID", tags={"Admin","Player","Clarify"})
+    @Operation(summary = "DELETE: Delete a specific FIFA version of a player by its ID", tags={"Admin:Player"})
     public ResponseEntity<Void> deleteFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV) {
         playersMService.deleteFifaPlayer(_id, fifaV);
         return ResponseEntity.noContent().build();
@@ -97,7 +97,7 @@ public class Players_controller {
     */
     // READ: Get specific year stats of the player
     @GetMapping("player/{_id}/stats/{fifaV}")
-    @Operation(summary = "READ: Get the stats of the player for a specific FIFA version", tags={"Player","Clarify"})
+    @Operation(summary = "READ: Get the stats of the player for a specific FIFA version", tags={"Player"})
     public FifaStatsPlayer getSpecificYearStats(@PathVariable String _id, @PathVariable Integer fifaV) {
         return playersMService.showSpecificStats(_id, fifaV);
     }

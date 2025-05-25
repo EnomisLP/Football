@@ -32,7 +32,7 @@ public class FootballController {
             @ApiResponse(responseCode = "404", description = "Summary not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @Operation(summary = "Get the summary of the subscriptions for each month of a specific year", tags={"Admin","Aggregation"})
+    @Operation(summary = "Get the summary of the subscriptions for each month of a specific year", tags={"Admin:Aggregation"})
     public List<monthSummary> getSubscriptionYearSummary(@PathVariable Integer year) {
         return footballService.getSubscriptionYearSummary(year);
     }
@@ -45,7 +45,7 @@ public class FootballController {
             @ApiResponse(responseCode = "404", description = "FIFA version not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @Operation(summary = "Get the dream team of players", tags={"User"})
+    @Operation(summary = "Autofill the personal team, with the best players available for each positon, for a specific year", tags={"User"})
     public List<DreamTeamPlayer> getDreamTeamPlayers(@PathVariable Integer fifaV) {
         return footballService.getDreamTeam(fifaV);
     }

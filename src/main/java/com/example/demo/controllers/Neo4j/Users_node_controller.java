@@ -47,7 +47,7 @@ public class Users_node_controller {
 
     //???????
     @GetMapping("admin/user/node/list")
-    @Operation(summary = "READ: get all Users_node", tags={"Admin","User"})
+    @Operation(summary = "READ: get all Users_node", tags={"Admin:User"})
     public Page<UsersNode> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
@@ -73,13 +73,13 @@ public class Users_node_controller {
     
     
     @GetMapping("user/team/male/getStats")
-    @Operation(summary="Retrieve the stats of the players inside the personal team (Male)", tags={"User", "Player"})
+    @Operation(summary="Retrieve the stats of the players inside the personal team (Male)", tags={"User"})
     public List<FifaStatsPlayer> getFifaMStats(Authentication auth) {
         return Uns.ShowUserMPlayersStats(auth.getName());
     }
 
     @GetMapping("user/team/female/getStats")
-    @Operation(summary="Retrieve the stats of the players inside the personal team (Female)", tags={"User", "Player"})
+    @Operation(summary="Retrieve the stats of the players inside the personal team (Female)", tags={"User"})
     public List<FifaStatsPlayer> getFifaFStats(Authentication auth) {
         return Uns.ShowUserFPlayersStats(auth.getName());
     }
@@ -110,31 +110,31 @@ public class Users_node_controller {
 
     // MAP USERS
     @PutMapping("admin/map/users")
-    @Operation(summary = "Map all the Users from MongoDB to Neo4j", tags={"Admin","Map"})
+    @Operation(summary = "Map all the Users from MongoDB to Neo4j", tags={"Admin:Map"})
     public String MapAllUsers() {
         return Uns.mapAllUsersToNeo4j();
     }
     
     @PutMapping("admin/populate/likes_to_players")
-    @Operation(summary = "Populate neo4j with likes to players", tags={"Admin","Populate"})
+    @Operation(summary = "Populate neo4j with likes to players", tags={"Admin:Populate"})
     public String populateLikesToPlayer() {
         return Uns.populateLikesToPlayer();
     }
     
     @PutMapping("admin/populate/likes_to_teams")
-    @Operation(summary = "Populate neo4j with likes to teams", tags={"Admin","Populate"})
+    @Operation(summary = "Populate neo4j with likes to teams", tags={"Admin:Populate"})
     public String populateLikesToTeams() {
         return Uns.populateLikesToTeams();
     }
     
     @PutMapping("admin/populate/likes_to_coaches")
-    @Operation(summary = "Populate neo4j with likes to coaches", tags={"Admin","Populate"})
+    @Operation(summary = "Populate neo4j with likes to coaches", tags={"Admin:Populate"})
     public String populateLikesToCoaches() {
         return Uns.populateLikesToCoaches();
     }
     
     @PutMapping("admin/populate/follows")
-    @Operation(summary = "Populate neo4j with follows to user", tags={"Admin","Populate"})
+    @Operation(summary = "Populate neo4j with follows to user", tags={"Admin:Populate"})
     public String populateFollowsToUsers() {
         return Uns.populateFollowsToUsers();
     }
