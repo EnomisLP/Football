@@ -25,7 +25,7 @@ public class NodeController {
     }
 
     @GetMapping("admin/analytics/team/topByFame/{fifaVersion}")
-    @Operation(summary = "Get the most famous team by FIFA version (Neo4j)", tags={"Aggregation"})
+    @Operation(summary = "Get the most famous team by FIFA version (Neo4j)", tags={"Admin:Aggregation"})
     public Collection<TopTeam> getTopFamousTeam(@PathVariable Integer fifaVersion) {
         return teamsNodeService.findMostFamousTeam(fifaVersion);
     }
@@ -36,7 +36,7 @@ public class NodeController {
         return teamsNodeService.findMostEngagedPlayer();
     }
     @GetMapping("admin/analytics/user/interestDiversity")
-    @Operation(summary = "Get user interest diversity", tags={"Aggregation"})
+    @Operation(summary = "Get user interest diversity", tags={"Admin:Aggregation"})
     public Collection<UserInterestDiversity> getUserInterestDiversity() {
         return teamsNodeService.findUserInterestDiversity();
     }

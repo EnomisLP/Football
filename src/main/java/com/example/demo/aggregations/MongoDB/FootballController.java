@@ -32,7 +32,7 @@ public class FootballController {
             @ApiResponse(responseCode = "404", description = "Summary not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    @Operation(summary = "Get the summary of the subscriptions for each month of a specific year", tags={"Aggregation"})
+    @Operation(summary = "Get the summary of the subscriptions for each month of a specific year", tags={"Admin:Aggregation"})
     public List<monthSummary> getSubscriptionYearSummary(@PathVariable Integer year) {
         return footballService.getSubscriptionYearSummary(year);
     }
@@ -51,13 +51,13 @@ public class FootballController {
     }
     
     // Modify with team id not name
-    @GetMapping("/admin/user/team/{team}/analytics/improvement/{year1}/{year2}")
+    @GetMapping("/admin/team/{team}/analytics/improvement/{year1}/{year2}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved information"),
             @ApiResponse(responseCode = "404", description = "Team not found"),
             @ApiResponse(responseCode = "500", description = "Years not available")
     })
-    @Operation(summary = "Get the percentage improvements in terms of attack, defense and midfield of a team, between 2 years", tags={ "Aggregation"})
+    @Operation(summary = "Get the percentage improvements in terms of attack, defense and midfield of a team, between 2 years", tags={ "Admin:Aggregation"})
     public TeamImprovements getSubscriptionYearSummary(@PathVariable String team,@PathVariable String year1,@PathVariable String year2) {
         return footballService.getTeamImprovements(team,year1,year2);
     }

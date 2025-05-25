@@ -141,13 +141,13 @@ public class Users_node_controller {
 
     // DELETE PLAYERS
      @DeleteMapping("user/team/male/removePlayer/{_id}")
-    @Operation(summary = "Remove a player in male Team by its mongoId", tags={"User"})
+    @Operation(summary = "Remove a player in male Team by its mongoId", tags={"Player"})
     public CompletableFuture<String> removeMPlayer(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.removePlayerMTeam(auth.getName(), _id);
     }
 
    @DeleteMapping("user/team/female/removePlayer/{_id}")
-    @Operation(summary = "Remove a player in female Team by its mongoId", tags={"User"})
+    @Operation(summary = "Remove a player in female Team by its mongoId", tags={"Player"})
     public CompletableFuture<String> removeFPlayer(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.removePlayerFTeam(auth.getName(), _id);
     }
