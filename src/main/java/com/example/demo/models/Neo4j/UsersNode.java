@@ -11,7 +11,7 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
-import com.example.demo.configurations.UsersNodeJsonComponent;
+import com.example.demo.configurations.JSON.UsersNodeJsonComponent;
 import com.example.demo.relationships.has_in_F_team;
 import com.example.demo.relationships.has_in_M_team;
 import com.fasterxml.jackson.annotation.JsonIgnore;

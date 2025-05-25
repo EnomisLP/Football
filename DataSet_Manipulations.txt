@@ -736,6 +736,188 @@ db.Players.updateMany(
   ]
 );
 
+______________________________________________________________________________________________________________________________
+
+After all map operations
+
+Fill all the fifa stats array in player document, with the amount objects to reach 10, each one of the added
+objects contains default values, in order to have document that occupuy a constant size on the disk
+
+db.Players.updateMany(
+  {}, // Filter for all documents
+  [
+    {
+      $set: {
+        fifaStats: {
+          $concatArrays: [
+            "$fifaStats", // This is the existing array
+            {
+              $map: {
+                input: {
+                  $range: [
+                    0,
+                    {
+                      $subtract: [
+                        10,
+                        { $size: "$fifaStats" }
+                      ]
+                    }
+                  ]
+                },
+                as: "i",
+                in: { // Default object structure
+                  fifa_version: "99",
+                  player_positions: "NA",
+                  overall: -1,
+                  potential: -1,
+                  value_eur: -1,
+                  wage_eur: -1,
+                  club_position: "NA",
+                  club_jersey_number: -1,
+                  club_contract_valid_until_year: 2999,
+                  league_name: "DefaultLeague",
+                  league_level: -1,
+                  team: {
+                    team_mongo_id: "XXXXXXXXXXXX",
+                    team_name: "DefaultTeam"
+                  },
+                  pace: -1,
+                  shooting: -1,
+                  passing: -1,
+                  dribbling: -1,
+                  defending: -1,
+                  physic: -1,
+                  attacking_crossing: -1,
+                  attacking_finishing: -1,
+                  attacking_heading_accuracy: -1,
+                  attacking_short_passing: -1,
+                  attacking_volleys: -1,
+                  skill_dribbling: -1,
+                  skill_curve: -1,
+                  skill_fk_accuracy: -1,
+                  skill_long_passing: -1,
+                  skill_ball_control: -1,
+                  movement_acceleration: -1,
+                  movement_sprint_speed: -1,
+                  movement_agility: -1,
+                  movement_reactions: -1,
+                  movement_balance: -1,
+                  power_shot_power: -1,
+                  power_jumping: -1,
+                  power_stamina: -1,
+                  power_strength: -1,
+                  power_long_shots: -1,
+                  mentality_aggression: -1,
+                  mentality_interceptions: -1,
+                  mentality_positioning: -1,
+                  mentality_vision: -1,
+                  mentality_penalties: -1,
+                  defending_marking_awareness: -1,
+                  defending_standing_tackle: -1,
+                  defending_sliding_tackle: -1,
+                  goalkeeping_diving: -1,
+                  goalkeeping_handling: -1,
+                  goalkeeping_kicking: -1,
+                  goalkeeping_positioning: -1,
+                  goalkeeping_reflexes: -1
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+);
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+Same operation above but for Coaches
+
+db.Coaches.updateMany(
+  {}, // Filter for all documents
+  [
+    {
+      $set: {
+        team: {
+          $concatArrays: [
+            "$team", // This is the existing array
+            {
+              $map: {
+                input: {
+                  $range: [
+                    0,
+                    {
+                      $subtract: [
+                        10,
+                        { $size: "$team" }
+                      ]
+                    }
+                  ]
+                },
+                as: "i",
+                in: { // Default object structure
+                  
+					team_mongo_id : "XXXXXXXXXXXX",
+					team_name : "DefaultTeamName",
+					fifa_version : -1
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+);
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+Same operation above but for Teams
+
+db.Teams.updateMany(
+  {}, // Filter for all documents
+  [
+    {
+      $set: {
+        fifaStats: {
+          $concatArrays: [
+            "$fifaStats", // This is the existing array
+            {
+              $map: {
+                input: {
+                  $range: [
+                    0,
+                    {
+                      $subtract: [
+                        10,
+                        { $size: "$fifaStats" }
+                      ]
+                    }
+                  ]
+                },
+                as: "i",
+                in: { // Default object structure
+                  
+					fifa_version : -1,
+					home_stadium : "DefaultStadiumName",
+					overall : -1,
+					attack : -1,
+					midfield : -1,
+					defence : -1,
+					club_worth_eur : -1,
+					coach : {
+						coach_mongo_id: "XXXXXXXXXXXX",
+						coach_name : "DefaultCoachName" }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+);
 
 
 _____________________________________________________________________________________________________________________________________

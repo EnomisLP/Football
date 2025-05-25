@@ -10,13 +10,13 @@ import com.example.demo.services.Neo4j.Coaches_node_service;
 
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 
 
 @RestController
-@RequestMapping("/api/v1/Coaches_Node")
-@Tag(name = "Coaches_node", description = "QUERIES AND AGGREGATION FOR COACHES_NODE")
+@RequestMapping("/api/v1/")
+
+
 public class Coaches_node_controller{
 
   
@@ -27,47 +27,46 @@ public class Coaches_node_controller{
     }
 
     // READ: Get coaches nodes
-    @GetMapping("/{_id}")
-    @Operation(summary = "READ operation: Get coaches nodes")
+    @GetMapping("admin/coachNode/{_id}")
+    @Operation(summary = "READ operation: Get coaches nodes", tags={"Admin","Coach"})
     public CoachesNode getCoach(@PathVariable String _id) {
         return coachesMNodeService.getCoach(_id);
     }
 
-    @GetMapping("/admin/user/byGender/{gender}")
-    @Operation(summary = "READ: Get all coaches by gender with pagination")
+    @GetMapping("search/filter/coach/list/byGender/{gender}")
+    @Operation(summary = "READ: Get all coaches by gender with pagination", tags={"User","Coach", "Anonymous"})
     public Page<CoachesNode> getAllCoaches(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size, 
                                        @PathVariable String gender) {
         PageRequest pageable = PageRequest.of(page, size);
         return coachesMNodeService.getAllCoaches(pageable, gender);
     }
-    @GetMapping("/{_id}/history")
-    @Operation(summary = "show team trained Hystory")
+    @GetMapping("/user/coach/{_id}/managing_history")
+    @Operation(summary = "show team trained Hystory", tags={"Coach","User"})
     public List<manages_team> showTrainedHistory(String _id){
         return coachesMNodeService.showTrainedHistory(_id);
     }
 
-    @GetMapping("/{_id}/CurrentTeam")
-    @Operation(summary = "show current team training")
+    @GetMapping("/user/coach/{_id}/team")
+    @Operation(summary = "Show the team currently trained", tags={"Coach","Team","User"})
     public manages_team showCurrentTeam(String _id){
         return coachesMNodeService.showCurrentTeam(_id);
     }
 
-    @GetMapping("/{_id}/{fifaV}")
-    @Operation(summary = "show specific team training")
+    @GetMapping("/user/coach/{_id}/team/{fifaV}")
+    @Operation(summary = "Show the team trained in a specific year", tags={"Coach","Team", "User"})
     public manages_team showSpecificTeam(String _id, Integer fifaV){
         return coachesMNodeService.showSpecificTeam(_id, fifaV);
     }
     // MAP: Map all Coaches from MongoDB to Neo4j nodes
-    @PostMapping("/admin/map-all")
-    @Operation(summary = "MAP operation: Map all Coaches from MongoDB to Neo4j nodes")
+    @PostMapping("admin/map/coaches")
+    @Operation(summary = "MAP operation: Map all Coaches from MongoDB to Neo4j nodes", tags={"Admin","Map"})
     public String mapAllNodes() {
         return coachesMNodeService.MapAllTheNodes();
     }
-    @PostMapping("/admin/{gender}")
-    @Operation(summary = "MAP all MANAGES_TEAMS relationships")
+    @PostMapping("/admin/map/manages_team_relationship/{gender}")
+    @Operation(summary = "MAP all MANAGES_TEAMS relationships", tags={"Admin", "Map"})
     public String mapManagesTeam(@PathVariable String gender){
         return coachesMNodeService.MapAllManagesTeam(gender);
     }
 }
-

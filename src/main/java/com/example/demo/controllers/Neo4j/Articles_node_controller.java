@@ -6,7 +6,6 @@ import com.example.demo.models.Neo4j.ArticlesNode;
 import com.example.demo.services.Neo4j.Articles_node_service;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,8 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 @RestController
-@RequestMapping("/api/v1/Articles_Node")
-@Tag(name = "Articles_node", description = "QUERIES AND AGGREGATION FOR ARTICLES_NODE")
+@RequestMapping("/api/v1/")
+
+
 public class Articles_node_controller {
     private final Articles_node_service articlesNodeService;
     
@@ -27,27 +27,27 @@ public class Articles_node_controller {
         this.articlesNodeService = articlesNodeService;
     }
 
-    @GetMapping("/admin/articles")
-    @Operation(summary = "Get all articles with pagination")
+    @GetMapping("admin/articleNode/articles")
+    @Operation(summary = "Get all articles with pagination", tags={"Admin"})
     public Page<ArticlesNode> getAllArticles(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         PageRequest pageable = PageRequest.of(page, size);
         return articlesNodeService.getAllArticles(pageable);
     }
 
-    @GetMapping("/admin/articles/{articleId}")
-    @Operation(summary = "Get article by ID")
+    @GetMapping("admin/articleNode/{articleId}")
+    @Operation(summary = "Get article by ID", tags={"Admin"})
     public ArticlesNode getArticle(@PathVariable Long articleId) {
         return articlesNodeService.getArticle(articleId);
     }
     
-    @PostMapping("/admin/articles/mapp-all-wrote")
-    @Operation(summary = "Map all wrote relationships")
+    @PostMapping("admin/map/wrote_relationships")
+    @Operation(summary = "Map all wrote relationships", tags={"Admin","Map"})
     public String mapAllWroteRelationships() {
         return articlesNodeService.MappAllWroteRelationships();
     }
 
-    @PostMapping("/admin/articles/mapp-all")
-    @Operation(summary = "Map all articles")
+    @PostMapping("admin/map/articles")
+    @Operation(summary = "Map all articles", tags={"Admin","Map"})
     public String mapAllArticles() {
         return articlesNodeService.MappAllArticles();
     }

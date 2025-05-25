@@ -1,4 +1,4 @@
-package com.example.demo.configurations;
+package com.example.demo.configurations.JSON;
 
 import java.io.IOException;
 

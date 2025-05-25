@@ -35,7 +35,6 @@ public class globalSearchService {
         // Count total results first (for Page metadata)
         long total = neo4jClient.query(
             "MATCH (n) WHERE " +
-            "(n.teamName IS NOT NULL AND toLower(n.teamName) CONTAINS $name) OR " +
             "(n.longName IS NOT NULL AND toLower(n.longName) CONTAINS $name) OR " +
             "(n.userName IS NOT NULL AND toLower(n.userName) CONTAINS $name) RETURN count(n) AS total"
         )
@@ -45,7 +44,6 @@ public class globalSearchService {
         .orElse(0L);
 
         Collection<globalSearchResult> results = neo4jClient.query("MATCH (n) WHERE "+
-            "(n.teamName IS NOT NULL AND lower(n.teamName) CONTAINS $name) OR" +
             "(n.longName IS NOT NULL AND lower(n.longName) CONTAINS $name) OR" +
             "(n.userName IS NOT NULL AND lower(n.userName) CONTAINS $name) RETURN n SKIP $skip LIMIT $limit;")
         .bind(lowerName).to("name")

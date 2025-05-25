@@ -1,4 +1,4 @@
-package com.example.demo.configurations;
+package com.example.demo.configurations.JSON;
 
 import com.example.demo.models.Neo4j.UsersNode;
 import com.fasterxml.jackson.core.JsonGenerator;

@@ -29,15 +29,18 @@ public class SecurityConfig {
             .cors(cors -> cors.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/v1/user/{_id}/**","api/v1/user/team/**",
+                                 "/api/v1/player/{_id}/**","/api/v1/team/{_id}/**",
+                                 "/api/v1/coach/{_id}/**","/api/v1/article/{_id}/**",
+                                 "/api/v1/article/new","/api/v1/article/edit/{_id}",
+                                 "/api/v1/search/filter/**").hasRole("USER")
                 .requestMatchers("/api/v1/auth/me", "/api/v1/enrolments/**").authenticated()
-                .requestMatchers("/api/v1/Articles/admin/**","/api/v1/Coaches/admin/**","/api/v1/Players/admin/**"
-                ,"/api/v1/Teams/admin/**","/api/v1/Users/admin/**","/api/v1/Coaches_Node/admin/**","/api/v1/Players_Node/admin/**"
-                ,"/api/v1/Teams_Node/admin/**","/api/v1/Users_Node/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/v1/Articles/user/**", "/api/v1/Coaches/user/**", "/api/v1/Players/user/**",
-                "/api/v1/Teams/user/**","/api/v1/Users/user/**","/api/v1/Coaches_Node/user/**","/api/v1/Players_node/user/**", 
-                "/api/v1/Teams_Node/user/**","/api/v1/Users_Node/user/**").hasRole("USER")
-                .requestMatchers("/api/v1/Users/registration").anonymous()
-                .anyRequest().permitAll()
+                .requestMatchers("/api/v1/search/**","/api/v1/user/{_id}","/api/v1/player/{_id}",
+                                 "/api/v1/team/{_id}","/api/v1/coach/{_id}","/api/v1/article/{_id}").permitAll()
+                .requestMatchers("/api/v1/signup").anonymous()
+                .requestMatchers("/swagger-ui/**","/v3/api-docs/**","/swagger-resources/**","/webjars/**").permitAll()
+                .anyRequest().denyAll()
             )
             .userDetailsService(mongoUserDetailService)
             .httpBasic(httpBasic -> httpBasic.realmName("MyApp"))
@@ -64,4 +67,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-
