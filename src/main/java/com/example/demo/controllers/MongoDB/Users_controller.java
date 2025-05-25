@@ -36,7 +36,7 @@ public class Users_controller {
     }
 
     @GetMapping("admin/usernameSearch/{username}")
-    @Operation(summary = "READ operation - Get user by Username", tags={"Admin"})
+    @Operation(summary = "READ operation - Get user by Username", tags={"Admin:User"})
     public Users getUserById(@PathVariable String username) {
         return usersService.getUserByUsername(username);
     }
