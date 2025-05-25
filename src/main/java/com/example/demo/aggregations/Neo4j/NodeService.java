@@ -40,7 +40,7 @@ public class NodeService {
                     else{
                     TeamsNode team = new TeamsNode();
                     team.setMongoId(teamNode.get("mongoId").asString());
-                    team.setLongName(teamNode.get("teamName").asString());
+                    team.setLongName(teamNode.get("longName").asString());
                     team.setGender(teamNode.get("gender").asString());
                     Integer totalFame = record.get("totalFame").asInt();
                     return new TopTeam(team, totalFame);
