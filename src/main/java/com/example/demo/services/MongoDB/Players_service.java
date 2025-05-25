@@ -23,6 +23,7 @@ import com.example.demo.repositories.Neo4j.Players_node_rep;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
 import com.example.demo.repositories.Neo4j.Users_node_rep;
 import com.example.demo.services.Neo4j.Players_node_service;
+import com.example.demo.requets.createPlayerRequest;
 import com.example.demo.requets.updateFifaPlayer;
 import com.example.demo.requets.updatePlayer;
 import com.example.demo.requets.updateTeamPlayer;
@@ -68,8 +69,18 @@ public class Players_service {
     }
     //CREATE
     @Transactional
-    public Players createPlayer(Players player){
-        Players playerM = PMr.save(player);
+    public Players createPlayer(createPlayerRequest request){
+        Players playerM = new Players();
+        playerM.setAge(request.getAge());
+        playerM.setDob(request.getDob());
+        playerM.setGender(request.getGender());
+        playerM.setHeight_cm(request.getHeight_cm());
+        playerM.setWeight_kg(request.getWeight_kg());
+        playerM.setLong_name(request.getLong_name());
+        playerM.setNationality_id(request.getNationality_id());
+        playerM.setNationality_name(request.getNationality_name());
+        playerM.setShort_name(request.getShort_name());
+        PMr.save(playerM);
         PlayersNode playerNode = new PlayersNode();
         playerNode.setMongoId(playerM.get_id());
         playerNode.setLongName(playerM.getLong_name());
@@ -178,6 +189,7 @@ public class Players_service {
                         stat.setLeague_level(request.getLeague_level());
                         stat.setPace(request.getPace());
                         stat.setShooting(request.getShooting());
+                        stat.setDribbling(request.getDribbling());
                         stat.setPassing(request.getPassing());
                         stat.setDefending(request.getDefending());
                         stat.setPhysic(request.getPhysic());
@@ -227,8 +239,8 @@ public class Players_service {
 
     }
     
-@Transactional
-public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer request) {
+    @Transactional
+    public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer request) {
     Players existingPlayer = PMr.findById(id)
         .orElseThrow(() -> new RuntimeException("Player not found in MongoDB"));
 
@@ -264,7 +276,10 @@ public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer reque
         Pmr.save(existingPlayerNode);
 
         // Update MongoDB reference
-        targetStat.getTeam().setTeam_name(existingTeam.get_id());
+        targetStat.getTeam().setTeam_name(existingTeam.getTeam_name());
+        targetStat.getTeam().setTeam_mongo_id(request.getTeam_mongo_id());
+        targetStat.getTeam().setFifa_version(fifaV);
+
         return PMr.save(existingPlayer);
     }
 
@@ -314,7 +329,66 @@ public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer reque
                             }
                         }
                         //deleting fifaStats in MongoDB
-                        existingPlayer.getFifaStats().remove(stat);
+                        stat.setFifa_version(99);
+                        stat.setPlayer_positions("NA");
+                        stat.setOverall(-1);
+                        stat.setPotential(-1);
+                        stat.setValue_eur(-1);
+                        stat.setClub_position("NA");
+                        stat.setClub_jersey_number(-1);
+                        stat.setClubContractValidUntilYear(2999);
+                        stat.setLeague_name("DefaultLeague");
+                        stat.setLeague_level(-1);
+
+                        stat.getTeam().setTeam_mongo_id("XXXXXXXXXXXX");
+                        stat.getTeam().setTeam_name("DefaultTeam");
+
+                        stat.setPace(-1);
+                        stat.setShooting(-1);
+                        stat.setPassing(-1);
+                        stat.setDribbling(-1);
+                        stat.setDefending(-1);
+                        stat.setPhysic(-1);
+
+                        stat.setAttacking_crossing(-1);
+                        stat.setAttacking_finishing(-1);
+                        stat.setAttacking_heading_accuracy(-1);
+                        stat.setAttacking_short_passing(-1);
+                        stat.setAttacking_volleys(-1);
+
+                        stat.setSkill_dribbling(-1);
+                        stat.setSkill_curve(-1);
+                        stat.setSkill_fk_accuracy(-1);
+                        stat.setSkill_long_passing(-1);
+                        stat.setSkill_ball_control(-1);
+
+                        stat.setMovement_acceleration(-1);
+                        stat.setMovementSprintSpeed(-1);
+                        stat.setMovement_agility(-1);
+                        stat.setMovement_reactions(-1);
+                        stat.setMovement_balance(-1);
+
+                        stat.setPower_shot_power(-1);
+                        stat.setPower_jumping(-1);
+                        stat.setPower_stamina(-1);
+                        stat.setPower_strength(-1);
+                        stat.setPower_long_shots(-1);
+
+                        stat.setMentality_aggression(-1);
+                        stat.setMentality_interceptions(-1);
+                        stat.setMentality_positioning(-1);
+                        stat.setMentality_vision(-1);
+                        stat.setMentality_penalties(-1);
+
+                        stat.setDefending_marking_awareness(-1);
+                        stat.setDefending_standing_tackle(-1);
+                        stat.setDefending_sliding_tackle(-1);
+
+                        stat.setGoalkeeping_diving(-1);
+                        stat.setGoalkeeping_handling(-1);
+                        stat.setGoalkeeping_kicking(-1);
+                        stat.setGoalkeeping_positioning(-1);
+                        stat.setGoalkeeping_reflexes(-1);
                         break;
                     }
                 }

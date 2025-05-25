@@ -1,5 +1,6 @@
 package com.example.demo.models.MongoDB;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -11,13 +12,11 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "Coaches")
 public class Coaches{
@@ -35,4 +34,16 @@ public class Coaches{
     private String gender;
     private List<TeamObj> team;
     //Constructors, Getters and Setters automatically Generated
+
+    public Coaches() {
+    this.team = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+        TeamObj teamObj = new TeamObj();
+        teamObj.setFifa_version(-1);
+        teamObj.setTeam_mongo_id("XXXXXXXXXXXX");
+        teamObj.setTeam_name("DefaultTeamName");
+        this.team.add(teamObj);
+    }
+}
+
 }

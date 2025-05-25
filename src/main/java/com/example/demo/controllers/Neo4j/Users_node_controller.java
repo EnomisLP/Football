@@ -47,7 +47,7 @@ public class Users_node_controller {
 
     //???????
     @GetMapping("admin/user/node/list")
-    @Operation(summary = "READ: get all Users_node", tags={"Admin","User"})
+    @Operation(summary = "READ: get all Users_node", tags={"Admin:User"})
     public Page<UsersNode> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
@@ -73,13 +73,13 @@ public class Users_node_controller {
     
     
     @GetMapping("user/team/male/getStats")
-    @Operation(summary="Retrieve the stats of the players inside the personal team (Male)", tags={"User", "Player"})
+    @Operation(summary="Retrieve the stats of the players inside the personal team (Male)", tags={"User"})
     public List<FifaStatsPlayer> getFifaMStats(Authentication auth) {
         return Uns.ShowUserMPlayersStats(auth.getName());
     }
 
     @GetMapping("user/team/female/getStats")
-    @Operation(summary="Retrieve the stats of the players inside the personal team (Female)", tags={"User", "Player"})
+    @Operation(summary="Retrieve the stats of the players inside the personal team (Female)", tags={"User"})
     public List<FifaStatsPlayer> getFifaFStats(Authentication auth) {
         return Uns.ShowUserFPlayersStats(auth.getName());
     }
@@ -110,31 +110,31 @@ public class Users_node_controller {
 
     // MAP USERS
     @PostMapping("admin/map/users")
-    @Operation(summary = "Map all the Users from MongoDB to Neo4j", tags={"Admin","Map"})
+    @Operation(summary = "Map all the Users from MongoDB to Neo4j", tags={"Admin:Map"})
     public String MapAllUsers() {
         return Uns.mapAllUsersToNeo4j();
     }
     
     @PutMapping("admin/populate/likes_to_players")
-    @Operation(summary = "Populate neo4j with likes to players", tags={"Admin","Populate"})
+    @Operation(summary = "Populate neo4j with likes to players", tags={"Admin:Populate"})
     public String populateLikesToPlayer() {
         return Uns.populateLikesToPlayer();
     }
     
     @PutMapping("admin/populate/likes_to_teams")
-    @Operation(summary = "Populate neo4j with likes to teams", tags={"Admin","Populate"})
+    @Operation(summary = "Populate neo4j with likes to teams", tags={"Admin:Populate"})
     public String populateLikesToTeams() {
         return Uns.populateLikesToTeams();
     }
     
     @PutMapping("admin/populate/likes_to_coaches")
-    @Operation(summary = "Populate neo4j with likes to coaches", tags={"Admin","Populate"})
+    @Operation(summary = "Populate neo4j with likes to coaches", tags={"Admin:Populate"})
     public String populateLikesToCoaches() {
         return Uns.populateLikesToCoaches();
     }
     
     @PutMapping("admin/populate/follows")
-    @Operation(summary = "Populate neo4j with follows to user", tags={"Admin","Populate"})
+    @Operation(summary = "Populate neo4j with follows to user", tags={"Admin:Populate"})
     public String populateFollowsToUsers() {
         return Uns.populateFollowsToUsers();
     }
@@ -167,63 +167,63 @@ public class Users_node_controller {
 
     //LIKE / UNLIKE ARTICLES
      @PostMapping("/user/article/{articleId}/like")
-    @Operation(summary = "LIKE an article by its mongoId", tags={"Article","User"})
+    @Operation(summary = "LIKE an article by its mongoId", tags={"Article"})
     public CompletableFuture<String> articleLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
         return Uns.LIKE_ARTICLE(auth.getName(), articleId);
     }
 
      @DeleteMapping("/user/article/{articleId}/unlike")
-    @Operation(summary = "UNLIKE an article by its mongoId", tags={"Article","User"})
+    @Operation(summary = "UNLIKE an article by its mongoId", tags={"Article"})
     public CompletableFuture<String> articleUNLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
         return Uns.UNLIKE_ARTICLE(auth.getName(), articleId);
     }
     
     // ADD TO TEAM
    @PostMapping("user/team/male/addPlayer/{_id}/{fifaValue}")
-    @Operation(summary = "ADD a player in male Team by its mongoId", tags={"User"})
+    @Operation(summary = "ADD a player in male Team by its mongoId", tags={"Player"})
     public CompletableFuture<String> add_in_M_Team(@PathVariable String _id, @PathVariable int fifaValue, Authentication auth) throws JsonProcessingException {
         return Uns.addInMTeam(auth.getName(), _id, fifaValue);
     }
 
     @PostMapping("user/team/female/addPlayer/{_id}/{fifaValue}")
-    @Operation(summary = "ADD a player in Female Team by its mongoId", tags={"User"})
+    @Operation(summary = "ADD a player in Female Team by its mongoId", tags={"Player"})
     public CompletableFuture<String> add_in_F_Team(@PathVariable String _id, @PathVariable int fifaValue, Authentication auth) throws JsonProcessingException {
         return Uns.addInFTeam(auth.getName(), _id, fifaValue);
     }
 
     // LIKES
     @PostMapping("/user/team/{_id}/like")
-    @Operation(summary = "LIKE a team by its mongoId", tags={"Team", "User"})
+    @Operation(summary = "LIKE a team by its mongoId", tags={"Team"})
     public CompletableFuture<String> teamLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.team_LIKE(auth.getName(), _id);
     }
 
        @DeleteMapping("/user/team/{_id}/unlike")
-    @Operation(summary = "UNLIKE a team by its mongoId", tags={"Team","User"})
+    @Operation(summary = "UNLIKE a team by its mongoId", tags={"Team"})
     public CompletableFuture<String> teamUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.team_UNLIKE(auth.getName(), _id);
     }
 
      @PostMapping("/user/player/{_id}/like")
-    @Operation(summary = "LIKE a player by its mongoId", tags={"Player","User"})
+    @Operation(summary = "LIKE a player by its mongoId", tags={"Player"})
     public CompletableFuture<String> playerLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.player_LIKE(auth.getName(), _id);
     }
 
     @DeleteMapping("/user/player/{_id}/unlike")
-    @Operation(summary = "UNLIKE a player by its mongoId", tags={"Player","User"})
+    @Operation(summary = "UNLIKE a player by its mongoId", tags={"Player"})
     public CompletableFuture<String> playerUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.player_UNLIKE(auth.getName(), _id);
     }
 
    @PostMapping("/user/coach/{_id}/like")
-    @Operation(summary = "LIKE a coach by its mongoId", tags={"Coach","User"})
+    @Operation(summary = "LIKE a coach by its mongoId", tags={"Coach"})
     public CompletableFuture<String> coachLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.coach_LIKE(auth.getName(), _id);
     }
 
      @DeleteMapping("/user/coach/{_id}/unlike")
-    @Operation(summary = "UNLIKE a coach by its mongoId", tags={"Coach","User"})
+    @Operation(summary = "UNLIKE a coach by its mongoId", tags={"Coach"})
     public CompletableFuture<String> coachUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.coach_UNLIKE(auth.getName(), _id);
     }

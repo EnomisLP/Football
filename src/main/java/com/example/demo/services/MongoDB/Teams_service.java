@@ -5,6 +5,7 @@ import javax.management.RuntimeErrorException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
 import com.example.demo.models.MongoDB.Coaches;
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.MongoDB.FifaStatsTeam;
@@ -24,6 +25,7 @@ import com.example.demo.repositories.Neo4j.Players_node_rep;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
 import com.example.demo.requets.updateTeam;
 import com.example.demo.requets.updateFifaTeam;
+import com.example.demo.requets.createTeamRequest;
 import com.example.demo.requets.updateCoachTeam;
 
 import jakarta.transaction.Transactional;
@@ -65,8 +67,16 @@ public class Teams_service {
     }
     //CREATE
     @Transactional
-    public Teams createTeam(Teams team){
-        Teams teamM = TMr.save(team);
+    public Teams createTeam(createTeamRequest request){
+        Teams teamM = new Teams();
+        teamM.setGender(request.getGender());
+        teamM.setLeague_id(request.getLeague_id());
+        teamM.setLeague_level(request.getLeague_level());
+        teamM.setLeague_name(request.getLeague_name());
+        teamM.setNationality_id(request.getNationality_id());
+        teamM.setTeam_name(request.getTeam_name());
+        teamM.setNationality_name(request.getNationality_name());
+        TMr.save(teamM);
         TeamsNode newTeam = new TeamsNode();
         newTeam.setMongoId(teamM.get_id());
         newTeam.setLongName(teamM.getTeam_name());
@@ -239,6 +249,7 @@ public class Teams_service {
                             if(team.getFifa_version().equals(fifaV)){
                                 team.setTeam_name(existingTeam.getTeam_name());
                                 team.setTeam_mongo_id(existingTeam.get_id());
+                                team.setFifa_version(fifaV);
                                 break;
                             }
                         }
@@ -316,13 +327,13 @@ public class Teams_service {
                 for (Players player : players) {
                     List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
                     for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
-                        playerFifaStat.getTeam().setTeam_name(null);
-                        playerFifaStat.getTeam().setTeam_mongo_id(null);
-                        playerFifaStat.setClub_position(null);
-                        playerFifaStat.setLeague_name(null);
-                        playerFifaStat.setClub_contract_valid_until_year(null);
-                        playerFifaStat.setClub_jersey_number(null);
-                        playerFifaStat.setLeague_level(null);
+                        playerFifaStat.getTeam().setTeam_name("DefaultTeam");
+                        playerFifaStat.getTeam().setTeam_mongo_id("DefaultTeam");
+                        playerFifaStat.setClub_position("NA");
+                        playerFifaStat.setLeague_name("DefaultLeague");
+                        playerFifaStat.setClub_contract_valid_until_year(2999);
+                        playerFifaStat.setClub_jersey_number(-1);
+                        playerFifaStat.setLeague_level(-1);
                         PMr.save(player);
                     }
                 }
@@ -333,8 +344,8 @@ public class Teams_service {
                 for(Coaches coach : coaches){
                     List<TeamObj> teams = coach.getTeam();
                     for(TeamObj Team : teams){
-                        Team.setTeam_name(null);
-                        Team.setTeam_mongo_id(null);
+                        Team.setTeam_name("DefaultTeam");
+                        Team.setTeam_mongo_id("XXXXXXXXXXXX");
                         CMr.save(coach);
                     }
                 }
@@ -381,7 +392,17 @@ public class Teams_service {
                 //Deleting fifa stats from MongoDB
                 for (FifaStatsTeam fifaStat : existingFifaStats) {
                     if (fifaStat.getFifa_version().equals(fifaV)) {
-                        existingTeam.getFifaStats().remove(fifaStat);
+                        fifaStat.setFifa_version(-1);
+                        fifaStat.setHome_stadium("DefaultStadiumName");
+                        fifaStat.setOverall(-1);
+                        fifaStat.setAttack(-1);
+                        fifaStat.setMidfield(-1);
+                        fifaStat.setDefence(-1);
+                        fifaStat.setClub_worth_eur(-1);
+
+                        fifaStat.getCoach().setCoach_mongo_id("XXXXXXXXXXXX");
+                        fifaStat.getCoach().setCoach_name("DefaultCoachName");
+
                         break;
                     }
                 }
@@ -395,10 +416,13 @@ public class Teams_service {
                         List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
                         for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
                             if (playerFifaStat.getFifa_version().equals(fifaV)) {
-                                playerFifaStat.getTeam().setTeam_name(null);
-                                playerFifaStat.getTeam().setTeam_mongo_id(null);
-                                playerFifaStat.setClub_position(null);
-                                playerFifaStat.setLeague_name(null);
+                                playerFifaStat.getTeam().setTeam_name("DefaultTeam");
+                                playerFifaStat.getTeam().setTeam_mongo_id("DefaultTeam");
+                                playerFifaStat.setClub_position("NA");
+                                playerFifaStat.setLeague_name("DefaultLeague");
+                                playerFifaStat.setClub_contract_valid_until_year(2999);
+                                playerFifaStat.setClub_jersey_number(-1);
+                                playerFifaStat.setLeague_level(-1);
                                 PMr.save(player);
                                 break;
                             }

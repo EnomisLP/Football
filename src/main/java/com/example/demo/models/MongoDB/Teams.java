@@ -1,5 +1,6 @@
 package com.example.demo.models.MongoDB;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -20,9 +21,6 @@ import lombok.Setter;
 @Document(collection ="Teams")
 
 public class Teams {
-    public Teams() {
-        
-    }
 
     @Id
     @GeneratedValue
@@ -45,4 +43,26 @@ public class Teams {
     @Indexed
     private String gender;
     //Constructor, Getters, Setters automatically generated
+
+    public Teams() {
+    this.fifaStats = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+        FifaStatsTeam stats = new FifaStatsTeam();
+        stats.setFifa_version(-1);
+        stats.setHome_stadium("DefaultStadiumName");
+        stats.setOverall(-1);
+        stats.setAttack(-1);
+        stats.setMidfield(-1);
+        stats.setDefence(-1);
+        stats.setClub_worth_eur(-1);
+
+        CoachObj coach = new CoachObj();
+        coach.setCoach_mongo_id("XXXXXXXXXXXX");
+        coach.setCoach_name("DefaultCoachName");
+        stats.setCoach(coach);
+
+        this.fifaStats.add(stats);
+    }
+}
+
 }

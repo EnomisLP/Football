@@ -21,14 +21,14 @@ public class Articles_controller {
 
     // READ: Get a specific article by ID
     @GetMapping("/admin/article/{id}")
-    @Operation(summary = "READ: Get an article by ID", tags={"Article","Admin"})
+    @Operation(summary = "READ: Get an article by ID", tags={"Article"})
     public Articles getArticle(@PathVariable String id) {
         return articlesService.getArticle(id);
     }
 
     // READ: Get all articles with pagination
     @GetMapping("admin/articles")
-    @Operation(summary = "READ: Get all articles with pagination", tags={"Admin","Article"})
+    @Operation(summary = "READ: Get all articles with pagination", tags={"Admin:Article"})
     public Page<Articles> getAllArticles(@RequestParam(defaultValue = "0") int page,
                                          @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);

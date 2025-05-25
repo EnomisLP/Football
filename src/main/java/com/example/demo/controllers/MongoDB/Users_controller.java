@@ -28,7 +28,7 @@ public class Users_controller {
     private Users_service usersService;
 
     @GetMapping("admin/list")
-    @Operation(summary = "READ: get all Users", tags={"Admin"})
+    @Operation(summary = "READ: get all Users", tags={"Admin:User"})
     public <Pageable> Page<Users> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                               @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
@@ -48,7 +48,7 @@ public class Users_controller {
     }
 
     @DeleteMapping("/admin/delete/{username}")
-     @Operation(summary = "DELETE operation - Delete a user by ID", tags={"Admin","User"})
+     @Operation(summary = "DELETE operation - Delete a user by ID", tags={"Admin:User"})
     public CompletableFuture<Void> deleteUser(@PathVariable String username) throws JsonProcessingException {
         return usersService.deleteUser(username);
     }
@@ -56,13 +56,13 @@ public class Users_controller {
     // USER INTERACTION IN THE APP
 
     @PostMapping("/user/article/new_article")
-    @Operation(summary = "CREATE: create an article of a user", tags={"Article", "User"})
+    @Operation(summary = "CREATE: create an article of a user", tags={"Article"})
     public CompletableFuture<Articles> createArticle(@RequestBody createArticleRequest request, Authentication auth) throws JsonProcessingException {
         return usersService.createArticle(auth.getName(), request);
     }
 
     @PutMapping("/user/article/edit/{articleId}")
-    @Operation(summary = "UPDATE: modify a specific User Article", tags={"Article", "User"})
+    @Operation(summary = "UPDATE: modify a specific User Article", tags={"Article"})
     public CompletableFuture<Articles> modifyArticle(@PathVariable String articleId,
                                   @RequestBody createArticleRequest request,
                                   Authentication auth) throws JsonProcessingException {
@@ -70,7 +70,7 @@ public class Users_controller {
     }
 
     @DeleteMapping("/admin/user/article/delete/{articleId}")
-    @Operation(summary = "DELETE: delete a specific User Article", tags={"Article","User","Admin"})
+    @Operation(summary = "DELETE: delete a specific User Article", tags={"Article"})
     public CompletableFuture<String> deleteArticle(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
         return usersService.deleteArticle(auth.getName(), articleId);
     }

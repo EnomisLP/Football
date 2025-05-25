@@ -15,7 +15,7 @@ public class updateFifaTeam {
     private Integer fifa_version;
     private String home_stadium;
     private Integer overall;
-    private Long club_worth_eur;
+    private Integer club_worth_eur;
     private Integer attack;
     private Integer defence;
     private Integer midfield;

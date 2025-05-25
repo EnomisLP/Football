@@ -28,26 +28,26 @@ public class Articles_node_controller {
     }
 
     @GetMapping("admin/articleNode/articles")
-    @Operation(summary = "Get all articles with pagination", tags={"Admin"})
+    @Operation(summary = "Get all articles with pagination", tags={"Admin:Article"})
     public Page<ArticlesNode> getAllArticles(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         PageRequest pageable = PageRequest.of(page, size);
         return articlesNodeService.getAllArticles(pageable);
     }
 
     @GetMapping("admin/articleNode/{articleId}")
-    @Operation(summary = "Get article by ID", tags={"Admin"})
+    @Operation(summary = "Get article by ID", tags={"Admin:Article"})
     public ArticlesNode getArticle(@PathVariable Long articleId) {
         return articlesNodeService.getArticle(articleId);
     }
     
     @PostMapping("admin/map/wrote_relationships")
-    @Operation(summary = "Map all wrote relationships", tags={"Admin","Map"})
+    @Operation(summary = "Map all wrote relationships", tags={"Admin:Map"})
     public String mapAllWroteRelationships() {
         return articlesNodeService.MappAllWroteRelationships();
     }
 
     @PostMapping("admin/map/articles")
-    @Operation(summary = "Map all articles", tags={"Admin","Map"})
+    @Operation(summary = "Map all articles", tags={"Admin:Map"})
     public String mapAllArticles() {
         return articlesNodeService.MappAllArticles();
     }

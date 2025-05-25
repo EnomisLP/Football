@@ -1,5 +1,6 @@
 package com.example.demo.services.MongoDB;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -83,7 +84,9 @@ public class Users_service {
         Optional<Users> optionalUser = Ur.findByUsername(request.getUsername());
         if(!optionalUser.isPresent()){
             Users userNew = new Users();
-            Date signUpDate = new Date();
+            LocalDateTime currentDate = LocalDateTime.now();
+            DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            String signUpDate=currentDate.format(timeFormat);
             
             userNew.setUsername(request.getUsername());
             userNew.setRoles(request.getRoles());
@@ -192,13 +195,15 @@ public CompletableFuture<Articles> createArticle(String username, createArticleR
         throw new RuntimeException("User not found with username: " + username);
     }
     Users existingUser = optionalUser.get();
-
+    LocalDateTime currentDate =  LocalDateTime.now();
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    String publishTime = currentDate.format(timeFormatter);
     // 2. Save Article in MongoDB
     Articles newArticle = new Articles();
     newArticle.setAuthor(existingUser.getUsername());
     newArticle.setTitle(request.getTitle());
     newArticle.setContent(request.getContent());
-    newArticle.setPublish_time(new Date().toString());
+    newArticle.setPublish_time(publishTime);
 
     Articles savedArticle = Ar.save(newArticle);
 

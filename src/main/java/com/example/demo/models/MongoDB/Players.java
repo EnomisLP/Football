@@ -1,6 +1,7 @@
 package com.example.demo.models.MongoDB;
 
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -10,19 +11,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 
-import lombok.AllArgsConstructor;
+
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 @Getter
 @Setter
-@AllArgsConstructor
 @Data
 @Document(collection ="Players")
 public class Players {
-    public Players() {
-        
-    }
 
     @Id
     @GeneratedValue
@@ -50,4 +47,75 @@ public class Players {
     private String gender;
 
     //Cunstructors, Getters, Setters automatically generated
+  public Players() {
+    this.fifaStats = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+        FifaStatsPlayer stats = new FifaStatsPlayer();
+        stats.setFifa_version(99);
+        stats.setPlayer_positions("NA");
+        stats.setOverall(-1);
+        stats.setPotential(-1);
+        stats.setValue_eur(-1);
+        stats.setClub_position("NA");
+        stats.setClub_jersey_number(-1);
+        stats.setClubContractValidUntilYear(2999);
+        stats.setLeague_name("DefaultLeague");
+        stats.setLeague_level(-1);
+
+        TeamObj team = new TeamObj();
+        team.setTeam_mongo_id("XXXXXXXXXXXX");
+        team.setTeam_name("DefaultTeam");
+        stats.setTeam(team);
+
+        stats.setPace(-1);
+        stats.setShooting(-1);
+        stats.setPassing(-1);
+        stats.setDribbling(-1);
+        stats.setDefending(-1);
+        stats.setPhysic(-1);
+
+        stats.setAttacking_crossing(-1);
+        stats.setAttacking_finishing(-1);
+        stats.setAttacking_heading_accuracy(-1);
+        stats.setAttacking_short_passing(-1);
+        stats.setAttacking_volleys(-1);
+
+        stats.setSkill_dribbling(-1);
+        stats.setSkill_curve(-1);
+        stats.setSkill_fk_accuracy(-1);
+        stats.setSkill_long_passing(-1);
+        stats.setSkill_ball_control(-1);
+
+        stats.setMovement_acceleration(-1);
+        stats.setMovementSprintSpeed(-1);
+        stats.setMovement_agility(-1);
+        stats.setMovement_reactions(-1);
+        stats.setMovement_balance(-1);
+
+        stats.setPower_shot_power(-1);
+        stats.setPower_jumping(-1);
+        stats.setPower_stamina(-1);
+        stats.setPower_strength(-1);
+        stats.setPower_long_shots(-1);
+
+        stats.setMentality_aggression(-1);
+        stats.setMentality_interceptions(-1);
+        stats.setMentality_positioning(-1);
+        stats.setMentality_vision(-1);
+        stats.setMentality_penalties(-1);
+
+        stats.setDefending_marking_awareness(-1);
+        stats.setDefending_standing_tackle(-1);
+        stats.setDefending_sliding_tackle(-1);
+
+        stats.setGoalkeeping_diving(-1);
+        stats.setGoalkeeping_handling(-1);
+        stats.setGoalkeeping_kicking(-1);
+        stats.setGoalkeeping_positioning(-1);
+        stats.setGoalkeeping_reflexes(-1);
+
+        this.fifaStats.add(stats);
+    }
+}
+
 }
