@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -15,20 +17,19 @@ import com.example.demo.projections.TeamsNodeDTO;
 
 
 @Repository
-public interface Teams_node_rep extends Neo4jRepository<TeamsNode,Long>{
+public interface Teams_node_rep extends Neo4jRepository<TeamsNode,String>{
     boolean existsByMongoId(String valueOf);
     Optional<TeamsNode> findByMongoId(String get_id);
     
     @Query(
-    value = "MATCH (t:TeamsNode {gender: $gender}) " +
-            "OPTIONAL MATCH (t)<-[:PLAYS_IN_TEAM]-(p:PlayersNode) " +
-            "OPTIONAL MATCH (t)<-[:HAS_IN_M_TEAM|HAS_IN_F_TEAM]-(u:UsersNode) " +
-            "OPTIONAL MATCH (t)<-[:LIKES_TEAM]-(u2:UsersNode) " +
-            "RETURN DISTINCT t, COLLECT(DISTINCT p) AS players, COLLECT(DISTINCT u) AS users, COLLECT(DISTINCT u2) AS likes",
-    countQuery = "MATCH (t:TeamsNode {gender: $gender}) RETURN count(DISTINCT t)"
-)
-    Page<TeamsNode> findAllByGenderWithPagination(String gender, PageRequest pageRequest);
+        value = "MATCH (t:TeamsNode {gender: $gender}) " +
+                "RETURN  t SKIP $skip LIMIT $limit",
+        countQuery = "MATCH (t:TeamsNode {gender: $gender}) RETURN count(t)"
+    )
+    Page<TeamsNode> findAllByGenderWithPagination(@Param("gender") String gender, Pageable pageable);
+    
     List<TeamsNode> findAllByGender(String gender);
+    
     @Query( "MATCH (t:TeamsNode {mongoId: $mongoId})<-[r:PLAYS_IN_TEAM]->(p:PlayersNode) "+
     "WHERE r.fifaVersion = $fifaV "+
     "RETURN { mongoId: p.mongoId, longName: p.longName, gender: p.gender} AS playerProjection")

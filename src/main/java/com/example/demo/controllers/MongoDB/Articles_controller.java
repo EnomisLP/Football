@@ -34,5 +34,11 @@ public class Articles_controller {
         PageRequest pageable = PageRequest.of(page, size);
         return articlesService.getAllArticles(pageable);
     }
+    
+    @DeleteMapping("admin/article/delete/{articleId}")
+    @Operation(summary = "DELETE: delete a specific article of an User", tags={"Admin:Article"})
+    public CompletableFuture<String> deleteArticle(@PathVariable String articleId) {
+        return articleService.deleteArticle(articleId);
+    }
 
 }

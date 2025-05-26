@@ -74,7 +74,7 @@ public class Users_controller {
     }
 
     @DeleteMapping("article/delete/{articleId}")
-    @Operation(summary = "DELETE: delete a specific User Article", tags={"Article"})
+    @Operation(summary = "DELETE: delete a specific article of an User", tags={"Article"})
     public CompletableFuture<String> deleteArticle(@PathVariable String articleId, Authentication auth) {
         return usersService.deleteArticle(auth.getName(), articleId);
     }

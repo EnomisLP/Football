@@ -65,7 +65,7 @@ public class Coaches_node_controller{
     public String mapAllNodes() {
         return coachesMNodeService.MapAllTheNodes();
     }
-    @PostMapping("Coaches_Node/admin/{gender}")
+    @PostMapping("admin/map/manages_relationship/{gender}")
     @Operation(summary = "MAP all MANAGES_TEAMS relationships", tags={"Admin:Map"})
     public String mapManagesTeam(@PathVariable String gender){
         return coachesMNodeService.MapAllManagesTeam(gender);

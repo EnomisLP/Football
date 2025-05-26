@@ -16,7 +16,7 @@ public class CoachesNodeJsonComponent {
         @Override
         public void serialize(CoachesNode coach, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             gen.writeStartObject();
-            gen.writeNumberField("id", coach.get_id());
+            gen.writeStringField("id", coach.get_id());
             gen.writeStringField("mongoId", coach.getMongoId());
             gen.writeStringField("longName", coach.getLongName());
             gen.writeStringField("gender", coach.getGender());
@@ -32,7 +32,7 @@ public class CoachesNodeJsonComponent {
             JsonNode node = codec.readTree(parser);
 
             CoachesNode coach = new CoachesNode();
-            if (node.has("id")) coach.set_id(node.get("id").asLong());
+            if (node.has("id")) coach.set_id(node.get("id").asText());
             if (node.has("mongoId")) coach.setMongoId(node.get("mongoId").asText());
             if (node.has("longName")) coach.setLongName(node.get("longName").asText());
             if (node.has("gender")) coach.setGender(node.get("gender").asText());

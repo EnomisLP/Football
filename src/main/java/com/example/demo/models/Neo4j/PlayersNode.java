@@ -31,7 +31,7 @@ public class PlayersNode{
 
     @Id
     @GeneratedValue
-    private Long _id;
+    private String _id;
 
     @Property(name ="mongoId")
     @Indexed(unique = true)

@@ -14,7 +14,7 @@ import com.example.demo.projections.UsersNodeProjection;
 
 
 @Repository
-public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
+public interface Users_node_rep extends Neo4jRepository<UsersNode, String>{
 
     boolean existsByMongoId(String valueOf);
     Optional<UsersNode> findByMongoId(String get_id);

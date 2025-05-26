@@ -17,7 +17,7 @@ public class UsersNodeJsonComponent {
         @Override
         public void serialize(UsersNode user, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             gen.writeStartObject();
-            gen.writeNumberField("id", user.get_id());
+            gen.writeStringField("id", user.get_id());
             gen.writeStringField("mongoId", user.getMongoId());
             gen.writeStringField("userName", user.getUserName());
             // You can choose what to expose. Relationships are ignored to avoid cycles.
@@ -32,7 +32,7 @@ public class UsersNodeJsonComponent {
             ObjectCodec codec = parser.getCodec();
             JsonNode tree = codec.readTree(parser);
 
-            Long id = tree.has("id") ? tree.get("id").asLong() : null;
+            String id = tree.has("id") ? tree.get("id").asText() : null;
             String mongoId = tree.has("mongoId") ? tree.get("mongoId").asText() : null;
             String userName = tree.has("userName") ? tree.get("userName").asText() : null;
 

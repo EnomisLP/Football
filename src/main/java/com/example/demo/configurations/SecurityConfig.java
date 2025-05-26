@@ -30,7 +30,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/v1/user/{_id}/**","api/v1/user/team/**",
+                .requestMatchers("/api/v1/user/{_id}/**","/api/v1/user/team/**",
                                  "/api/v1/player/{_id}/**","/api/v1/team/{_id}/**",
                                  "/api/v1/coach/{_id}/**","/api/v1/article/{_id}/**",
                                  "/api/v1/article/new","/api/v1/article/edit/{_id}",

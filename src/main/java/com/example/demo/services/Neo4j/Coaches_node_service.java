@@ -141,6 +141,9 @@ public class Coaches_node_service {
                     System.err.println("Coach mongo ID is null for coach: " + fifaStat.getCoach().getCoach_name());
                     continue;
                 }
+                if(mongoId.equals("XXXXXXXXXXXX")){
+                    continue;
+                }
                 Optional<Coaches> optionalCoach = Cmr.findById(mongoId);
                 if (optionalCoach.isEmpty()) {
                     System.err.println("Coach with id: " + mongoId + " not correctly mapped in MongoDB");

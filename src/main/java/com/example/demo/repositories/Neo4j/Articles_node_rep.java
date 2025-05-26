@@ -27,8 +27,11 @@ public interface Articles_node_rep extends Neo4jRepository<ArticlesNode, Long> {
            "RETURN a")
     List<ArticlesNode> findByAuthor(String userName);
 
-@Query("MATCH (n:ArticlesNode) RETURN n.mongoId AS mongoId, n.title AS title, n.author AS author")
-List<ArticlesNodeDTO> findAllLight();
+    @Query("MATCH (n:ArticlesNode) RETURN n.mongoId AS mongoId, n.title AS title, n.author AS author")
+    List<ArticlesNodeDTO> findAllLight();
+    
+    @Query("MATCH (a:articleNode {mongoId: $mongoId}) DETACH DELETE a")
+    void deleteArticleByMongoId(@Param("mongoId") String mongoId);
 
     
 }
