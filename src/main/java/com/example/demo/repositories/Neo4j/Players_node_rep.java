@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -15,14 +16,13 @@ public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
 
     boolean existsByMongoId(String mongoId);
     Optional<PlayersNode> findByMongoId(String get_id);
+    
     @Query(
-    value = "MATCH (p:PlayersNode {gender: }) " +
-            "OPTIONAL MATCH (p)-[:PLAYS_IN_TEAM]->(t:TeamsNode) " +
-            "OPTIONAL MATCH (u:UsersNode)-[:HAS_IN_M_TEAM|HAS_IN_F_TEAM]->(p) " +
-            "RETURN DISTINCT p, COLLECT(DISTINCT t) AS teams, COLLECT(DISTINCT u) AS users",
-    countQuery = "MATCH (p:PlayersNode {gender: }) RETURN count(DISTINCT p)"
+    value = "MATCH (p:PlayersNode {gender: $gender}) RETURN p SKIP $skip LIMIT $limit",
+    countQuery = "MATCH (p:PlayersNode {gender: $gender}) RETURN count(p)"
 )
-    Page<PlayersNode> findAllByGenderWithPagination(String gender, PageRequest page);
+    Page<PlayersNode> findAllByGenderWithPagination(String gender, Pageable page);
+    
     List<PlayersNode> findAllByGender(String gender);
     Optional<PlayersNode> findByLongName(String string);
 

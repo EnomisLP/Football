@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -16,14 +17,13 @@ public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
 
     boolean existsByMongoId(String valueOf);
     Optional<CoachesNode> findByMongoId(String id);
+    
     @Query(
-        value = "MATCH (c:CoachesNode {gender: $gender}) " +
-                "OPTIONAL MATCH (c)-[:MANAGES_TEAM]->(t:TeamsNode) " +
-                "OPTIONAL MATCH (u:UsersNode)-[:LIKES_COACH]->(c) " +
-                "RETURN DISTINCT c, COLLECT(DISTINCT t) AS teams, COLLECT(DISTINCT u) AS users",
-        countQuery = "MATCH (c:CoachesNode {gender: $gender}) RETURN count(DISTINCT c)"
+        value = "MATCH (c:CoachesNode {gender: $gender}) RETURN  c SKIP $skip LIMIT $limit",
+        countQuery = "MATCH (c:CoachesNode {gender: $gender}) RETURN count(c)"
     )
-    Page<CoachesNode> findAllByGenderWithPagination(String gender, PageRequest page);
+    Page<CoachesNode> findAllByGenderWithPagination(String gender, Pageable pageable);
+    
     List<CoachesNode> findAllByGender(String gender);
 
     @Query("MATCH (c:CoachesNode) -[r:MANAGES_TEAM]-> (t:TeamsNode) " +
