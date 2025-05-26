@@ -32,14 +32,15 @@ public class NodeService {
     // Method to find the most famous team based on the number of likes from users to players of specific FIFA version
     public Collection<TopTeam> findMostFamousTeam(int fifaVersion) {
         return this.neo4jClient.query(
-            "MATCH (p:PlayersNode)-[r:PLAYS_IN_TEAM]->(t:TeamsNode) " +
-            "WHERE r.fifaVersion = $fifaVersion " +
-            "WITH t, p " +
-            "MATCH (u:UsersNode)-[l:LIKES]->(p) " +
-            "WITH t, COUNT(l) AS fame " +
-            "WITH t, SUM(fame) AS totalFame " +
-            "RETURN t AS teamNode, totalFame " +
-            "ORDER BY totalFame DESC " +
+            "MATCH (p:PlayersNode)-[r:PLAYS_IN_TEAM]->(t:TeamsNode) "+
+            "WHERE r.fifaVersion = $fifaVersion "+
+            "WITH t, COLLECT(DISTINCT p) AS teamPlayers "+
+            "UNWIND teamPlayers AS player "+
+            "OPTIONAL MATCH (u:UsersNode)-[l:LIKES]->(player) "+
+            "WITH t, player, COUNT(l) AS playerFame "+
+            "WITH t, SUM(playerFame) AS totalFame "+
+            "RETURN t AS teamNode, totalFame "+
+            "ORDER BY totalFame DESC "+
             "LIMIT 10")
                 .bind(fifaVersion).to("fifaVersion")
                 .fetchAs(TopTeam.class)
@@ -51,7 +52,7 @@ public class NodeService {
                     else{
                     TeamsNode team = new TeamsNode();
                     team.setMongoId(teamNode.get("mongoId").asString());
-                    team.setLongName(teamNode.get("teamName").asString());
+                    team.setLongName(teamNode.get("longName").asString());
                     team.setGender(teamNode.get("gender").asString());
                     Integer totalFame = record.get("totalFame").asInt();
                     return new TopTeam(team, totalFame);

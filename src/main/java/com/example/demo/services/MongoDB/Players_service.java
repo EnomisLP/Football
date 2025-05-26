@@ -207,6 +207,7 @@ public class Players_service {
                         stat.setMovement_agility(request.getMovement_agility());
                         stat.setMovement_reactions(request.getMovement_reactions());
                         stat.setMovement_balance(request.getMovement_balance());
+                        stat.setMovement_sprint_speed(request.getMovement_sprint_speed());
                         stat.setPower_shot_power(request.getPower_shot_power());
                         stat.setPower_jumping(request.getPower_jumping());
                         stat.setPower_stamina(request.getPower_stamina());
@@ -333,10 +334,10 @@ public class Players_service {
                         stat.setPlayer_positions("NA");
                         stat.setOverall(-1);
                         stat.setPotential(-1);
-                        stat.setValue_eur(-1);
+                        stat.setValue_eur((long) -1);
                         stat.setClub_position("NA");
                         stat.setClub_jersey_number(-1);
-                        stat.setClubContractValidUntilYear(2999);
+                        stat.setClub_contract_valid_until_year(2999);
                         stat.setLeague_name("DefaultLeague");
                         stat.setLeague_level(-1);
 
@@ -363,7 +364,7 @@ public class Players_service {
                         stat.setSkill_ball_control(-1);
 
                         stat.setMovement_acceleration(-1);
-                        stat.setMovementSprintSpeed(-1);
+                        stat.setMovement_sprint_speed(-1);
                         stat.setMovement_agility(-1);
                         stat.setMovement_reactions(-1);
                         stat.setMovement_balance(-1);

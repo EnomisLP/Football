@@ -148,13 +148,7 @@ public class Coaches_node_service {
                 }
     
                 Coaches existingCoach = optionalCoach.get();
-                Optional<CoachesNode> optionalCoachNode = CMn.findByMongoId(existingCoach.get_id());
-                Optional<TeamsNode> optionalTeamNode = TMn.findByMongoId(teamNode.getMongoId());
-                if (optionalCoachNode.isEmpty() || optionalTeamNode.isEmpty()) {
-                    System.err.println("Team node with id: " + teamNode.getMongoId() + " not correctly mapped in Neo4j or Coach node with id: " + existingCoach.get_id());
-                    continue;
-                }
-                CMn.createManagesRelationToTeam(optionalCoachNode.get().getMongoId(), optionalTeamNode.get().getMongoId(), fifaStat.getFifa_version());
+                CMn.createManagesRelationToTeam(existingCoach.get_id(), teamNode.getMongoId(), fifaStat.getFifa_version());
                 
                 counter++;
             }

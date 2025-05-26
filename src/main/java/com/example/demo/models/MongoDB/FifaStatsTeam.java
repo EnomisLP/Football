@@ -17,7 +17,7 @@ public class FifaStatsTeam {
     private Integer fifa_version;
     private String home_stadium;
     private Integer overall;
-    private Integer club_worth_eur;
+    private Long club_worth_eur;
     private Integer attack;
     private Integer defence;
     private Integer midfield;

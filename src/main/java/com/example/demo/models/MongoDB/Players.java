@@ -55,10 +55,10 @@ public class Players {
         stats.setPlayer_positions("NA");
         stats.setOverall(-1);
         stats.setPotential(-1);
-        stats.setValue_eur(-1);
+        stats.setValue_eur((long) -1);
         stats.setClub_position("NA");
         stats.setClub_jersey_number(-1);
-        stats.setClubContractValidUntilYear(2999);
+        stats.setClub_contract_valid_until_year(2999);
         stats.setLeague_name("DefaultLeague");
         stats.setLeague_level(-1);
 
@@ -87,7 +87,7 @@ public class Players {
         stats.setSkill_ball_control(-1);
 
         stats.setMovement_acceleration(-1);
-        stats.setMovementSprintSpeed(-1);
+        stats.setMovement_sprint_speed(-1);
         stats.setMovement_agility(-1);
         stats.setMovement_reactions(-1);
         stats.setMovement_balance(-1);

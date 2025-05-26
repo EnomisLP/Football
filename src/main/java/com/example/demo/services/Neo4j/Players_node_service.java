@@ -83,7 +83,7 @@ public class Players_node_service {
     @Transactional
     public String doMapAllTheNodes(){
         List<Players> Allplayers = PMr.findAll();
-        List<PlayersNode> nodeToInsert = new ArrayList<>();
+        Integer nodeToInsert = 0;
         System.out.println("Players found :" + Allplayers.size());
         for (Players player : Allplayers) {
             // Check if the player node already exists in Neo4j
@@ -98,10 +98,11 @@ public class Players_node_service {
             playerNode.setAge(player.getAge());
             playerNode.setNationalityName(player.getNationality_name());
             playerNode.setGender(player.getGender());
-            nodeToInsert.add(playerNode);
+            nodeToInsert++;
+            PMn.save(playerNode);
         }
-        PMn.saveAll(nodeToInsert);
-        return "The amount of PlayersNode created are: " + nodeToInsert.size();
+        
+        return "The amount of PlayersNode created are: " + nodeToInsert;
     }
     public String MapAllPlaysInTeamRel(String gender) {
         int counter = 0;
@@ -136,20 +137,13 @@ public class Players_node_service {
                     }
 
                 Teams existingTeam = optionalTeam.get();
-                Optional<TeamsNode> optionalTeamNode = TMn.findByMongoId(existingTeam.get_id());
-                Optional<PlayersNode> optionalPlayerNode = PMn.findByMongoId(playerNode.getMongoId());
-                if (optionalTeamNode.isEmpty() || optionalPlayerNode.isEmpty()) {
-                    System.err.printf("No Team or Player found in Neo4j for team name:", existingTeam.get_id());
-                    continue;
-                }
                 PMn.createPlaysInTeamRelationToTeam(playerNode.getMongoId(), existingTeam.get_id(), fifaStat.getFifa_version());
                 
                     counter++;
-                
-                    
+
                 }
             }
-        
+
         return "Number of relationships created: " + counter;
     }
 

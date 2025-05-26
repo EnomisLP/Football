@@ -16,8 +16,8 @@ public class FifaStatsPlayer {
     private String player_positions;
     private Integer overall;
     private Integer potential;
-    private Integer value_eur;
-    private Integer wage_eur;
+    private Long value_eur;
+    private Long wage_eur;
     private String club_position;
     private Integer club_jersey_number;
     private Integer club_contract_valid_until_year;
@@ -43,6 +43,7 @@ public class FifaStatsPlayer {
     private Integer movement_agility;
     private Integer movement_reactions;
     private Integer movement_balance;
+    private Integer movement_sprint_speed;
     private Integer power_shot_power;
     private Integer power_jumping;
     private Integer power_stamina;
@@ -62,12 +63,4 @@ public class FifaStatsPlayer {
     private Integer goalkeeping_positioning;
     private Integer goalkeeping_reflexes;
     private TeamObj team;
-    public void setClubContractValidUntilYear(int i) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setClubContractValidUntilYear'");
-    }
-    public void setMovementSprintSpeed(int i) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setMovementSprintSpeed'");
-    }
 }

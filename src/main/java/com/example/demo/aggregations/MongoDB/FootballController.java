@@ -26,7 +26,7 @@ public class FootballController {
     @Autowired
     private FootballService footballService;
 
-    @GetMapping("admin/analytics/user/signupsSummary/{year}")
+    @GetMapping("admin/analytics/signupsSummary/{year}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved subscription summary"),
             @ApiResponse(responseCode = "404", description = "Summary not found"),

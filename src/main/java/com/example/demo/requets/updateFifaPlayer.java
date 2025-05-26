@@ -16,8 +16,8 @@ public class updateFifaPlayer {
     private String player_positions;
     private Integer overall;
     private Integer potential;
-    private Integer value_eur;
-    private Integer wage_eur;
+    private Long value_eur;
+    private Long wage_eur;
     private String club_position;
     private Integer club_jersey_number;
     private Integer club_contract_valid_until_year;
@@ -40,7 +40,7 @@ public class updateFifaPlayer {
     private Integer skill_long_passing;
     private Integer skill_ball_control;
     private Integer movement_acceleration;
-    private Integer movement_sprintSpeed;
+    private Integer movement_sprint_speed;
     private Integer movement_agility;
     private Integer movement_reactions;
     private Integer movement_balance;

@@ -54,7 +54,7 @@ public class Teams {
         stats.setAttack(-1);
         stats.setMidfield(-1);
         stats.setDefence(-1);
-        stats.setClub_worth_eur(-1);
+        stats.setClub_worth_eur((long) -1);
 
         CoachObj coach = new CoachObj();
         coach.setCoach_mongo_id("XXXXXXXXXXXX");

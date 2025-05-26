@@ -30,8 +30,8 @@ public class NodeController {
         return teamsNodeService.findMostFamousTeam(fifaVersion);
     }
 
-    @GetMapping("admin/user/analytics/player/mostEngaged")
-    @Operation(summary = "Get the most engaged player", tags={"Aggregation"})
+    @GetMapping("admin/analytics/player/mostEngaged")
+    @Operation(summary = "Get the most engaged player", tags={"Admin:Aggregation"})
     public Collection<MostEngaggedPlayer> getMostEngagedPlayer() {
         return teamsNodeService.findMostEngagedPlayer();
     }

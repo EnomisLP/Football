@@ -398,7 +398,7 @@ public class Teams_service {
                         fifaStat.setAttack(-1);
                         fifaStat.setMidfield(-1);
                         fifaStat.setDefence(-1);
-                        fifaStat.setClub_worth_eur(-1);
+                        fifaStat.setClub_worth_eur((long) -1);
 
                         fifaStat.getCoach().setCoach_mongo_id("XXXXXXXXXXXX");
                         fifaStat.getCoach().setCoach_name("DefaultCoachName");
