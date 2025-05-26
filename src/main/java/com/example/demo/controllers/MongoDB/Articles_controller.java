@@ -7,6 +7,12 @@ import com.example.demo.services.MongoDB.Articles_service;
 
 import io.swagger.v3.oas.annotations.Operation;
 
+import java.util.concurrent.CompletableFuture;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -33,6 +39,12 @@ public class Articles_controller {
                                          @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
         return articlesService.getAllArticles(pageable);
+    }
+    
+    @DeleteMapping("admin/article/delete/{articleId}")
+    @Operation(summary = "Delete an article by its id", tags={"Admin:Article"})
+    public CompletableFuture<String> deleteArticle(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
+        return articlesService.deleteArticle(auth.getName(), articleId);
     }
 
 }
