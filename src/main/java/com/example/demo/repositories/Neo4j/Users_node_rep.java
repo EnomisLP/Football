@@ -2,13 +2,18 @@ package com.example.demo.repositories.Neo4j;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.example.demo.models.Neo4j.UsersNode;
+import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.projections.UsersNodeDTO;
 import com.example.demo.projections.UsersNodeProjection;
+import com.example.demo.relationships.has_in_F_team;
+import com.example.demo.relationships.has_in_M_team;
 
 
 
@@ -19,6 +24,9 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
     boolean existsByMongoId(String valueOf);
     Optional<UsersNode> findByMongoId(String get_id);
     Optional<UsersNode> findByUserName(String username);
+    @Query("MATCH (u:UsersNode {userName: $username}) " +
+           "RETURN u { .mongoId, .userName } AS UsersNodeDTO")
+    Optional<UsersNodeDTO> findByUserNameLight(String username);
 
 
     //REPOSITORIES FOR USERS INTERACTIONS
@@ -72,6 +80,14 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
   "AND p.mongoId = $mongoId " +
   "RETURN u")
   List<UsersNode> findUsersByMongoIdAndFifaVersion(String mongoId, Integer fifaV);
+ @Query("MATCH (u:UsersNode {userName: $username})-[r:HAS_IN_M_TEAM]->(p:PlayersNode) " +
+ "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender, r.fifaVersion AS fifaV")
+  List<PlayersNodeDTO> findHasInMTeamRelationshipsByUsername(String username);
+
+  @Query("MATCH (u:UsersNode {userName: $username})-[r:HAS_IN_F_TEAM]->(p:PlayersNode) " +
+ "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender, r.fifaVersion AS fifaV")
+  List<PlayersNodeDTO> findHasInFTeamRelationshipsByUsername(String username);
+
   @Query("MATCH (u:UsersNode {userName: $from}), (a:ArticlesNode {mongoId: $articleId}) "+
   "MERGE (u)-[:LIKES]->(a)")
   void createLikeRelationToArticle(@Param("from") String username, @Param("articleId") String articleId);
@@ -79,6 +95,23 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
   @Query("MATCH (u:UsersNode {userName: $from}), (a:ArticlesNode {mongoId: $articleId}) "+
   "MERGE (u)-[:WROTE]->(a)")
   void createWroteRelationToArticle(@Param("from") String username, @Param("articleId") String articleId);
+
+  @Query("MATCH (u:UsersNode {userName: $from}), (a:PlayersNode {mongoId: $playerId}) "+
+  "MERGE (u)-[:HAS_IN_M_TEAM {fifaVersion : $fifaV}]->(a)")
+  void createHasInMTeamRelation(@Param("from") String username, String playerId, Integer fifaV);
+
+  @Query("MATCH (u:UsersNode {userName: $from}), (a:PlayersNode {mongoId: $playerId}) "+
+  "MERGE (u)-[:HAS_IN_F_TEAM {fifaVersion : $fifaV}]->(a)")
+  void createHasInFTeamRelation(@Param("from") String username, String playerId, Integer fifaV);
+
+  @Query("MATCH (u:UsersNode {userName: $from}) -[r:HAS_IN_M_TEAM]->(a:PlayersNode {mongoId: $playerMongoId}) "+
+  "DELETE r")
+  void deleteHasInMTeamRelation(@Param("from") String username,  String playerMongoId);
+
+  @Query("MATCH (u:UsersNode {userName: $from}) -[r:HAS_IN_F_TEAM]->(a:PlayersNode {mongoId: $playerMongoId}) "+
+  "DELETE r")
+  void deleteHasInFTeamRelation(@Param("from") String username,  String playerMongoId);
+
   @Query("MATCH (u:UsersNode {userName: $from}) -[r:LIKES]->(a:ArticlesNode {mongoId: $articleId}) "+
   "DELETE r")
   void deleteLikeRelationToArticle(@Param("from") String username, @Param("articleId") String articleId);
@@ -95,12 +128,25 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
 
 
   @Query("""
-    MATCH (u:UsersNode {mongoId: $mongoId})
+    MATCH (u:UsersNode {userName: $userName})
     DETACH DELETE u
 """)
-void deleteUserByMongoId(@Param("mongoId") String mongoId);
+void deleteUserByUserNameLight(@Param("userName") String userName);
 
 @Query("MATCH (n:UsersNode) RETURN n.mongoId AS mongoId, n.userName AS userName")
 List<UsersNodeDTO> findAllLight();
 
+@Query(value = "MATCH (n:UsersNode) RETURN n.mongoId AS mongoId, n.userName AS userName",
+        countQuery = "MATCH (n:UsersNode) RETURN count(n)")
+Page<UsersNodeDTO> findAllLightWithPagination(PageRequest pageRequest);
+@Query("MATCH (u:UsersNode {userName: $userName}) " +
+       "SET u.userName = $newUserName")
+void updateUserNameByUserName(String userName, String newUserName);
+
+@Query("MATCH (u:UsersNode {userName: $userName})-[r:HAS_IN_M_TEAM]->() " +
+"RETURN count(r)")
+Integer countPlayersInMTeamByUsername(String userName);
+@Query("MATCH (u:UsersNode {userName: $userName})-[r:HAS_IN_F_TEAM]->() " +
+"RETURN count(r)")
+Integer countPlayersInFTeamByUsername(String userName);
 }

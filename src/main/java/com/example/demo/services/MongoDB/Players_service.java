@@ -14,6 +14,8 @@ import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.models.Neo4j.PlayersNode;
 import com.example.demo.models.Neo4j.TeamsNode;
 import com.example.demo.models.Neo4j.UsersNode;
+import com.example.demo.projections.PlayersNodeDTO;
+import com.example.demo.projections.TeamsNodeDTO;
 import com.example.demo.relationships.has_in_F_team;
 import com.example.demo.relationships.has_in_M_team;
 import com.example.demo.relationships.plays_in_team;
@@ -48,6 +50,7 @@ public class Players_service {
         this.PMs = PMs;
         this.TMr = TMr;
         this.Unr = Unr;
+        this.TMs = TMs;
     }
     
     //READ
@@ -97,9 +100,9 @@ public class Players_service {
         Optional<Players> optionalPlayer = PMr.findById(id);
         if (optionalPlayer.isPresent()) {
             Players existingPlayer = optionalPlayer.get();
-            Optional<PlayersNode> optionalPlayerNode = Pmr.findByMongoId(existingPlayer.get_id());
+            Optional<PlayersNodeDTO> optionalPlayerNode = Pmr.findByMongoIdLight(existingPlayer.get_id());
             if(optionalPlayerNode.isPresent()){
-                PlayersNode existingPlayerNode = optionalPlayerNode.get();
+                
                 existingPlayer.setAge(playerDetails.getAge());
                 existingPlayer.setDob(playerDetails.getDob());
                 existingPlayer.setLong_name(playerDetails.getLong_name());
@@ -108,11 +111,13 @@ public class Players_service {
                 existingPlayer.setWeight_kg(playerDetails.getWeight_kg());
                 existingPlayer.setGender(playerDetails.getGender());
             
-                existingPlayerNode.setAge(playerDetails.getAge());
-                existingPlayerNode.setLongName(playerDetails.getLong_name());
-                existingPlayerNode.setGender(playerDetails.getGender());
-               
-                Pmr.save(existingPlayerNode);
+               Pmr.updatePlayerAttributes(
+                    existingPlayer.get_id(),
+                    playerDetails.getLong_name(),
+                    playerDetails.getGender(),
+                    playerDetails.getAge()
+                );
+                
                 // Save the updated player back to the repository
                 return PMr.save(existingPlayer);
             }
@@ -242,56 +247,42 @@ public class Players_service {
     
     @Transactional
     public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer request) {
-    Players existingPlayer = PMr.findById(id)
-        .orElseThrow(() -> new RuntimeException("Player not found in MongoDB"));
+        Players existingPlayer = PMr.findById(id)
+            .orElseThrow(() -> new RuntimeException("Player not found in MongoDB"));
 
-    PlayersNode existingPlayerNode = Pmr.findByMongoId(existingPlayer.get_id())
-        .orElseThrow(() -> new RuntimeException("Player not found in Neo4j"));
+        PlayersNodeDTO existingPlayerNode = Pmr.findByMongoIdLight(existingPlayer.get_id())
+            .orElseThrow(() -> new RuntimeException("Player not found in Neo4j"));
 
-    Teams existingTeam = TMr.findById(request.getTeam_mongo_id())
-        .orElseThrow(() -> new RuntimeException("Team not found in MongoDB"));
+        Teams existingTeam = TMr.findById(request.getTeam_mongo_id())
+            .orElseThrow(() -> new RuntimeException("Team not found in MongoDB"));
 
-    TeamsNode existingTeamNode = TMs.findByMongoId(request.getTeam_mongo_id())
-        .orElseThrow(() -> new RuntimeException("Team not found in Neo4j"));
+        TeamsNodeDTO existingTeamNode = TMs.findByMongoIdLight(request.getTeam_mongo_id())
+            .orElseThrow(() -> new RuntimeException("Team not found in Neo4j"));
 
-    List<FifaStatsPlayer> existingStats = existingPlayer.getFifaStats();
-    FifaStatsPlayer targetStat = existingStats.stream()
-        .filter(stat -> stat.getFifa_version().equals(fifaV))
-        .findFirst()
-        .orElseThrow(() -> new RuntimeException("Fifa version not found for this player"));
+        List<FifaStatsPlayer> existingStats = existingPlayer.getFifaStats();
+        FifaStatsPlayer targetStat = existingStats.stream()
+            .filter(stat -> stat.getFifa_version().equals(fifaV))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Fifa version not found for this player"));
 
-    // Only proceed if team name actually changed
-    if (!existingTeam.get_id().equals(targetStat.getTeam().getTeam_mongo_id())) {
-        List<plays_in_team> teams = existingPlayerNode.getTeamMNodes();
-        if (teams == null || teams.isEmpty()) {
-            throw new RuntimeException("Player has no teams in Neo4j");
+        // Only proceed if team name actually changed
+        if (!existingTeam.get_id().equals(targetStat.getTeam().getTeam_mongo_id())) {
+        
+            Pmr.deletePlaysInTeamRelationToTeam(id, targetStat.getTeam().getTeam_mongo_id(), fifaV);
+            Pmr.createPlaysInTeamRelationToTeam(id, request.getTeam_mongo_id(), fifaV);
+            targetStat.getTeam().setTeam_name(existingTeam.getTeam_name());
+            targetStat.getTeam().setTeam_mongo_id(request.getTeam_mongo_id());
+            targetStat.getTeam().setFifa_version(fifaV);
+            return PMr.save(existingPlayer);
         }
-
-        // Remove the old team mapping for the fifaVersion
-        teams.removeIf(team -> team.getFifaV().equals(fifaV));
-
-        // Add the new one
-        plays_in_team newTeamRelation = new plays_in_team(existingTeamNode, fifaV);
-        teams.add(newTeamRelation);
-        existingPlayerNode.setTeamMNodes(teams);  // Ensure list is set after modification
-        Pmr.save(existingPlayerNode);
-
-        // Update MongoDB reference
-        targetStat.getTeam().setTeam_name(existingTeam.getTeam_name());
-        targetStat.getTeam().setTeam_mongo_id(request.getTeam_mongo_id());
-        targetStat.getTeam().setFifa_version(fifaV);
-
-        return PMr.save(existingPlayer);
+        return existingPlayer; // No change needed
     }
-
-    return existingPlayer; // No change needed
-}
 
     //DELETE
     @Transactional
     public void deletePlayer(String id){
         Optional<Players> player = PMr.findById(id);
-        Optional<PlayersNode> playerNode = Pmr.findByMongoId(id);
+        Optional<PlayersNodeDTO> playerNode = Pmr.findByMongoIdLight(id);
         if(player.isPresent()){
             PMr.deleteById(id);
         }
@@ -299,9 +290,8 @@ public class Players_service {
             throw new RuntimeErrorException(null, "Player not found with id: " + id);
         }
         if(playerNode.isPresent()){
-            PlayersNode existing = playerNode.get();
             //removing relationship in Neo4j
-            PMs.deletePlayer(existing.getMongoId());
+            PMs.deletePlayer(id);
         }
         else{
             throw new RuntimeErrorException(null, "Player not found with id: " + id);
@@ -312,23 +302,16 @@ public class Players_service {
     @Transactional
     public void deleteFifaPlayer(String id, Integer fifaV){
         Optional<Players> player = PMr.findById(id);
-        Optional<PlayersNode> playerNode = Pmr.findByMongoId(id);
+        Optional<PlayersNodeDTO> playerNode = Pmr.findByMongoIdLight(id);
 
         if(player.isPresent()){
             Players existingPlayer = player.get();
             if(playerNode.isPresent()){
-                PlayersNode existing = playerNode.get();
+                
                 List<FifaStatsPlayer> stats = existingPlayer.getFifaStats();
                 for(FifaStatsPlayer stat: stats){
                     if(stat.getFifa_version().equals(fifaV)){
-                        //removing relationship in Neo4j
-                        for(plays_in_team team : existing.getTeamMNodes()){
-                            if(team.getFifaV().equals(stat.getFifa_version())){
-                               existing.getTeamMNodes().remove(team);
-                               Pmr.save(existing);
-                               break;
-                            }
-                        }
+                       Pmr.deletePlaysInTeamRelationToTeam(id, stat.getTeam().getTeam_mongo_id(), fifaV);
                         //deleting fifaStats in MongoDB
                         stat.setFifa_version(99);
                         stat.setPlayer_positions("NA");

@@ -14,4 +14,5 @@ public class PlayersNodeDTO {
     private String mongoId;
     private String longName;
     private String gender;
+    private Integer fifaV;
 }

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import javax.management.RuntimeErrorException;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +19,7 @@ import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.models.Neo4j.PlayersNode;
 import com.example.demo.models.Neo4j.TeamsNode;
 import com.example.demo.projections.PlayersNodeDTO;
+import com.example.demo.projections.TeamsNodeDTO;
 import com.example.demo.relationships.plays_in_team;
 import com.example.demo.repositories.MongoDB.Players_repository;
 import com.example.demo.repositories.MongoDB.Teams_repository;
@@ -46,16 +48,11 @@ public class Players_node_service {
     }
 
     // READ
-    public PlayersNode getPlayers(String mongoId) {
-        Optional<PlayersNode> optionalPlayer = PMn.findByMongoId(mongoId);
-        if (optionalPlayer.isPresent()) {
-            return optionalPlayer.get();
-        } else {
-            throw new RuntimeErrorException(null, "Player not found with id: " + mongoId);
-        }
+    public PlayersNodeDTO getPlayers(String mongoId) {
+        return PMn.findByMongoIdLight(mongoId).orElseThrow(() -> new RuntimeErrorException(null, "Player not found with id: " + mongoId));
     }
 
-     public Page<PlayersNode> getAllPlayers( String gender, PageRequest page){
+     public Page<PlayersNodeDTO> getAllPlayers( String gender, Pageable page){
         return PMn.findAllByGenderWithPagination(gender, page);
     }
 
@@ -149,25 +146,20 @@ public class Players_node_service {
 
     // DELETE
     public void deletePlayer(String mongoId) {
-        Optional<PlayersNode> optionalPlayer = PMn.findByMongoId(mongoId);
+        Optional<PlayersNodeDTO> optionalPlayer = PMn.findByMongoIdLight(mongoId);
         if (optionalPlayer.isPresent()) {
-            PlayersNode existing = optionalPlayer.get();
-            existing.getTeamMNodes().clear();
-            PMn.delete(existing);
+            PMn.deletePlayerByMongoIdLight(mongoId);
         } else {
             throw new RuntimeErrorException(null, "Player not found with id: " + mongoId);
         }
     }
     
     //OPERATIONS TO MANAGE TEAM
-    public plays_in_team showCurrentTeam(String playerMongoId){
-        Optional<PlayersNode> optionalPlayerNode = PMn.findByMongoId(playerMongoId);
-        Optional<plays_in_team> optionalTeam = optionalPlayerNode.flatMap(playerNode -> 
-        playerNode.getTeamMNodes().stream().filter(teamNode -> teamNode.getFifaV()
-        .equals(CURRENT_YEAR)).findFirst());
-        if(optionalPlayerNode.isPresent() && optionalTeam.isPresent()){
-            plays_in_team existingTeam = optionalTeam.get();
-            return existingTeam;
+    public TeamsNodeDTO showCurrentTeam(String playerMongoId){
+        Optional<PlayersNodeDTO> optionalPlayerNode = PMn.findByMongoIdLight(playerMongoId);
+        
+        if(optionalPlayerNode.isPresent() ){
+           return PMn.findTeam(playerMongoId,CURRENT_YEAR);
            
         }
         else{
@@ -175,14 +167,11 @@ public class Players_node_service {
         }
     }
 
-    public plays_in_team showSpecificTeam(String playerMongoId, Integer fifaVersion){
-        Optional<PlayersNode> optionalPlayerNode = PMn.findByMongoId(playerMongoId);
-        Optional<plays_in_team> optionalTeam = optionalPlayerNode.flatMap(playerNode -> 
-        playerNode.getTeamMNodes().stream().filter(teamNode -> teamNode.getFifaV()
-        .equals(fifaVersion)).findFirst());
-        if(optionalPlayerNode.isPresent() && optionalTeam.isPresent()){
-            plays_in_team existingTeam = optionalTeam.get();
-            return existingTeam;
+    public TeamsNodeDTO showSpecificTeam(String playerMongoId, Integer fifaVersion){
+        Optional<PlayersNodeDTO> optionalPlayerNode = PMn.findByMongoIdLight(playerMongoId);
+        
+        if(optionalPlayerNode.isPresent() ){
+            return PMn.findTeam(playerMongoId, fifaVersion);
            
         }
         else{

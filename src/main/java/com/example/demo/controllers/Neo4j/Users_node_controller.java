@@ -9,9 +9,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
-import com.example.demo.models.Neo4j.ArticlesNode;
-import com.example.demo.models.Neo4j.UsersNode;
+import com.example.demo.projections.ArticlesNodeDTO;
 import com.example.demo.projections.PlayersNodeDTO;
+import com.example.demo.projections.UsersNodeDTO;
 import com.example.demo.projections.UsersNodeProjection;
 import com.example.demo.services.Neo4j.Users_node_service;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,7 +48,7 @@ public class Users_node_controller {
     //???????
     @GetMapping("admin/user/node/list")
     @Operation(summary = "READ: get all Users_node", tags={"Admin:User"})
-    public Page<UsersNode> getAllUsers(@RequestParam(defaultValue = "0") int page,
+    public Page<UsersNodeDTO> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
         return Uns.getAllUsers(pageable);
@@ -56,7 +56,7 @@ public class Users_node_controller {
 
     @GetMapping("user/{userName}/articles")
     @Operation(summary = "READ: get all articles of a user", tags={"User"})
-    public Page<ArticlesNode> getUserArticles(@PathVariable String userName,
+    public Page<ArticlesNodeDTO> getUserArticles(@PathVariable String userName,
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);

@@ -24,12 +24,12 @@ import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.MongoDB.OutboxEvent;
 import com.example.demo.models.MongoDB.Players;
 import com.example.demo.models.Neo4j.ArticlesNode;
-import com.example.demo.models.Neo4j.CoachesNode;
-import com.example.demo.models.Neo4j.PlayersNode;
-import com.example.demo.models.Neo4j.TeamsNode;
 import com.example.demo.models.Neo4j.UsersNode;
-import com.example.demo.relationships.has_in_F_team;
-import com.example.demo.relationships.has_in_M_team;
+import com.example.demo.projections.ArticlesNodeDTO;
+import com.example.demo.projections.CoachesNodeDTO;
+import com.example.demo.projections.PlayersNodeDTO;
+import com.example.demo.projections.TeamsNodeDTO;
+import com.example.demo.projections.UsersNodeDTO;
 import com.example.demo.repositories.MongoDB.Players_repository;
 import com.example.demo.repositories.Neo4j.Articles_node_rep;
 import com.example.demo.repositories.Neo4j.Coaches_node_rep;
@@ -183,14 +183,14 @@ public class ResilientEventConsumer {
 
         try {
             // Verifica che i prerequisiti esistano
-            Optional<UsersNode> userOptional = usersNodeRepository.findByUserName(username);
+            Optional<UsersNodeDTO> userOptional = usersNodeRepository.findByUserNameLight(username);
             if (userOptional.isEmpty()) {
                 log.error("User not found for article creation: {}", username);
                 return;
             }
 
             // Verifica se l'articolo già exists (idempotenza)
-            Optional<ArticlesNode> existingArticle = articlesNodeRepository.findByMongoId(articleId);
+            Optional<ArticlesNodeDTO> existingArticle = articlesNodeRepository.findByMongoIdLight(articleId);
             if (existingArticle.isPresent()) {
                 log.info("Article {} already exists in Neo4j, skipping creation", articleId);
                 return;
@@ -222,11 +222,10 @@ public class ResilientEventConsumer {
         String title = (String) eventData.get("title");
 
         try {
-            Optional<ArticlesNode> articleOptional = articlesNodeRepository.findByMongoId(articleId);
+            Optional<ArticlesNodeDTO> articleOptional = articlesNodeRepository.findByMongoIdLight(articleId);
             if (articleOptional.isPresent()) {
-                ArticlesNode article = articleOptional.get();
-                article.setTitle(title);
-                articlesNodeRepository.save(article);
+                articlesNodeRepository.updateArticleTitle(articleId, title);
+               
                 log.info("Successfully updated article {}", articleId);
             } else {
                 log.warn("Article not found for update: {}", articleId);
@@ -244,9 +243,9 @@ public class ResilientEventConsumer {
         String articleId = (String) eventData.get("articleId");
 
         try {
-            Optional<ArticlesNode> articleOptional = articlesNodeRepository.findByMongoId(articleId);
+            Optional<ArticlesNodeDTO> articleOptional = articlesNodeRepository.findByMongoIdLight(articleId);
             if (articleOptional.isPresent()) {
-                articlesNodeService.deleteArticle(articleId);
+                articlesNodeRepository.deleteByMongoIdLight(articleId);    
                 log.info("Successfully deleted article {}", articleId);
             } else {
                 log.warn("Article not found for delete: {}", articleId);
@@ -265,11 +264,10 @@ public class ResilientEventConsumer {
         String newUsername = (String) eventData.get("newUserName");
 
         try {
-            Optional<UsersNode> userOptional = usersNodeRepository.findByUserName(oldUsername);
+            Optional<UsersNodeDTO> userOptional = usersNodeRepository.findByUserNameLight(oldUsername);
             if (userOptional.isPresent()) {
-                UsersNode user = userOptional.get();
-                user.setUserName(newUsername);
-                usersNodeRepository.save(user);
+                
+                usersNodeRepository.updateUserNameByUserName(oldUsername, newUsername);
                 log.info("Successfully updated user from {} to {}", oldUsername, newUsername);
             } else {
                 log.warn("User not found for update: {}", oldUsername);
@@ -289,7 +287,7 @@ public class ResilientEventConsumer {
 
         try {
             // Verifica idempotenza
-            Optional<UsersNode> existingUser = usersNodeRepository.findByUserName(username);
+            Optional<UsersNodeDTO> existingUser = usersNodeRepository.findByUserNameLight(username);
             if (existingUser.isPresent()) {
                 log.info("User {} already exists in Neo4j, skipping creation", username);
                 return;
@@ -314,10 +312,9 @@ public class ResilientEventConsumer {
         String username = (String) eventData.get("username");
 
         try {
-            Optional<UsersNode> userOptional = usersNodeRepository.findByUserName(username);
+            Optional<UsersNodeDTO> userOptional = usersNodeRepository.findByUserNameLight(username);
             if (userOptional.isPresent()) {
-                UsersNode user = userOptional.get();
-                usersNodeRepository.deleteUserByMongoId(user.getMongoId());
+                usersNodeRepository.deleteUserByUserNameLight(username);
                 log.info("Successfully deleted user {}", username);
             } else {
                 log.warn("User not found for delete: {}", username);
@@ -335,15 +332,14 @@ public class ResilientEventConsumer {
         String username = (String) eventData.get("username");
         String playerMongoId = (String) eventData.get("playerMongoId");
         Integer fifaVersion = (Integer) eventData.get("fifaVersion");
-        Optional<UsersNode> userNodeOpt = usersNodeRepository.findByUserName(username);
-        Optional<PlayersNode> playerNodeOpt = playersNodeRepository.findByMongoId(playerMongoId);
+        Optional<UsersNodeDTO> userNodeOpt = usersNodeRepository.findByUserNameLight(username);
+        Optional<PlayersNodeDTO> playerNodeOpt = playersNodeRepository.findByMongoIdLight(playerMongoId);
 
         if (userNodeOpt.isEmpty() || playerNodeOpt.isEmpty()) {
             throw new IllegalArgumentException("User or Player not found.");
         }
 
-        UsersNode userNode = userNodeOpt.get();
-        PlayersNode playerNode = playerNodeOpt.get();
+        PlayersNodeDTO playerNode = playerNodeOpt.get();
 
         if (playerNode.getGender().equals("female")) {
             throw new IllegalArgumentException("Female players can't be added into Male Team");
@@ -357,27 +353,11 @@ public class ResilientEventConsumer {
         Players mongoPlayer = mongoPlayerOpt.get();
         List<FifaStatsPlayer> fifaStats = mongoPlayer.getFifaStats();
 
-        // Check if the relationship with the same player and FIFA version already exists
-        boolean existingRelationship = userNode.getPlayersMNodes().stream()
-            .anyMatch(rel -> rel.alreadyExist(playerNode, fifaVersion));
-
-        if (existingRelationship) {
-            System.err.println("Player: " + playerNode.getMongoId() +
-                           " with FIFA Version: " + fifaVersion + " already exists in the team.");
-            return "This player with the same FIFA version already exists in the team.";
-        }
-
-        if( userNode.getPlayersMNodes().stream().anyMatch(rel -> rel.getPlayer().getMongoId().equals(playerNode.getMongoId()))){
-            System.err.println("Player: " + playerNode.getMongoId()+" already in the team.");
-            return "This player  already exists in the team.";
-        }
 
         for (FifaStatsPlayer stat : fifaStats) {
             if (stat.getFifa_version().equals(fifaVersion)) {
-                if(userNode.getPlayersMNodes().size() < MAX_NUMBER_TEAM){
-                    has_in_M_team fifaVersionRel = new has_in_M_team(playerNode, fifaVersion);
-                    userNode.getPlayersMNodes().add(fifaVersionRel);
-                    usersNodeRepository.save(userNode);
+                if(usersNodeRepository.countPlayersInMTeamByUsername(username) < MAX_NUMBER_TEAM){
+                    usersNodeRepository.createHasInMTeamRelation(username, playerMongoId, fifaVersion);
                     return "Player with id " + playerMongoId + " added to User " + username + "'s M team with FIFA Version " + fifaVersion;
                 }
                 else {
@@ -396,15 +376,14 @@ public class ResilientEventConsumer {
     String username = (String) eventData.get("username");
     String playerMongoId = (String) eventData.get("playerMongoId");
     Integer fifaVersion = (Integer) eventData.get("fifaVersion");
-    Optional<UsersNode> userNodeOpt = usersNodeRepository.findByUserName(username);
-    Optional<PlayersNode> playerNodeOpt = playersNodeRepository.findByMongoId(playerMongoId);
+    Optional<UsersNodeDTO> userNodeOpt = usersNodeRepository.findByUserNameLight(username);
+    Optional<PlayersNodeDTO> playerNodeOpt = playersNodeRepository.findByMongoIdLight(playerMongoId);
 
     if (userNodeOpt.isEmpty() || playerNodeOpt.isEmpty()) {
         throw new IllegalArgumentException("User or Player not found.");
     }
 
-    UsersNode userNode = userNodeOpt.get();
-    PlayersNode playerNode = playerNodeOpt.get();
+    PlayersNodeDTO playerNode = playerNodeOpt.get();
 
     if (playerNode.getGender().equals("male")) {
         throw new IllegalArgumentException("Female players can't be added into Male Team");
@@ -419,26 +398,12 @@ public class ResilientEventConsumer {
     List<FifaStatsPlayer> fifaStats = mongoPlayer.getFifaStats();
 
     // Check if the relationship with the same player and FIFA version already exists
-    boolean existingRelationship = userNode.getPlayersMNodes().stream()
-            .anyMatch(rel -> rel.alreadyExist(playerNode, fifaVersion));
-
-    if (existingRelationship) {
-        System.err.println("Player: " + playerNode.getMongoId() +
-                           " with FIFA Version: " + fifaVersion + " already exists in the team.");
-        return "This player with the same FIFA version already exists in the team.";
-    }
-    if( userNode.getPlayersFNodes().stream().anyMatch(rel -> rel.getPlayer().getMongoId().equals(playerNode.getMongoId()))){
-        System.err.println("Player: " + playerNode.getMongoId()+" already in the team.");
-        return "This player  already exists in the team.";
-    }
+    
         for (FifaStatsPlayer stat : fifaStats) {
             if (stat.getFifa_version().equals(fifaVersion)) {
-                    if(userNode.getPlayersFNodes().size() < MAX_NUMBER_TEAM){
-                    has_in_F_team fifaVersionRel = new has_in_F_team(playerNode, fifaVersion);
-                    userNode.getPlayersFNodes().add(fifaVersionRel);
-                    //Unr.userAddFPlayer(username, playerId, fifaVersion);
-                    usersNodeRepository.save(userNode);
-                    return "Player with id " + playerMongoId + " added to User " + username + "'s M team with FIFA Version " + fifaVersion;
+                if(usersNodeRepository.countPlayersInFTeamByUsername(username) < MAX_NUMBER_TEAM){
+                    usersNodeRepository.createHasInFTeamRelation(username, playerMongoId, fifaVersion);
+                    return "Player with id " + playerMongoId + " added to User " + username + "'s F team with FIFA Version " + fifaVersion;
                 }
                 else{
                     throw new IllegalArgumentException("Team can have maximum "+MAX_NUMBER_TEAM+" players!");
@@ -455,19 +420,15 @@ public class ResilientEventConsumer {
          Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
         String playerMongoId = (String) eventData.get("playerMongoId");
-        Optional<UsersNode> optionalUserNode = usersNodeRepository.findByUserName(username);
-        Optional<PlayersNode> optionalPlayerNode = playersNodeRepository.findByMongoId(playerMongoId);
+        Optional<UsersNodeDTO> optionalUserNode = usersNodeRepository.findByUserNameLight(username);
+        Optional<PlayersNodeDTO> optionalPlayerNode = playersNodeRepository.findByMongoIdLight(playerMongoId);
         
         if (optionalUserNode.isPresent() && optionalPlayerNode.isPresent()) {
-            PlayersNode existingPlayersNode = optionalPlayerNode.get();
-            UsersNode existingUsersNode = optionalUserNode.get();
+            PlayersNodeDTO existingPlayersNode = optionalPlayerNode.get();
             
             if(existingPlayersNode.getGender().equals("male")) {
                 // Use removeIf to safely remove the players from the M team
-                existingUsersNode.getPlayersMNodes().removeIf(existing -> existing.getPlayer().getMongoId().equals(existingPlayersNode.getMongoId()));
-                
-                // Save the updated UsersNode
-                usersNodeRepository.save(existingUsersNode);
+                usersNodeRepository.deleteHasInMTeamRelation(username, playerMongoId);
             } else {
                 throw new RuntimeException("Player with id: " + playerMongoId + " is a female");
             }
@@ -483,17 +444,15 @@ public class ResilientEventConsumer {
         Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
         String playerMongoId = (String) eventData.get("playerMongoId");
-        Optional<UsersNode> optionalUserNode = usersNodeRepository.findByUserName(username);
-        Optional<PlayersNode> optionalPlayerNode = playersNodeRepository.findByMongoId(playerMongoId);
+        Optional<UsersNodeDTO> optionalUserNode = usersNodeRepository.findByUserNameLight(username);
+        Optional<PlayersNodeDTO> optionalPlayerNode = playersNodeRepository.findByMongoIdLight(playerMongoId);
         if (optionalUserNode.isPresent() && optionalPlayerNode.isPresent()) {
-            PlayersNode existingPlayersNode = optionalPlayerNode.get();
-            UsersNode existingUsersNode = optionalUserNode.get();
+            PlayersNodeDTO existingPlayersNode = optionalPlayerNode.get();
             if(existingPlayersNode.getGender().equals("female")){
                 // Use removeIf to safely remove the players from the M team
-                existingUsersNode.getPlayersFNodes().removeIf(existing -> existing.getPlayer().getMongoId().equals(existingPlayersNode.getMongoId()));  
+               usersNodeRepository.deleteHasInFTeamRelation(username, playerMongoId);
                 
                 // Save the updated UsersNode
-                usersNodeRepository.save(existingUsersNode);
             }
             else{
                 throw new RuntimeException("Player with id: " + playerMongoId + " is a female");
@@ -509,7 +468,7 @@ public class ResilientEventConsumer {
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
         String articleId = (String) eventData.get("articleId");
-        Optional<ArticlesNode> optional = articlesNodeRepository.findByMongoId(articleId);
+        Optional<ArticlesNodeDTO> optional = articlesNodeRepository.findByMongoIdLight(articleId);
         if(optional.isPresent()){
             usersNodeRepository.createLikeRelationToArticle(username, articleId);
         }
@@ -524,7 +483,7 @@ public class ResilientEventConsumer {
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
         String articleId = (String) eventData.get("articleId");
-        Optional<ArticlesNode> optional = articlesNodeRepository.findByMongoId(articleId);
+        Optional<ArticlesNodeDTO> optional = articlesNodeRepository.findByMongoIdLight(articleId);
         if(optional.isPresent()){
             usersNodeRepository.deleteLikeRelationToArticle(username, articleId);
         }
@@ -539,7 +498,7 @@ public class ResilientEventConsumer {
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
         String targetUsername = (String) eventData.get("targetUsername");
-        Optional<UsersNode> optional = usersNodeRepository.findByUserName(targetUsername);
+        Optional<UsersNodeDTO> optional = usersNodeRepository.findByUserNameLight(targetUsername);
         if(optional.isPresent()){
             usersNodeRepository.createFollowRelation(username, targetUsername);
         }
@@ -554,7 +513,7 @@ public class ResilientEventConsumer {
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
         String targetUsername = (String) eventData.get("targetUsername");
-        Optional<UsersNode> optional = usersNodeRepository.findByUserName(targetUsername);
+        Optional<UsersNodeDTO> optional = usersNodeRepository.findByUserNameLight(targetUsername);
         if(optional.isPresent()){
              usersNodeRepository.removeFollowRelationship(username, targetUsername);
         }
@@ -569,7 +528,7 @@ public class ResilientEventConsumer {
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
         String teamMongoId = (String) eventData.get("teamMongoId");
-        Optional<TeamsNode> optional = teamsNodeRepository.findByMongoId(teamMongoId);
+        Optional<TeamsNodeDTO> optional = teamsNodeRepository.findByMongoIdLight(teamMongoId);
         if(optional.isPresent()){
             usersNodeRepository.LikeToTeam(username, teamMongoId);
         }
@@ -584,7 +543,7 @@ public class ResilientEventConsumer {
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
         String teamMongoId = (String) eventData.get("teamMongoId");
-        Optional<TeamsNode> optional = teamsNodeRepository.findByMongoId(teamMongoId);
+        Optional<TeamsNodeDTO> optional = teamsNodeRepository.findByMongoIdLight(teamMongoId);
         if(optional.isPresent()){
             usersNodeRepository.deleteLikeRelationToTeam(username, teamMongoId);
         }
@@ -599,7 +558,7 @@ public class ResilientEventConsumer {
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
         String coachMongoId = (String) eventData.get("coachMongoId");
-        Optional<CoachesNode> optional = coachesNodeRepository.findByMongoId(coachMongoId);
+        Optional<CoachesNodeDTO> optional = coachesNodeRepository.findByMongoIdLight(coachMongoId);
         if(optional.isPresent()){
             usersNodeRepository.LikeToCoach(username, coachMongoId);
         }
@@ -614,7 +573,7 @@ public class ResilientEventConsumer {
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
         String coachMongoId = (String) eventData.get("coachMongoId");
-        Optional<CoachesNode> optional = coachesNodeRepository.findByMongoId(coachMongoId);
+        Optional<CoachesNodeDTO> optional = coachesNodeRepository.findByMongoIdLight(coachMongoId);
         if(optional.isPresent()){
             usersNodeRepository.deleteLikeRelationToCoach(username, coachMongoId);
         }
@@ -629,7 +588,7 @@ public class ResilientEventConsumer {
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
         String playerMongoId = (String) eventData.get("playerMongoId");
-        Optional<PlayersNode> optional = playersNodeRepository.findByMongoId(playerMongoId);
+        Optional<PlayersNodeDTO> optional = playersNodeRepository.findByMongoIdLight(playerMongoId);
         if(optional.isPresent()){
             usersNodeRepository.LikeToPlayer(username, playerMongoId);
         }
@@ -644,7 +603,7 @@ public class ResilientEventConsumer {
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
         String playerMongoId = (String) eventData.get("playerMongoId");
-        Optional<PlayersNode> optional = playersNodeRepository.findByMongoId(playerMongoId);
+        Optional<PlayersNodeDTO> optional = playersNodeRepository.findByMongoIdLight(playerMongoId);
         if(optional.isPresent()){
            usersNodeRepository.deleteLikeRelationToPlayer(username, playerMongoId);
         }

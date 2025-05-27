@@ -1,9 +1,13 @@
 package com.example.demo.controllers.MongoDB;
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.models.MongoDB.Articles;
 import com.example.demo.services.MongoDB.Articles_service;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -34,5 +38,9 @@ public class Articles_controller {
         PageRequest pageable = PageRequest.of(page, size);
         return articlesService.getAllArticles(pageable);
     }
-
+     @DeleteMapping("admin/article/delete/{articleId}")
+    @Operation(summary = "Delete an article by its id", tags={"Admin:Article"})
+    public CompletableFuture<String> deleteArticle(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
+        return articlesService.deleteArticle(auth.getName(), articleId);
+    }
 }

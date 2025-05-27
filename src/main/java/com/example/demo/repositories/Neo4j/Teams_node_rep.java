@@ -18,29 +18,40 @@ import com.example.demo.projections.TeamsNodeDTO;
 public interface Teams_node_rep extends Neo4jRepository<TeamsNode,Long>{
     boolean existsByMongoId(String valueOf);
     Optional<TeamsNode> findByMongoId(String get_id);
+
     
+
+    @Query("MATCH (t:TeamsNode {mongoId: $mongoId}) " +
+           "RETURN t.mongoId AS mongoId, t.longName AS longName, t.gender AS gender")
+    Optional<TeamsNodeDTO> findByMongoIdLight(String mongoId);
     @Query(
     value = "MATCH (t:TeamsNode {gender: $gender}) " +
-            "OPTIONAL MATCH (t)<-[:PLAYS_IN_TEAM]-(p:PlayersNode) " +
-            "OPTIONAL MATCH (t)<-[:HAS_IN_M_TEAM|HAS_IN_F_TEAM]-(u:UsersNode) " +
-            "OPTIONAL MATCH (t)<-[:LIKES_TEAM]-(u2:UsersNode) " +
-            "RETURN DISTINCT t, COLLECT(DISTINCT p) AS players, COLLECT(DISTINCT u) AS users, COLLECT(DISTINCT u2) AS likes",
+            "RETURN t.longName AS longName, t.mongoId AS mongoId, t.gender AS gender",
     countQuery = "MATCH (t:TeamsNode {gender: $gender}) RETURN count(DISTINCT t)"
 )
-    Page<TeamsNode> findAllByGenderWithPagination(String gender, PageRequest pageRequest);
+    Page<TeamsNodeDTO> findAllByGenderWithPagination(String gender, PageRequest pageRequest);
     List<TeamsNode> findAllByGender(String gender);
-    @Query( "MATCH (t:TeamsNode {mongoId: $mongoId})<-[r:PLAYS_IN_TEAM]->(p:PlayersNode) "+
+    @Query( "MATCH (t:TeamsNode {mongoId: $mongoId})<-[r:PLAYS_IN_TEAM]-(p:PlayersNode) "+
     "WHERE r.fifaVersion = $fifaV "+
-    "RETURN { mongoId: p.mongoId, longName: p.longName, gender: p.gender} AS playerProjection")
+    "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender, r.fifaVersion AS fifaV")
     List<PlayersNodeDTO> findFormation(String mongoId, Integer fifaV);
     @Query( "MATCH (t:TeamsNode {mongoId: $mongoId})<-[r:MANAGES_TEAM]-(p:CoachesNode) "+
     "WHERE r.fifaVersion = $fifaV "+
-    "RETURN { mongoId: p.mongoId, longName: p.longName, gender: p.gender} AS CoachesNodeProjection")
+    "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender, r.fifaVersion AS fifaV")
     CoachesNodeDTO findCoach(String mongoId, Integer fifaV);
     Optional<TeamsNode> findByLongName(String string);
 
     @Query("MATCH (n:TeamsNode {gender : $gender}) RETURN n.mongoId AS mongoId, n.longName AS longName, n.gender AS gender")
     List<TeamsNodeDTO> findAllLightByGender(String gender);
 
-   
+    @Query("MATCH (t:TeamsNode {mongoId: $mongoId}) " +
+           "DETACH DELETE t")
+    void deleteByMongoIdLight(String mongoId);
+    @Query("MATCH (t:TeamsNode {mongoId: $mongoId}) " +
+           "SET t.longName = $newName ")
+    void updateTeamName(String mongoId, String newName);
+
+    @Query("MATCH (t:TeamsNode {mongoId: $mongoId}) " +
+           "SET t.gender = $newGender ")
+    void updateTeamGender(String mongoId, String newGender);
 }

@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
-import com.example.demo.models.Neo4j.TeamsNode;
 import com.example.demo.projections.CoachesNodeDTO;
 import com.example.demo.projections.PlayersNodeDTO;
+import com.example.demo.projections.TeamsNodeDTO;
 import com.example.demo.services.Neo4j.Teams_node_service;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,14 +28,14 @@ public class Teams_node_controller {
     // READ: Get one team node by ID
     @GetMapping("admin/teamNode/{_id}")
     @Operation(summary = "READ operation: Get a Team node by ID", tags={"Admin:Team"})
-    public TeamsNode getTeamById(@PathVariable String _id) {
+    public TeamsNodeDTO getTeamById(@PathVariable String _id) {
         return teamsNodeService.getTeams(_id);
     }
 
     // READ: Get all teams by gender
     @GetMapping("/user/search/filter/team/list/byGender/{gender}")
     @Operation(summary = "READ: Get all teams for a specific gender with pagination", tags={"Team"})
-    public Page<TeamsNode> getAllTeams(@RequestParam(defaultValue = "0") int page,
+    public Page<TeamsNodeDTO> getAllTeams(@RequestParam(defaultValue = "0") int page,
                                    @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {
         PageRequest pageable = PageRequest.of(page, size);
         return teamsNodeService.getAllTeams(gender, pageable);

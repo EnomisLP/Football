@@ -14,6 +14,8 @@ import com.example.demo.models.MongoDB.TeamObj;
 import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.models.Neo4j.CoachesNode;
 import com.example.demo.models.Neo4j.TeamsNode;
+import com.example.demo.projections.CoachesNodeDTO;
+import com.example.demo.projections.TeamsNodeDTO;
 import com.example.demo.relationships.manages_team;
 import com.example.demo.repositories.MongoDB.Coaches_repository;
 import com.example.demo.repositories.MongoDB.Teams_repository;
@@ -85,9 +87,8 @@ public class Coaches_service {
         Optional<Coaches> optionalCoach = CMr.findById(id);
         if (optionalCoach.isPresent()) {
             Coaches existingCoach = optionalCoach.get();
-            Optional<CoachesNode> optionalCoachNode = Cmr.findByMongoId(id);
+            Optional<CoachesNodeDTO> optionalCoachNode = Cmr.findByMongoIdLight(id);
             if(optionalCoachNode.isPresent()){
-                CoachesNode existingCoachNode = optionalCoachNode.get();
                 //Checking if the long_name was changed in the request
                 if(!coachDetails.getLong_name().equals(existingCoach.getLong_name())){
                     //if it was changed, we need to update the long_name in the Neo4j database 
@@ -109,10 +110,7 @@ public class Coaches_service {
                 existingCoach.setGender(coachDetails.getGender());
                 
                 
-                existingCoachNode.setLongName(coachDetails.getLong_name());
-                existingCoachNode.setGender(coachDetails.getGender());
-
-                Cmr.save(existingCoachNode);
+               Cmr.updateAttributesByMongoId(id, coachDetails.getShort_name(), coachDetails.getLong_name(), coachDetails.getGender());
                 // Save the updated coach back to the repository
                 return CMr.save(existingCoach);
                 
@@ -130,10 +128,9 @@ public class Coaches_service {
     public Coaches updateTeamCoach(String id, Integer fifaV, updateTeamCoach request){
         Optional<Coaches> optionalCoach = CMr.findById(id);
         Optional<Teams> optionalTeam = TMs.findById(request.getTeam_mongo_id());
-        Optional<CoachesNode> optionalCoachNode = Cmr.findByMongoId(id);
+        Optional<CoachesNodeDTO> optionalCoachNode = Cmr.findByMongoIdLight(id);
         if (optionalCoach.isPresent() && optionalCoachNode.isPresent()) {
             Coaches existingCoach = optionalCoach.get();
-            CoachesNode existingCoachNode = optionalCoachNode.get();
             if(optionalTeam.isPresent()){
                 Teams existingTeam = optionalTeam.get();
                     List<Teams> teams = TMs.findByCoachMongoId(id);
@@ -158,19 +155,10 @@ public class Coaches_service {
                      }
 
                     //Updating Neo4j
-                    Optional<TeamsNode> optionalTeamsNode = TMr.findByMongoId(request.getTeam_mongo_id());
+                    Optional<TeamsNodeDTO> optionalTeamsNode = TMr.findByMongoIdLight(request.getTeam_mongo_id());
                     if(optionalTeamsNode.isPresent()){
-                        TeamsNode existingTeamsNode = optionalTeamsNode.get();
-                        List<manages_team> manages = existingCoachNode.getTeamMNodes();
-                        for(manages_team manage : manages){
-                            if(manage.getFifaV().equals(fifaV)){
-                                existingCoachNode.getTeamMNodes().remove(manage);
-                                manages_team newManage = new manages_team(existingTeamsNode, fifaV);
-                                existingCoachNode.getTeamMNodes().add(newManage);
-                                Cmr.save(existingCoachNode);
-                                break;
-                            }
-                        }
+                        Cmr.deleteOldManagesRelationToTeam(id, fifaV);
+                        Cmr.createManagesRelationToTeam(id, request.getTeam_mongo_id(), fifaV);
                     }
 
                    
@@ -204,17 +192,21 @@ public class Coaches_service {
             throw new RuntimeException("The FIFA version is the same as the one already in the database: " + oldFifaV);
         }
         Optional<Coaches> optionalCoach = CMr.findById(id);
-        Optional<CoachesNode> optionalCoachNode = Cmr.findByMongoId(id);
+        Optional<CoachesNodeDTO> optionalCoachNode = Cmr.findByMongoIdLight(id);
         if (optionalCoach.isPresent() && optionalCoachNode.isPresent()) {
             Coaches existingCoach = optionalCoach.get();
-            CoachesNode existingCoachNode = optionalCoachNode.get();
 
             //Updating Team MongoDB
             List<Teams> teams = TMs.findByCoachMongoId(id);
             for(Teams team : teams){
                 List<FifaStatsTeam> stats = team.getFifaStats();
+                Optional<TeamsNodeDTO> optionalTeamsNode = TMr.findByMongoIdLight(team.get_id());
+                if(!optionalTeamsNode.isPresent()){
+                    throw new RuntimeException("Team not found with id: " + team.get_id());
+                }
                 for(FifaStatsTeam stat : stats){
                     if(stat.getFifa_version().equals(oldFifaV)){
+                        Cmr.deleteManagesRelationToTeam(id, team.get_id(), oldFifaV);
                         stat.getCoach().setCoach_name(null);
                         stat.getCoach().setCoach_mongo_id(null);
                         TMs.save(team);
@@ -222,13 +214,7 @@ public class Coaches_service {
                 }
                 for(FifaStatsTeam stat : stats){
                     if(stat.getFifa_version().equals(newFifaV)){
-                        Optional<TeamsNode> optionalTeamsNode = TMr.findByMongoId(team.get_id());
-                        if(optionalTeamsNode.isPresent()){
-                            manages_team newManage = new manages_team(optionalTeamsNode.get(), newFifaV);
-                            existingCoachNode.getTeamMNodes().add(newManage);
-                            Cmr.save(existingCoachNode);
-                        }
-                        
+                        Cmr.createManagesRelationToTeam(existingCoach.get_id(), team.get_id(), newFifaV);
                         stat.getCoach().setCoach_name(existingCoach.getLong_name());
                         TMs.save(team);
                     }
@@ -245,14 +231,6 @@ public class Coaches_service {
                 }
             }
 
-            //Updating Neo4j
-            List<manages_team> manage = existingCoachNode.getTeamMNodes();
-            for(manages_team existing : manage){
-                if(existing.getFifaV().equals(oldFifaV)){
-                    existingCoachNode.getTeamMNodes().remove(existing);
-                    break;
-                }
-            }
             
         return existingCoach;
         }
@@ -266,10 +244,9 @@ public class Coaches_service {
     @Transactional
     public void deleteCoach(String id){
         Optional<Coaches> coach = CMr.findById(id);
-        Optional<CoachesNode> coachNode = Cmr.findByMongoId(id);
+        Optional<CoachesNodeDTO> coachNode = Cmr.findByMongoIdLight(id);
         if(coach.isPresent() && coachNode.isPresent()){
             // Delete the coach_id istances
-            CoachesNode existing = coachNode.get();
             List<Teams> teams = TMs.findByCoachMongoId(id);
             if(!teams.isEmpty()){
                 for(Teams team : teams){
@@ -281,7 +258,7 @@ public class Coaches_service {
                 }
             }
             // Delete the coach from MongoDB and Neo4j
-            CMs.deleteCoach(existing.getMongoId());
+            CMs.deleteCoach(id);
             CMr.deleteById(coach.get().get_id());
         }
         else{
@@ -291,23 +268,21 @@ public class Coaches_service {
 
     public void deleteTeamCoach(String id, Integer fifaV){
         Optional<Coaches> optionalCoach = CMr.findById(id);
-        Optional<CoachesNode> optionalCoachNode = Cmr.findByMongoId(id);
+        Optional<CoachesNodeDTO> optionalCoachNode = Cmr.findByMongoIdLight(id);
         if(optionalCoach.isPresent() && optionalCoachNode.isPresent()){
             Coaches existingCoach = optionalCoach.get();
-            CoachesNode existingCoachNode = optionalCoachNode.get();
             List<TeamObj> existingList = existingCoach.getTeam();
 
             //Removing relationships
             if(!existingList.isEmpty()){
                 for(TeamObj team : existingList){
                     if(team.getFifa_version().equals(fifaV)){
-                        Optional<TeamsNode> optionalTeamsNode = TMr.findByMongoId(team.getTeam_mongo_id());
+                        Optional<TeamsNodeDTO> optionalTeamsNode = TMr.findByMongoIdLight(team.getTeam_mongo_id());
                         if(optionalTeamsNode.isPresent()){
-                            TeamsNode existingTeamsNode = optionalTeamsNode.get();
-                            manages_team relationship = Cmr.findFifaVersionByLongNameAndFifaV(existingTeamsNode.getLongName(), fifaV);
+                            manages_team relationship = Cmr.findFifaVersionByMongoIdAndFifaV(team.getTeam_mongo_id(), fifaV);
                             if (relationship != null) {
-                                existingCoachNode.getTeamMNodes().remove(relationship);
-                                Cmr.save(existingCoachNode);
+                                
+                                Cmr.deleteManagesRelationToTeam(id, team.getTeam_mongo_id(), fifaV);
                                 break;
                             }
                         }

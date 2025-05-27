@@ -48,9 +48,15 @@ public class Users_controller {
     }
 
     @DeleteMapping("/admin/delete/{username}")
-     @Operation(summary = "DELETE operation - Delete a user by ID", tags={"Admin:User"})
-    public CompletableFuture<Void> deleteUser(@PathVariable String username) throws JsonProcessingException {
+     @Operation(summary = "DELETE operation - Delete a user by username", tags={"Admin:User"})
+    public CompletableFuture<Void> deleteUserAdmin(@PathVariable String username) throws JsonProcessingException {
         return usersService.deleteUser(username);
+    }
+
+    @DeleteMapping("/user/delete")
+     @Operation(summary = "DELETE operation - Delete a user by username", tags={"User"})
+    public CompletableFuture<Void> deleteUser(Authentication auth) throws JsonProcessingException {
+        return usersService.deleteUser(auth.getName());
     }
 
     // USER INTERACTION IN THE APP
@@ -69,7 +75,7 @@ public class Users_controller {
         return usersService.modifyArticle(auth.getName(), articleId, request);
     }
 
-    @DeleteMapping("/admin/user/article/delete/{articleId}")
+    @DeleteMapping("/user/article/delete/{articleId}")
     @Operation(summary = "DELETE: delete a specific User Article", tags={"Article"})
     public CompletableFuture<String> deleteArticle(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
         return usersService.deleteArticle(auth.getName(), articleId);

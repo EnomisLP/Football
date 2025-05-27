@@ -56,6 +56,7 @@ public class Players {
         stats.setOverall(-1);
         stats.setPotential(-1);
         stats.setValue_eur((long) -1);
+        stats.setWage_eur((long) -1);
         stats.setClub_position("NA");
         stats.setClub_jersey_number(-1);
         stats.setClub_contract_valid_until_year(2999);
