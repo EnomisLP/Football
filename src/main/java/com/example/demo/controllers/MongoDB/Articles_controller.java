@@ -11,11 +11,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.swagger.v3.oas.annotations.Operation;
 
-import java.util.concurrent.CompletableFuture;
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
 
 
 @RestController
