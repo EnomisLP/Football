@@ -36,12 +36,13 @@ public class Articles_node_service {
         this.ArM = ArM;
     }
 
-    public ArticlesNode getArticle(Long article_id) {
-        return Ar.findById(article_id).orElseThrow(() -> new RuntimeException("Article not found with id: " + article_id));
+    public ArticlesNodeDTO getArticle(String article_id) {
+        return Ar.findByMongoIdLight(article_id).orElseThrow(() -> new RuntimeException("Article not found with id: " + article_id));
+        
     }
 
-    public Page<ArticlesNode> getAllArticles(PageRequest page) {
-        return Ar.findAll(page);
+    public Page<ArticlesNodeDTO> getAllArticles(PageRequest page) {
+        return Ar.findAllLightWithPagination(page);
     }
 
     //CALL THIS METHOD ONLY before mapping everithing

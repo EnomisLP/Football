@@ -16,6 +16,7 @@ import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.models.Neo4j.TeamsNode;
 import com.example.demo.projections.CoachesNodeDTO;
 import com.example.demo.projections.PlayersNodeDTO;
+import com.example.demo.projections.TeamsNodeDTO;
 import com.example.demo.repositories.MongoDB.Teams_repository;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
 
@@ -36,17 +37,13 @@ public class Teams_node_service {
     }
 
     // READ
-    public TeamsNode getTeams(String mongoId) {
-        Optional<TeamsNode> optionalTeam = TMn.findByMongoId(mongoId);
-        if (optionalTeam.isPresent()) {
-            return optionalTeam.get();
-        } else {
-            throw new RuntimeErrorException(null, "Team not found with id: " + mongoId);
-        }
+    public TeamsNodeDTO getTeams(String mongoId) {
+        return TMn.findByMongoIdLight(mongoId)
+                .orElseThrow(() -> new RuntimeErrorException(null, "Team not found with id: " + mongoId));
     }
 
-       
-    public Page<TeamsNode> getAllTeams(String gender, PageRequest page){
+
+    public Page<TeamsNodeDTO> getAllTeams(String gender, PageRequest page){
         return TMn.findAllByGenderWithPagination(gender, page);
     }
 
@@ -94,9 +91,9 @@ public class Teams_node_service {
 
     // DELETE
     public void deleteTeam(String mongoId) {
-        Optional<TeamsNode> optionalTeam = TMn.findByMongoId(mongoId);
+        Optional<TeamsNodeDTO> optionalTeam = TMn.findByMongoIdLight(mongoId);
         if (optionalTeam.isPresent()) {
-            TMn.delete(optionalTeam.get());
+            TMn.deleteByMongoIdLight(mongoId);
         } else {
             throw new RuntimeErrorException(null, "Team not found with id: " + mongoId);
         }

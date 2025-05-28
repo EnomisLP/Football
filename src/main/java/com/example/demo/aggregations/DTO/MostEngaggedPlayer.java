@@ -1,6 +1,5 @@
 package com.example.demo.aggregations.DTO;
-
-import com.example.demo.models.Neo4j.PlayersNode;
+import com.example.demo.projections.PlayersNodeDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,6 +12,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MostEngaggedPlayer {
-    private PlayersNode player;
+    private PlayersNodeDTO player;
     private Integer totalEngagement;
 }

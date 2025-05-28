@@ -26,7 +26,7 @@ public class Players_controller {
     }
 
     // READ: Get player by ID
-    @GetMapping("/admin/player/{_id}")
+    @GetMapping("player/{_id}")
     @Operation(summary = "READ: Get player by its ID", tags={"Player"})
     public Players getPlayer(@PathVariable String _id) {
         return playersMService.getPlayer(_id);

@@ -3,10 +3,11 @@ package com.example.demo.controllers.Neo4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import com.example.demo.projections.PlayersNodeDTO;
+import com.example.demo.projections.TeamsNodeDTO;
 
-import com.example.demo.models.Neo4j.PlayersNode;
-import com.example.demo.relationships.plays_in_team;
 import com.example.demo.services.Neo4j.Players_node_service;
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -26,30 +27,34 @@ public class Players_node_controller {
     // READ: Get player by ID
     @GetMapping("admin/playerNode/{_id}")
     @Operation(summary = "READ operation: Get a Player node by ID", tags={"Admin:Player"})
-    public PlayersNode getPlayerById(@PathVariable String _id) {
+    public PlayersNodeDTO getPlayerById(@PathVariable String _id) {
         return playersNodeService.getPlayers(_id);
     }
 
     // READ: Get all players by gender
-    @GetMapping("/user/search/filter/player/list/byGender/{gender}")
-    @Operation(summary = "READ: Get all players for a specific gender with pagination", tags={"Player"})
-    public Page<PlayersNode> getAllPlayers(@RequestParam(defaultValue = "0") int page,
-                                       @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {
-        PageRequest pageable = PageRequest.of(page, size);
-        return playersNodeService.getAllPlayers(gender, pageable);
-    }
+    @GetMapping("search/filter/player/list/byGender/{gender}")
+    @Operation(summary = "READ: Get all players for a specific gender with pagination", tags = {"Player"})
+    public Page<PlayersNodeDTO> getAllPlayers(
+        @PathVariable String gender,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "50") int size) {
+
+    Pageable pageable = PageRequest.of(page, size);
+    return playersNodeService.getAllPlayers(gender, pageable);
+}
+
 
     // READ: Show the current team a player plays in
-    @GetMapping("/user/player/{_id}/team")
+    @GetMapping("player/{_id}/team")
     @Operation(summary = "READ: Show the team a player is currently playing in", tags={"Player"})
-    public plays_in_team showCurrentTeam(@PathVariable String _id) {
+    public TeamsNodeDTO showCurrentTeam(@PathVariable String _id) {
         return playersNodeService.showCurrentTeam(_id);
     }
 
     // READ: Show a specific team a player played in with a certain FIFA version
-    @GetMapping("/user/player/{_id}/team/{fifaV}")
+    @GetMapping("player/{_id}/team/{fifaV}")
     @Operation(summary = "READ: Show the team in which a player played in specific year", tags={"Player"})
-    public plays_in_team showSpecificTeam(@PathVariable String _id, @PathVariable Integer fifaV) {
+    public TeamsNodeDTO showSpecificTeam(@PathVariable String _id, @PathVariable Integer fifaV) {
         return playersNodeService.showSpecificTeam(_id, fifaV);
     }
 

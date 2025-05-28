@@ -4,8 +4,9 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
-import com.example.demo.models.Neo4j.CoachesNode;
-import com.example.demo.relationships.manages_team;
+import com.example.demo.projections.CoachesNodeDTO;
+import com.example.demo.projections.TeamsNodeDTO;
+
 import com.example.demo.services.Neo4j.Coaches_node_service;
 
 
@@ -29,33 +30,33 @@ public class Coaches_node_controller{
     // READ: Get coaches nodes
     @GetMapping("admin/coachNode/{_id}")
     @Operation(summary = "READ operation: Get coaches nodes", tags={"Admin:Coach"})
-    public CoachesNode getCoach(@PathVariable String _id) {
+    public CoachesNodeDTO getCoach(@PathVariable String _id) {
         return coachesMNodeService.getCoach(_id);
     }
 
-    @GetMapping("/user/search/filter/coach/list/byGender/{gender}")
+    @GetMapping("search/filter/coach/list/byGender/{gender}")
     @Operation(summary = "READ: Get all coaches by gender with pagination", tags={"Coach"})
-    public Page<CoachesNode> getAllCoaches(@RequestParam(defaultValue = "0") int page,
+    public Page<CoachesNodeDTO> getAllCoaches(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size, 
                                        @PathVariable String gender) {
         PageRequest pageable = PageRequest.of(page, size);
         return coachesMNodeService.getAllCoaches(pageable, gender);
     }
-    @GetMapping("/user/coach/{_id}/managing_history")
+    @GetMapping("coach/{_id}/managing_history")
     @Operation(summary = "show team trained Hystory", tags={"Coach"})
-    public List<manages_team> showTrainedHistory(String _id){
+    public List<TeamsNodeDTO> showTrainedHistory(String _id){
         return coachesMNodeService.showTrainedHistory(_id);
     }
 
-    @GetMapping("/user/coach/{_id}/team")
+    @GetMapping("coach/{_id}/team")
     @Operation(summary = "Show the team currently trained", tags={"Coach"})
-    public manages_team showCurrentTeam(String _id){
+    public TeamsNodeDTO showCurrentTeam(String _id){
         return coachesMNodeService.showCurrentTeam(_id);
     }
 
-    @GetMapping("/user/coach/{_id}/team/{fifaV}")
+    @GetMapping("coach/{_id}/team/{fifaV}")
     @Operation(summary = "Show the team trained in a specific year", tags={"Coach"})
-    public manages_team showSpecificTeam(String _id, Integer fifaV){
+    public TeamsNodeDTO showSpecificTeam(String _id, Integer fifaV){
         return coachesMNodeService.showSpecificTeam(_id, fifaV);
     }
     // MAP: Map all Coaches from MongoDB to Neo4j nodes

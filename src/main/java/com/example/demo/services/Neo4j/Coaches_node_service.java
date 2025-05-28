@@ -17,6 +17,7 @@ import com.example.demo.models.MongoDB.FifaStatsTeam;
 import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.models.Neo4j.CoachesNode;
 import com.example.demo.models.Neo4j.TeamsNode;
+import com.example.demo.projections.CoachesNodeDTO;
 import com.example.demo.projections.TeamsNodeDTO;
 import com.example.demo.relationships.manages_team;
 import com.example.demo.repositories.MongoDB.Coaches_repository;
@@ -47,17 +48,13 @@ public class Coaches_node_service {
     }
 
     // READ
-    public CoachesNode getCoach(String mongoId) {
-        Optional<CoachesNode> optionalCoach = CMn.findByMongoId(mongoId);
-        if (optionalCoach.isPresent()) {
-            return optionalCoach.get();
-        } else {
-            throw new RuntimeErrorException(null, "Coach not found with Id: " + mongoId);
-        }
+    public CoachesNodeDTO getCoach(String mongoId) {
+        return CMn.findByMongoIdLight(mongoId)
+                .orElseThrow(() -> new RuntimeErrorException(null, "No Coach found with id: " + mongoId));
     }
 
-    public Page<CoachesNode> getAllCoaches(PageRequest page, String gender){
-        return CMn.findAllByGenderWithPagination(gender, page);
+    public Page<CoachesNodeDTO> getAllCoaches(PageRequest page, String gender){
+        return CMn.findAllByGenderWithPaginationLight(gender, page);
     }
 
 
@@ -105,12 +102,9 @@ public class Coaches_node_service {
     }
     // DELETE
     public void deleteCoach(String mongoId) {
-        Optional<CoachesNode> coach = CMn.findByMongoId(mongoId);
+        Optional<CoachesNodeDTO> coach = CMn.findByMongoIdLight(mongoId);
         if (coach.isPresent()) {
-            CoachesNode existingCoach = coach.get();
-            // Delete the relationships first
-            existingCoach.getTeamMNodes().clear();
-            CMn.delete(existingCoach);
+            CMn.deleteCoachByMongoIdLight(mongoId);
         } else {
             throw new RuntimeErrorException(null, "No Coach found with id: " + mongoId);
         }
@@ -156,37 +150,31 @@ public class Coaches_node_service {
         return "Number of Relationships Created: " + counter;
     }
     
-    public List<manages_team> showTrainedHistory(String coachMongoId){
-        Optional<CoachesNode> optionalCoach = CMn.findByMongoId(coachMongoId);
+    public List<TeamsNodeDTO> showTrainedHistory(String coachMongoId){
+        Optional<CoachesNodeDTO> optionalCoach = CMn.findByMongoIdLight(coachMongoId);
         if(optionalCoach.isPresent()){
-            CoachesNode existingCoachNode = optionalCoach.get();
-            return existingCoachNode.getTeamMNodes();
+            return CMn.findHistoryTrained(coachMongoId);
         }
         else{
             throw new RuntimeErrorException(null, "Coach with id:" + coachMongoId + "not found");
         }
     }
 
-    public manages_team showCurrentTeam(String coachMongoId){
-        Optional<CoachesNode> optionalCoach = CMn.findByMongoId(coachMongoId);
-        Optional<manages_team> optionalRelationship = optionalCoach.flatMap(coach -> coach.getTeamMNodes().stream()
-        .filter(team -> team.getFifaV().equals(CURRENT_YEAR)).findFirst());
-        if(optionalCoach.isPresent() && optionalRelationship.isPresent()){
-            manages_team existingTeam = optionalRelationship.get();
-            return existingTeam;
+    public TeamsNodeDTO showCurrentTeam(String coachMongoId){
+        Optional<CoachesNodeDTO> optionalCoach = CMn.findByMongoIdLight(coachMongoId);
+        if(optionalCoach.isPresent()){
+           return CMn.findTeam(coachMongoId, CURRENT_YEAR);
         }
         else{
             throw new RuntimeErrorException(null, "Coach with id:" + coachMongoId + " not found or team not found for this year");
         }
     }
 
-    public manages_team showSpecificTeam(String coachMongoId, Integer fifaV){
-        Optional<CoachesNode> optionalCoach = CMn.findByMongoId(coachMongoId);
-        Optional<manages_team> optionalRelationship = optionalCoach.flatMap(coach -> coach.getTeamMNodes().stream()
-        .filter(team -> team.getFifaV().equals(fifaV)).findFirst());
-        if(optionalCoach.isPresent() && optionalRelationship.isPresent()){
-            manages_team existingTeam = optionalRelationship.get();
-            return existingTeam;
+    public TeamsNodeDTO showSpecificTeam(String coachMongoId, Integer fifaV){
+        Optional<CoachesNodeDTO> optionalCoach = CMn.findByMongoIdLight(coachMongoId);
+        
+        if(optionalCoach.isPresent()){
+            return CMn.findTeam(coachMongoId, fifaV);
         }
         else{
             throw new RuntimeErrorException(null, "Coach with id:" + coachMongoId + " not found or team not found for this year");

@@ -9,9 +9,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
-import com.example.demo.models.Neo4j.ArticlesNode;
-import com.example.demo.models.Neo4j.UsersNode;
+import com.example.demo.projections.ArticlesNodeDTO;
 import com.example.demo.projections.PlayersNodeDTO;
+import com.example.demo.projections.UsersNodeDTO;
 import com.example.demo.projections.UsersNodeProjection;
 import com.example.demo.services.Neo4j.Users_node_service;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,15 +48,15 @@ public class Users_node_controller {
     //???????
     @GetMapping("admin/user/node/list")
     @Operation(summary = "READ: get all Users_node", tags={"Admin:User"})
-    public Page<UsersNode> getAllUsers(@RequestParam(defaultValue = "0") int page,
+    public Page<UsersNodeDTO> getAllUsers(@RequestParam(defaultValue = "0") int page,
                                        @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
         return Uns.getAllUsers(pageable);
     }
 
     @GetMapping("user/{userName}/articles")
-    @Operation(summary = "READ: get all articles of a user", tags={"User"})
-    public Page<ArticlesNode> getUserArticles(@PathVariable String userName,
+    @Operation(summary = "READ: get all articles of a user", tags={"User:Article"})
+    public Page<ArticlesNodeDTO> getUserArticles(@PathVariable String userName,
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "50") int size) {
         PageRequest pageable = PageRequest.of(page, size);
@@ -166,13 +166,13 @@ public class Users_node_controller {
     }
 
     //LIKE / UNLIKE ARTICLES
-     @PostMapping("/user/article/{articleId}/like")
+     @PostMapping("article/{articleId}/like")
     @Operation(summary = "LIKE an article by its mongoId", tags={"Article"})
     public CompletableFuture<String> articleLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
         return Uns.LIKE_ARTICLE(auth.getName(), articleId);
     }
 
-     @DeleteMapping("/user/article/{articleId}/unlike")
+     @DeleteMapping("article/{articleId}/unlike")
     @Operation(summary = "UNLIKE an article by its mongoId", tags={"Article"})
     public CompletableFuture<String> articleUNLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
         return Uns.UNLIKE_ARTICLE(auth.getName(), articleId);
@@ -192,37 +192,37 @@ public class Users_node_controller {
     }
 
     // LIKES
-    @PostMapping("/user/team/{_id}/like")
+    @PostMapping("team/{_id}/like")
     @Operation(summary = "LIKE a team by its mongoId", tags={"Team"})
     public CompletableFuture<String> teamLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.team_LIKE(auth.getName(), _id);
     }
 
-       @DeleteMapping("/user/team/{_id}/unlike")
+       @DeleteMapping("team/{_id}/unlike")
     @Operation(summary = "UNLIKE a team by its mongoId", tags={"Team"})
     public CompletableFuture<String> teamUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.team_UNLIKE(auth.getName(), _id);
     }
 
-     @PostMapping("/user/player/{_id}/like")
+     @PostMapping("player/{_id}/like")
     @Operation(summary = "LIKE a player by its mongoId", tags={"Player"})
     public CompletableFuture<String> playerLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.player_LIKE(auth.getName(), _id);
     }
 
-    @DeleteMapping("/user/player/{_id}/unlike")
+    @DeleteMapping("player/{_id}/unlike")
     @Operation(summary = "UNLIKE a player by its mongoId", tags={"Player"})
     public CompletableFuture<String> playerUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.player_UNLIKE(auth.getName(), _id);
     }
 
-   @PostMapping("/user/coach/{_id}/like")
+   @PostMapping("coach/{_id}/like")
     @Operation(summary = "LIKE a coach by its mongoId", tags={"Coach"})
     public CompletableFuture<String> coachLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.coach_LIKE(auth.getName(), _id);
     }
 
-     @DeleteMapping("/user/coach/{_id}/unlike")
+     @DeleteMapping("coach/{_id}/unlike")
     @Operation(summary = "UNLIKE a coach by its mongoId", tags={"Coach"})
     public CompletableFuture<String> coachUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
         return Uns.coach_UNLIKE(auth.getName(), _id);

@@ -21,7 +21,7 @@ public interface Coaches_repository extends MongoRepository<Coaches,String>{
     {
         "teams": {
             "$elemMatch": {
-                "team_mongo_id": ?0
+                "team_mongo_id": { $oid: ?0 }
             }
         }
     }

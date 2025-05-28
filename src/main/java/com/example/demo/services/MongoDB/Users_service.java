@@ -28,13 +28,13 @@ import com.example.demo.services.Neo4j.Users_node_service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.transaction.Transactional;
+
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Async;
+
 
 @Service
 public class Users_service {
@@ -73,8 +73,7 @@ public class Users_service {
             throw new RuntimeErrorException(null, "User not found with username: " + username);
         }
     }
-    @Async("customAsyncExecutor")
-   @Transactional
+
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -115,8 +114,7 @@ public class Users_service {
         }
         
     }
-    @Async("customAsyncExecutor")
-    @Transactional
+
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -148,8 +146,7 @@ public class Users_service {
                 throw new RuntimeException("User with username: " + oldUserName + " not correctly mapped in Neo4j");
             }
     }
-    @Async("customAsyncExecutor")
-    @Transactional
+
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -181,8 +178,6 @@ public class Users_service {
        
     }
     //ARTICLES OPERATIONS
-@Async("customAsyncExecutor")
-@Transactional
 @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -227,8 +222,6 @@ public CompletableFuture<Articles> createArticle(String username, createArticleR
     return CompletableFuture.completedFuture(savedArticle);
 }
 
-    @Async("customAsyncExecutor")
-    @Transactional
     @Retryable(
         value = { Exception.class },
         maxAttempts = 3,
@@ -271,8 +264,6 @@ public CompletableFuture<Articles> createArticle(String username, createArticleR
         
     }
     
-    @Async("customAsyncExecutor")
-    @Transactional
     @Retryable(
         value = { Exception.class },
         maxAttempts = 3,
@@ -297,7 +288,7 @@ public CompletableFuture<Articles> createArticle(String username, createArticleR
                 neo4jArticleDeleteEvent.setPublished(false);
                 neo4jArticleDeleteEvent.setCreatedAt(LocalDateTime.now());
                 outboxEventRepository.save(neo4jArticleDeleteEvent);
-                return CompletableFuture.completedFuture("Article deleted correctly!");
+                return CompletableFuture.completedFuture("Request submitted...");
             }
             else{
                 throw new RuntimeErrorException(null, "User not found with username: " + username+" or Article not present with id:" + articleId);
@@ -308,8 +299,6 @@ public CompletableFuture<Articles> createArticle(String username, createArticleR
         }
     }
     //OPERATIONS TO MANAGE AUTHENTICATION
-    @Async("customAsyncExecutor")
-    @Transactional
     @Retryable(
         value = { Exception.class },
         maxAttempts = 3,
@@ -323,8 +312,7 @@ public CompletableFuture<Articles> createArticle(String username, createArticleR
         );
         return createUser(request);
     }
-    @Async("customAsyncExecutor")
-   @Transactional
+
     @Retryable(
         value = { Exception.class },
         maxAttempts = 3,

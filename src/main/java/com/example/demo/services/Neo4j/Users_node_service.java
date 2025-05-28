@@ -28,10 +28,11 @@ import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.MongoDB.OutboxEvent;
 import com.example.demo.models.MongoDB.Players;
 import com.example.demo.models.MongoDB.Users;
-import com.example.demo.models.Neo4j.ArticlesNode;
 import com.example.demo.models.Neo4j.PlayersNode;
 import com.example.demo.models.Neo4j.UsersNode;
+import com.example.demo.projections.ArticlesNodeDTO;
 import com.example.demo.projections.PlayersNodeDTO;
+import com.example.demo.projections.UsersNodeDTO;
 import com.example.demo.projections.UsersNodeProjection;
 import com.example.demo.relationships.has_in_F_team;
 import com.example.demo.relationships.has_in_M_team;
@@ -86,31 +87,26 @@ public class Users_node_service {
 
 
     //------------------------- READ--------------------------
-    public UsersNode getUsers(String userName) {
-        Optional<UsersNode> optionalUser = Unr.findByUserName(userName);
-        if (optionalUser.isPresent()) {
-            return optionalUser.get();
-        } else {
-            throw new RuntimeErrorException(null, "User not found with username: " + userName);
-        }
+    public UsersNodeDTO getUsers(String userName) {
+        return Unr.findByUserNameLight(userName).orElseThrow(() -> new RuntimeException("User not found with username: " + userName));  
     }
 
-    public Page<UsersNode> getAllUsers(PageRequest page){
-        return Unr.findAll(page);
+    public Page<UsersNodeDTO> getAllUsers(PageRequest page){
+        return Unr.findAllLightWithPagination(page);
     }
 
     public List<FifaStatsPlayer> ShowUserMPlayersStats(String username) {
         List<FifaStatsPlayer> listToReturn = new ArrayList<>();
-        Optional<UsersNode> userNodeOpt = Unr.findByUserName(username);
+        Optional<UsersNodeDTO> userNodeOpt = Unr.findByUserNameLight(username);
         if (userNodeOpt.isEmpty()) {
             throw new IllegalArgumentException("User : " + username + " not found");
         }
 
-        UsersNode user = userNodeOpt.get();
-        List<has_in_M_team> relationships = user.getPlayersMNodes();
+       
+        List<PlayersNodeDTO> relationships = Unr.findHasInMTeamRelationshipsByUsername(username);
 
-        for (has_in_M_team fifaRel : relationships) {
-            String mongoId = fifaRel.getPlayer().getMongoId();
+        for (PlayersNodeDTO fifaRel : relationships) {
+            String mongoId = fifaRel.getMongoId();
             Integer fifaVersion = fifaRel.getFifaV();
 
             Optional<Players> playerOpt = PMr.findPlayerWithFifaStats(mongoId, fifaVersion);
@@ -132,16 +128,16 @@ public class Users_node_service {
 
     public List<FifaStatsPlayer> ShowUserFPlayersStats(String username) {
         List<FifaStatsPlayer> listToReturn = new ArrayList<>();
-        Optional<UsersNode> userNodeOpt = Unr.findByUserName(username);
+        Optional<UsersNodeDTO> userNodeOpt = Unr.findByUserNameLight(username);
         if (userNodeOpt.isEmpty()) {
             throw new IllegalArgumentException("User with id: " + username + " not found");
         }
 
-        UsersNode user = userNodeOpt.get();
-        List<has_in_F_team> relationships = user.getPlayersFNodes();
+        
+        List<PlayersNodeDTO> relationships = Unr.findHasInFTeamRelationshipsByUsername(username);
 
-        for (has_in_F_team fifaRel : relationships) {
-            String mongoId = fifaRel.getPlayer().getMongoId();
+        for (PlayersNodeDTO fifaRel : relationships) {
+            String mongoId = fifaRel.getMongoId();
             Integer fifaVersion = fifaRel.getFifaV();
 
             Optional<Players> playerOpt = PMr.findPlayerWithFifaStats(mongoId, fifaVersion);
@@ -162,20 +158,9 @@ public class Users_node_service {
     }
 
     public List<PlayersNodeDTO> ShowUserMPlayers(String username) {
-        Optional<UsersNode> userNodeOpt = Unr.findByUserName(username);
+        Optional<UsersNodeDTO> userNodeOpt = Unr.findByUserNameLight(username);
         if(userNodeOpt.isPresent()){
-            UsersNode user = userNodeOpt.get();
-            List<has_in_M_team> relationships = user.getPlayersMNodes();
-            List<PlayersNodeDTO> playersList = new ArrayList<>();
-            for (has_in_M_team relationship : relationships) {
-                PlayersNode player = relationship.getPlayer();
-                PlayersNodeDTO playerProjection = new PlayersNodeDTO();
-                playerProjection.setLongName(player.getLongName());
-                playerProjection.setMongoId(player.getMongoId());
-                playerProjection.setGender(player.getGender());
-                playersList.add(playerProjection);
-            }
-            return playersList;
+            return Unr.findHasInMTeamRelationshipsByUsername(username);
         }
         else{
             throw new IllegalArgumentException("User with id: " + username + " not found");
@@ -184,20 +169,9 @@ public class Users_node_service {
 }
     
     public List<PlayersNodeDTO> ShowUserFPlayers(String username) {
-        Optional<UsersNode> userNodeOpt = Unr.findByUserName(username);
+        Optional<UsersNodeDTO> userNodeOpt = Unr.findByUserNameLight(username);
         if(userNodeOpt.isPresent()){
-            UsersNode user = userNodeOpt.get();
-            List<has_in_F_team> relationships = user.getPlayersFNodes();
-            List<PlayersNodeDTO> playersList = new ArrayList<>();
-            for (has_in_F_team relationship : relationships) {
-                PlayersNode player = relationship.getPlayer();
-                PlayersNodeDTO playerProjection = new PlayersNodeDTO();
-                playerProjection.setLongName(player.getLongName());
-                playerProjection.setMongoId(player.getMongoId());
-                playerProjection.setGender(player.getGender());
-                playersList.add(playerProjection);
-            }
-            return playersList;
+           return Unr.findHasInFTeamRelationshipsByUsername(username);
         }
         else{
             throw new IllegalArgumentException("User with id: " + username + " not found");
@@ -212,16 +186,22 @@ public class Users_node_service {
         return Unr.findFollowersByUserName(username);
     }
     
-    public Page<ArticlesNode> getUserArticles(String username, PageRequest page){
+    public Page<ArticlesNodeDTO> getUserArticles(String username, PageRequest page){
         
-    return AR.findAllByAuthor(username, page);
+    return AR.findAllByAuthorWithPaginationLight(username, page);
        
     }
-    
-    public ArticlesNode getSpecificUserArticle(String username, String articleId){  
-        Optional<ArticlesNode> optionalArticleNode = AR.findOneByAuthorAndMongoId(username, articleId);
+
+    public ArticlesNodeDTO getSpecificUserArticle(String username, String articleId){  
+        Optional<ArticlesNodeDTO> optionalArticleNode = AR.findByMongoIdLight(articleId);
         if (optionalArticleNode.isPresent()) {
-            return optionalArticleNode.get();
+            ArticlesNodeDTO articleNodeDTO = optionalArticleNode.get();
+            if(articleNodeDTO.getAuthor().equals(username)){
+                return articleNodeDTO;
+            }
+            else {
+                throw new RuntimeException("Article with id: " + articleId + " does not belong to user: " + username);
+            }
         } else {
             throw new RuntimeException("Article with id: " + articleId + " not found for user: " + username);
         }
@@ -237,7 +217,7 @@ public class Users_node_service {
     public CompletableFuture<String> addInMTeam(String username, String playerMongoId, Integer fifaVersion) throws JsonProcessingException {
     Map<String, Object> neo4jPayload = new HashMap<>();
     neo4jPayload.put("username", username);
-    neo4jPayload.put("playersMongoId", playerMongoId);
+    neo4jPayload.put("playerMongoId", playerMongoId);
     neo4jPayload.put("fifaVersion", fifaVersion);
     OutboxEvent event = new OutboxEvent();
     event.setEventType("Neo4jAddInMTeam");
@@ -260,7 +240,7 @@ public class Users_node_service {
     public CompletableFuture<String> addInFTeam(String username, String playerMongoId, Integer fifaVersion) throws JsonProcessingException {
     Map<String, Object> neo4jPayload = new HashMap<>();
     neo4jPayload.put("username", username);
-    neo4jPayload.put("playersMongoId", playerMongoId);
+    neo4jPayload.put("playerMongoId", playerMongoId);
     neo4jPayload.put("fifaVersion", fifaVersion);
     OutboxEvent event = new OutboxEvent();
     event.setEventType("Neo4jAddInFTeam");
@@ -283,7 +263,7 @@ public class Users_node_service {
     public CompletableFuture<String> removePlayerMTeam(String username, String playerMongoId) throws JsonProcessingException {
     Map<String, Object> neo4jPayload = new HashMap<>();
     neo4jPayload.put("username", username);
-    neo4jPayload.put("playersMongoId", playerMongoId);
+    neo4jPayload.put("playerMongoId", playerMongoId);
     
     OutboxEvent event = new OutboxEvent();
     event.setEventType("Neo4jRemoveInMTeam");
@@ -305,7 +285,7 @@ public class Users_node_service {
     public CompletableFuture<String> removePlayerFTeam(String username, String playerMongoId) throws JsonProcessingException{
         Map<String, Object> neo4jPayload = new HashMap<>();
         neo4jPayload.put("username", username);
-        neo4jPayload.put("playersMongoId", playerMongoId);
+        neo4jPayload.put("playerMongoId", playerMongoId);
     
         OutboxEvent event = new OutboxEvent();
         event.setEventType("Neo4jRemoveInFTeam");
@@ -319,7 +299,6 @@ public class Users_node_service {
 
     //----------------USER INTERACTIONS------------------
     
-    @Async("customAsyncExecutor")
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -341,7 +320,6 @@ public class Users_node_service {
         } 
 
 
-    @Async("customAsyncExecutor")
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -363,7 +341,6 @@ public class Users_node_service {
         } 
 
   
-    @Async("customAsyncExecutor")
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -386,7 +363,6 @@ public class Users_node_service {
     } 
 
     
-    @Async("customAsyncExecutor")
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -408,7 +384,6 @@ public class Users_node_service {
     } 
     
     
-    @Async("customAsyncExecutor")
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -429,7 +404,7 @@ public class Users_node_service {
         
     } 
      
-    @Async("customAsyncExecutor")
+
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -449,7 +424,6 @@ public class Users_node_service {
         return CompletableFuture.completedFuture("Request submitted...");
         } 
     
-    @Async("customAsyncExecutor")
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -457,7 +431,7 @@ public class Users_node_service {
     )
     public CompletableFuture<String> coach_LIKE(String username, String coachMongoId) throws JsonProcessingException {
         System.out.println("Attempting to find user: " + username);
-            Map<String, Object> neo4jPayload = new HashMap<>();
+        Map<String, Object> neo4jPayload = new HashMap<>();
         neo4jPayload.put("username", username);
         neo4jPayload.put("coachMongoId", coachMongoId);
         OutboxEvent event = new OutboxEvent();
@@ -471,7 +445,6 @@ public class Users_node_service {
             
         } 
     
-    @Async("customAsyncExecutor")
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -492,7 +465,6 @@ public class Users_node_service {
         } 
 
     
-    @Async("customAsyncExecutor")
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -514,7 +486,6 @@ public class Users_node_service {
             
         } 
     
-    @Async("customAsyncExecutor")
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -546,24 +517,14 @@ public class Users_node_service {
         }
     }
 
-    public void deleteUser(String mongoId) {
-        Optional<UsersNode> optionalUserNode = Unr.findByMongoId(mongoId);
+    public void deleteUser(String userName) {
+        Optional<UsersNodeDTO> optionalUserNode = Unr.findByUserNameLight(userName);
         if(optionalUserNode.isPresent()){
-            UsersNode existingUsersNode = optionalUserNode.get();
-            existingUsersNode.getPlayersFNodes().clear();
-            existingUsersNode.getPlayersMNodes().clear();
-            existingUsersNode.getArticlesNodes().clear();
-            existingUsersNode.getFollowings().clear();
-            existingUsersNode.getLikedArticlesNodes().clear();
-            existingUsersNode.getCoachesNodes().clear();
-            existingUsersNode.getTeamsNodes().clear();
-            existingUsersNode.getPlayersMNodes().clear();
-
-            Unr.delete(existingUsersNode);
+            Unr.deleteUserByUserNameLight(userName);
 
         }
         else{
-            throw new RuntimeErrorException(null, "User not found with mongoId: " + mongoId);
+            throw new RuntimeErrorException(null, "User not found with userName: " + userName);
         }
     }
 

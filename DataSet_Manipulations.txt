@@ -277,9 +277,6 @@ db.male_teams.aggregate([
           midfield: "$midfield",
           defence: "$defence",
           club_worth_eur: "$club_worth_eur",
-          off_players_in_box: "$off_players_in_box",
-          off_corners: "$off_corners",
-          off_free_kicks: "$off_free_kicks",
           coach: {
             coach_id: "$coach_id",
             coach_mongo_id:"$coach_info._id",
