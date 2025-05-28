@@ -50,6 +50,7 @@ Same for FEMALE_TEAMS
 ____________________________________________________________________________________
 CODE
 _____________________________________________________________________________________
+----1st (both male and female)-----
 db.male_players.aggregate([
   // Lookup matching teams by club ID, club name, and fifa_version
   {
@@ -119,7 +120,7 @@ db.male_players.aggregate([
           nation_jersey_number: "$nation_jersey_number",
           release_clause_eur: "$release_clause_eur",
           team: {
-            team_mongo_id: "$team_info._id",
+            team_mongo_id: {$toString: "$team_info._id"},
             team_name: "$team_info.team_name",
             team_id: "$team_info.team_id"
           },
@@ -194,7 +195,7 @@ db.male_players.aggregate([
 
 
 _____________________________________________________________________________
-
+----2nd (both male and female)-----
   db.male_coaches.aggregate([
     {
       $lookup: {
@@ -218,7 +219,7 @@ _____________________________________________________________________________
         team: {
           $push: {
             fifa_version: "$team_info.fifa_version",
-            team_mongo_id: "$team_info._id",
+            team_mongo_id: {$toString: "$team_info._id"},
             team_id: "$team_info.team_id",
             team_name: "$team_info.team_name"
           }
@@ -245,6 +246,7 @@ _____________________________________________________________________________
 
 
 _____________________________________________________________________________________________
+----3rd (both male and female)-----
 db.male_teams.aggregate([
   {
     $lookup: {
@@ -279,7 +281,7 @@ db.male_teams.aggregate([
           club_worth_eur: "$club_worth_eur",
           coach: {
             coach_id: "$coach_id",
-            coach_mongo_id:"$coach_info._id",
+            coach_mongo_id:{$toString: "$coach_info._id"},
             coach_name: "$coach_info.long_name"
           }
         }
@@ -306,7 +308,7 @@ db.male_teams.aggregate([
 
 
 ________________________________________________________________________________________________________________________________________
----------After the second aggregation-----------------
+----9th-----
 db.Coaches.updateMany(
   {}, // Empty filter to match all documents
   [
@@ -332,7 +334,7 @@ db.Coaches.updateMany(
 );
 
 _____________________________________________________________________________________________________________________________________
----------After the first aggregation-----------------
+----4th-----
 db.Coaches.aggregate([
   // Match documents with at least one team.team_id
   {
@@ -395,7 +397,7 @@ db.Coaches.aggregate([
           in: {
             $mergeObjects: [
               "$$t",
-              { team_mongo_id: "$canonicalTeamMongoId" }
+              { team_mongo_id: {$toString: "$canonicalTeamMongoId"} }
             ]
           }
         }
@@ -419,7 +421,7 @@ db.Coaches.aggregate([
 ]);
 
 ________________________________________________________________________________________________________________________________________
----------After the second aggregation-----------------
+----8th-----
 db.Teams.updateMany(
   {}, // Empty filter to match all documents
   [
@@ -451,7 +453,7 @@ db.Teams.updateMany(
 );
 
 _____________________________________________________________________________________________________________________________________
----------After the first aggregation-----------------
+----5th-----
 db.Teams.aggregate([
   // Match Teams that have fifaStats with coach entries
   {
@@ -545,7 +547,7 @@ db.Teams.aggregate([
                               }
                             }
                           },
-                          in: "$$entry.v"
+                          in: { $toString: "$$entry.v" }
                         }
                       }
                     }
@@ -576,7 +578,7 @@ db.Teams.aggregate([
 
 
 _____________________________________________________________________________________________________________________________________
----------After the first aggregation-----------------
+----6th-----
 db.Players.aggregate([
   // Step 1: Filter players where at least one fifaStats.team.team_id exists
   {
@@ -670,7 +672,7 @@ db.Players.aggregate([
         }
       }
     },
-    in: "$$entry.v"
+    in: {$toString: "$$entry.v"}
   }
 }
 
@@ -702,7 +704,7 @@ db.Players.aggregate([
 
 
 ________________________________________________________________________________________________________________________________________
----------After the second aggregation-----------------
+----7th-----
 db.Players.updateMany(
   {}, // Empty filter to match all documents
   [
