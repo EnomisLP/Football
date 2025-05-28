@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import com.example.demo.models.Neo4j.CoachesNode;
 import com.example.demo.projections.CoachesNodeDTO;
 import com.example.demo.projections.TeamsNodeDTO;
-import com.example.demo.relationships.manages_team;
+
 @Repository
 public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
 
@@ -35,8 +35,13 @@ public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
     @Query("MATCH (c:CoachesNode) -[r:MANAGES_TEAM]-> (t:TeamsNode) " +
     "WHERE r.fifaVersion = $fifaV " +
     "AND t.mongoId = $mongoId " +
-    "RETURN r")
-    manages_team findFifaVersionByMongoIdAndFifaV(String mongoId, Integer fifaV);
+    "RETURN c.mongoId AS mongoId, c.longName AS long, c.gender AS gender, r.fifaVersion AS fifaVersion")
+    Optional<CoachesNodeDTO> findFifaVersionByMongoIdAndFifaV(String mongoId, Integer fifaV);
+    @Query("MATCH (c:CoachesNode) -[r:MANAGES_TEAM]-> (t:TeamsNode) " +
+    "WHERE r.fifaVersion = $fifaV " +
+    "AND c.mongoId = $mongoId " +
+    "RETURN t.mongoId AS mongoId, t.longName AS long, t.gender AS gender, r.fifaVersion AS fifaVersion")
+    Optional<TeamsNodeDTO> findTeamsbyFifaVAndMongoId(String mongoId, Integer fifaV);
 
     Optional<CoachesNode> findByLongName(String string);
     @Query("MATCH (c:CoachesNode {mongoId: $mongoId})-[r:MANAGES_TEAM]->(p:TeamsNode) "+

@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.projections.TeamsNodeDTO;
-import com.example.demo.relationships.plays_in_team;
+
 import com.example.demo.services.Neo4j.Players_node_service;
 import io.swagger.v3.oas.annotations.Operation;
 

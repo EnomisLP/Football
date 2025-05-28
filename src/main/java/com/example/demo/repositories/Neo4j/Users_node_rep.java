@@ -12,8 +12,6 @@ import com.example.demo.models.Neo4j.UsersNode;
 import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.projections.UsersNodeDTO;
 import com.example.demo.projections.UsersNodeProjection;
-import com.example.demo.relationships.has_in_F_team;
-import com.example.demo.relationships.has_in_M_team;
 
 
 
@@ -78,8 +76,8 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
   @Query("MATCH (u:UsersNode) -[r:HAS_IN_M_TEAM|HAS_IN_F_TEAM]->(p:PlayersNode ) "+
   "WHERE r.fifaVersion = $fifaV " +
   "AND p.mongoId = $mongoId " +
-  "RETURN u")
-  List<UsersNode> findUsersByMongoIdAndFifaVersion(String mongoId, Integer fifaV);
+  "RETURN u.mongoId AS mongoId, u.userName AS userName")
+  List<UsersNodeDTO> findUsersByMongoIdAndFifaVersion(String mongoId, Integer fifaV);
  @Query("MATCH (u:UsersNode {userName: $username})-[r:HAS_IN_M_TEAM]->(p:PlayersNode) " +
  "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender, r.fifaVersion AS fifaV")
   List<PlayersNodeDTO> findHasInMTeamRelationshipsByUsername(String username);

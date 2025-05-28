@@ -18,6 +18,6 @@ public interface Teams_repository extends MongoRepository<Teams,String>{
     @Query("{ 'gender' : ?0 }")
     Page<Teams> findAllByGender(String gender, PageRequest page);
 
-   @Query("{ 'fifaStats.coach.coach_mongo_id': { $oid: ?0 } }")
+    @Query("{ 'fifaStats.coach.coach_mongo_id': { $in: [ObjectId(?0), ?0] } }")
     List<Teams> findByCoachMongoId(String id);
 }

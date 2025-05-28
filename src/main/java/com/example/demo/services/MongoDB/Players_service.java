@@ -12,13 +12,10 @@ import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.MongoDB.Players;
 import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.models.Neo4j.PlayersNode;
-import com.example.demo.models.Neo4j.TeamsNode;
-import com.example.demo.models.Neo4j.UsersNode;
+
 import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.projections.TeamsNodeDTO;
-import com.example.demo.relationships.has_in_F_team;
-import com.example.demo.relationships.has_in_M_team;
-import com.example.demo.relationships.plays_in_team;
+import com.example.demo.projections.UsersNodeDTO;
 import com.example.demo.repositories.MongoDB.Players_repository;
 import com.example.demo.repositories.MongoDB.Teams_repository;
 import com.example.demo.repositories.Neo4j.Players_node_rep;
@@ -135,51 +132,40 @@ public class Players_service {
         Optional<Players> optionalPlayer = PMr.findById(id);
         if (optionalPlayer.isPresent()) {
             Players existingPlayer = optionalPlayer.get();
-            Optional<PlayersNode> optionalPlayerNode = Pmr.findByMongoId(existingPlayer.get_id());
+            Optional<PlayersNodeDTO> optionalPlayerNode = Pmr.findByMongoIdLight(existingPlayer.get_id());
             if(optionalPlayerNode.isPresent()){
-                PlayersNode existingPlayerNode = optionalPlayerNode.get();
                 List<FifaStatsPlayer> stats = existingPlayer.getFifaStats();
                 for(FifaStatsPlayer stat: stats){
                     if(stat.getFifa_version().equals(fifaV)){
                         if(!fifaV.equals(request.getFifa_version())){
                             stat.setFifa_version(request.getFifa_version());
-                            List<plays_in_team> teams = existingPlayerNode.getTeamMNodes();
-                            if(teams != null){
-                                for(plays_in_team team : teams){
-                                    if(team.getFifaV().equals(fifaV)){
-                                        team.setFifaV(request.getFifa_version());
-                                        Pmr.save(existingPlayerNode);
-                                        break;
-                                    }
-                                }
-                            }
-                            List<UsersNode> users = Unr.findUsersByMongoIdAndFifaVersion(existingPlayer.get_id(),fifaV);
+                            Pmr.createPlaysInTeamRelationToTeam(id, stat.getTeam().getTeam_mongo_id(), request.getFifa_version());
+                            Pmr.deletePlaysInTeamRelationToTeam(id, stat.getTeam().getTeam_mongo_id(), fifaV);
+
+                            List<UsersNodeDTO> users = Unr.findUsersByMongoIdAndFifaVersion(id, fifaV);
                             if(users != null){
-                                for(UsersNode user : users){
-                                    Optional<UsersNode> hydratatedUser = Unr.findByUserName(user.getUserName());
-                                    if(hydratatedUser.isPresent()){
-                                        UsersNode existingUser = hydratatedUser.get();
-                                        List<has_in_M_team> teamsM = existingUser.getPlayersMNodes();
-                                        if(teamsM != null){
-                                            for(has_in_M_team team : teamsM){
-                                                if(team.getFifaV().equals(fifaV)){
-                                                    team.setFifaV(request.getFifa_version());
-                                                    Unr.save(existingUser);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        List<has_in_F_team> teamsF = existingUser.getPlayersFNodes();
-                                        if(teamsF != null){
-                                            for(has_in_F_team team : teamsF){
-                                                if(team.getFifaV().equals(fifaV)){
-                                                    team.setFifaV(request.getFifa_version());
-                                                    Unr.save(existingUser);
-                                                    break;
-                                                }
+                                for(UsersNodeDTO user : users){
+                                    List<PlayersNodeDTO> players = Unr.findHasInMTeamRelationshipsByUsername(user.getUserName());
+                                    List<PlayersNodeDTO> fPlayers = Unr.findHasInFTeamRelationshipsByUsername(user.getUserName());
+                                    if(existingPlayer.getGender().equals("male")){
+                                        if(players != null){
+                                            for(PlayersNodeDTO player : players){
+                                                Unr.deleteHasInMTeamRelation(user.getUserName(), player.getMongoId());
+                                                Unr.createHasInMTeamRelation(user.getUserName(), player.getMongoId(), request.getFifa_version());
+                                             
                                             }
                                         }
                                     }
+                                    if(existingPlayer.getGender().equals("female")){
+                                        if(fPlayers != null){
+                                        for(PlayersNodeDTO fPlayer : fPlayers){
+                                            Unr.deleteHasInFTeamRelation(user.getUserName(), fPlayer.getMongoId());
+                                            Unr.createHasInFTeamRelation(user.getUserName(), fPlayer.getMongoId(), request.getFifa_version());
+                                        }
+                                    }
+                                    }
+                                    
+                                   
                                 }
                             }
                         }
@@ -231,6 +217,7 @@ public class Players_service {
                         stat.setGoalkeeping_kicking(request.getGoalkeeping_kicking());
                         stat.setGoalkeeping_positioning(request.getGoalkeeping_positioning());
                         stat.setGoalkeeping_reflexes(request.getGoalkeeping_reflexes());
+                        break;
                     }
                 }
                 return PMr.save(existingPlayer);

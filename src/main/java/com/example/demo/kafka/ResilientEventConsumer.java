@@ -18,7 +18,6 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
-
 import com.example.demo.configurations.Neo4j.Neo4jHealthChecker;
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.MongoDB.OutboxEvent;
@@ -499,10 +498,12 @@ public class ResilientEventConsumer {
         String username = (String) eventData.get("username");
         String targetUsername = (String) eventData.get("targetUsername");
         Optional<UsersNodeDTO> optional = usersNodeRepository.findByUserNameLight(targetUsername);
-        if(optional.isPresent()){
+        if(optional.isPresent() && !username.equals(targetUsername)){
+
             usersNodeRepository.createFollowRelation(username, targetUsername);
         }
         else{
+            
             throw new RuntimeErrorException(null, "User not found with username : " + targetUsername);
         }
     }

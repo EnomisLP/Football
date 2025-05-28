@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import com.example.demo.projections.CoachesNodeDTO;
 import com.example.demo.projections.TeamsNodeDTO;
-import com.example.demo.relationships.manages_team;
+
 import com.example.demo.services.Neo4j.Coaches_node_service;
 
 

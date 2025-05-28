@@ -13,10 +13,9 @@ import com.example.demo.models.MongoDB.FifaStatsTeam;
 import com.example.demo.models.MongoDB.TeamObj;
 import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.models.Neo4j.CoachesNode;
-import com.example.demo.models.Neo4j.TeamsNode;
+
 import com.example.demo.projections.CoachesNodeDTO;
 import com.example.demo.projections.TeamsNodeDTO;
-import com.example.demo.relationships.manages_team;
 import com.example.demo.repositories.MongoDB.Coaches_repository;
 import com.example.demo.repositories.MongoDB.Teams_repository;
 import com.example.demo.repositories.Neo4j.Coaches_node_rep;
@@ -198,6 +197,9 @@ public class Coaches_service {
 
             //Updating Team MongoDB
             List<Teams> teams = TMs.findByCoachMongoId(id);
+            if(teams.isEmpty()){
+                throw new RuntimeException("Team list empty");
+            }
             for(Teams team : teams){
                 List<FifaStatsTeam> stats = team.getFifaStats();
                 Optional<TeamsNodeDTO> optionalTeamsNode = TMr.findByMongoIdLight(team.get_id());
@@ -206,19 +208,14 @@ public class Coaches_service {
                 }
                 for(FifaStatsTeam stat : stats){
                     if(stat.getFifa_version().equals(oldFifaV)){
-                        Cmr.deleteManagesRelationToTeam(id, team.get_id(), oldFifaV);
-                        stat.getCoach().setCoach_name(null);
-                        stat.getCoach().setCoach_mongo_id(null);
-                        TMs.save(team);
-                    }
-                }
-                for(FifaStatsTeam stat : stats){
-                    if(stat.getFifa_version().equals(newFifaV)){
+                        Cmr.deleteManagesRelationToTeam(existingCoach.get_id(), team.get_id(), oldFifaV);
                         Cmr.createManagesRelationToTeam(existingCoach.get_id(), team.get_id(), newFifaV);
-                        stat.getCoach().setCoach_name(existingCoach.getLong_name());
+                        stat.setFifa_version(newFifaV);
                         TMs.save(team);
+                        break;
                     }
                 }
+                
             }
 
             //Updating Coach MongoDB
@@ -279,7 +276,7 @@ public class Coaches_service {
                     if(team.getFifa_version().equals(fifaV)){
                         Optional<TeamsNodeDTO> optionalTeamsNode = TMr.findByMongoIdLight(team.getTeam_mongo_id());
                         if(optionalTeamsNode.isPresent()){
-                            manages_team relationship = Cmr.findFifaVersionByMongoIdAndFifaV(team.getTeam_mongo_id(), fifaV);
+                            Optional<CoachesNodeDTO> relationship = Cmr.findFifaVersionByMongoIdAndFifaV(team.getTeam_mongo_id(), fifaV);
                             if (relationship != null) {
                                 
                                 Cmr.deleteManagesRelationToTeam(id, team.getTeam_mongo_id(), fifaV);
