@@ -32,7 +32,7 @@ public class Players_node_controller {
     }
 
     // READ: Get all players by gender
-    @GetMapping("/user/search/filter/player/list/byGender/{gender}")
+    @GetMapping("search/filter/player/list/byGender/{gender}")
     @Operation(summary = "READ: Get all players for a specific gender with pagination", tags = {"Player"})
     public Page<PlayersNodeDTO> getAllPlayers(
         @PathVariable String gender,
@@ -45,14 +45,14 @@ public class Players_node_controller {
 
 
     // READ: Show the current team a player plays in
-    @GetMapping("/user/player/{_id}/team")
+    @GetMapping("player/{_id}/team")
     @Operation(summary = "READ: Show the team a player is currently playing in", tags={"Player"})
     public TeamsNodeDTO showCurrentTeam(@PathVariable String _id) {
         return playersNodeService.showCurrentTeam(_id);
     }
 
     // READ: Show a specific team a player played in with a certain FIFA version
-    @GetMapping("/user/player/{_id}/team/{fifaV}")
+    @GetMapping("player/{_id}/team/{fifaV}")
     @Operation(summary = "READ: Show the team in which a player played in specific year", tags={"Player"})
     public TeamsNodeDTO showSpecificTeam(@PathVariable String _id, @PathVariable Integer fifaV) {
         return playersNodeService.showSpecificTeam(_id, fifaV);

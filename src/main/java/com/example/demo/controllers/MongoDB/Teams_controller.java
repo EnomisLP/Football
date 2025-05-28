@@ -24,7 +24,7 @@ public class Teams_controller {
     }
 
     // READ: Get team by ID
-    @GetMapping("/admin/team/{_id}")
+    @GetMapping("team/{_id}")
     @Operation(summary = "READ: Get a team document by its ID", tags={"Team"})
     public Teams getTeam(@PathVariable String _id) {
         return teamsMService.getTeam(_id);

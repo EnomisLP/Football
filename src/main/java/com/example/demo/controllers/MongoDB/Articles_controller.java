@@ -24,7 +24,7 @@ public class Articles_controller {
     }
 
     // READ: Get a specific article by ID
-    @GetMapping("/admin/article/{id}")
+    @GetMapping("article/{id}")
     @Operation(summary = "READ: Get an article by ID", tags={"Article"})
     public Articles getArticle(@PathVariable String id) {
         return articlesService.getArticle(id);

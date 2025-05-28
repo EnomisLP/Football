@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Configuration;
 @Tag(name = "Admin:User", description="Operations of admin on users")
 @Tag(name = "Admin:Article", description="Operations of admin on articles")
 @Tag(name = "Admin:Aggregation", description="Aggregation available for an admin")
+@Tag(name = "User:Article", description="Operations done by users on their articles")
 
 
 public class TagsConfiguration {
