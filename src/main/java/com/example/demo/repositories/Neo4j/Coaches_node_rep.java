@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 
 import org.springframework.data.neo4j.repository.Neo4jRepository;
@@ -25,10 +26,10 @@ public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
 
     @Query(
         value = "MATCH (c:CoachesNode {gender: $gender}) " +
-                "RETURN c.mongoId AS mongoId, c.longName AS longName, c.gender AS gender",
+                "RETURN c.mongoId AS mongoId, c.longName AS longName, c.gender AS gender SKIP $skip LIMIT $limit",
         countQuery = "MATCH (c:CoachesNode {gender: $gender}) RETURN count(c)"
     )
-    Page<CoachesNodeDTO> findAllByGenderWithPaginationLight(String gender, PageRequest page);
+    Page<CoachesNodeDTO> findAllByGenderWithPaginationLight(String gender, Pageable page);
 
     List<CoachesNode> findAllByGender(String gender);
 

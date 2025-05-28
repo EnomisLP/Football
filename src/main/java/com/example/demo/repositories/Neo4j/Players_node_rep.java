@@ -21,7 +21,7 @@ public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
     Optional<PlayersNodeDTO> findByMongoIdLight(String mongoId);
     @Query(
     value = "MATCH (p:PlayersNode {gender: $gender}) " +
-            "RETURN  p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender",
+            "RETURN  p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender SKIP $skip LIMIT $limit",
     countQuery = "MATCH (p:PlayersNode {gender: $gender}) RETURN count( p)")
     Page<PlayersNodeDTO> findAllByGenderWithPagination(String gender, Pageable page);
 

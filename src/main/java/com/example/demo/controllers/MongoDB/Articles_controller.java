@@ -11,6 +11,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.swagger.v3.oas.annotations.Operation;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+
 
 
 @RestController
@@ -24,11 +27,25 @@ public class Articles_controller {
         this.articlesService = articlesService;
     }
 
-    // READ: Get a specific article by ID
+    /*// READ: Get a specific article by ID
     @GetMapping("article/{id}")
     @Operation(summary = "READ: Get an article by ID", tags={"Article"})
     public Articles getArticle(@PathVariable String id) {
         return articlesService.getArticle(id);
+    }*/
+    
+    // READ: Get a specific article by ID
+    @GetMapping("article/{id}")
+    @Operation(summary = "READ: Get an article by ID", tags={"Article"})
+    public ResponseEntity<Articles> getArticle(@PathVariable String id) {
+        Articles result=articlesService.getArticle(id);
+        if (result != null) {
+            return ResponseEntity.ok(result); // HTTP 200 OK
+        } else {
+            return ResponseEntity.notFound().build(); // HTTP 404 Not Found
+
+        }
+
     }
 
     // READ: Get all articles with pagination

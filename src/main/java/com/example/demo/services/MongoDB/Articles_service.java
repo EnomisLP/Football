@@ -41,12 +41,13 @@ public class Articles_service {
 
     //READ
     public Articles getArticle(String id){
+        
         Optional<Articles> article = Ar.findById(id);
         if(article.isPresent()){
             return article.get();
         }
         else{
-            throw new RuntimeErrorException(null, "Article not found with id: " + id);
+            return null;
         }
     }
     public Page<Articles> getAllArticles(PageRequest pageable) {
