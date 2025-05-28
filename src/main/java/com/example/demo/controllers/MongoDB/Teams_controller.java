@@ -31,7 +31,7 @@ public class Teams_controller {
     }
 
     // READ: Get all teams by gender with pagination
-    @GetMapping("admin/byGender/{gender}")
+    @GetMapping("admin/team/byGender/{gender}")
     @Operation(summary = "READ: Get all teams for a specific gender with pagination", tags={"Admin:Team"})
     public Page<Teams> getAllTeams(@RequestParam(defaultValue = "0") int page,
                                    @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {

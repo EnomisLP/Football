@@ -55,7 +55,7 @@ public class Users_node_controller {
     }
 
     @GetMapping("user/{userName}/articles")
-    @Operation(summary = "READ: get all articles of a user", tags={"User"})
+    @Operation(summary = "READ: get all articles of a user", tags={"User:Article"})
     public Page<ArticlesNodeDTO> getUserArticles(@PathVariable String userName,
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "50") int size) {
