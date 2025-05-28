@@ -31,7 +31,6 @@ public class ArticlesNode {
     @Indexed(unique = true)
     private String mongoId;
     @Property(name = "author")
-    @Indexed
     private String author;
     @Property(name = "title")
     private String title;

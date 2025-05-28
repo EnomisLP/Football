@@ -32,11 +32,9 @@ public class TeamsNode {
     @Indexed(unique = true)
     private String mongoId;
     @Property(name ="longName")
-    @Indexed
     private String longName;
 
     @Property(name="gender")
-    @Indexed
     private String gender;
     @JsonIgnore
     @Relationship(type = "PLAYS_IN_TEAM", direction = Relationship.Direction.INCOMING)

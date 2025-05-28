@@ -35,14 +35,12 @@ public class CoachesNode {
     private String mongoId;
 
     @Property(name = "longName")
-    @Indexed
     private String longName;
 
     @Property(name = "nationalityName")
     private String nationalityName;
 
     @Property(name = "gender")
-    @Indexed
     private String gender;
     @JsonIgnore
     @Relationship(type = "MANAGES_TEAM", direction = Relationship.Direction.OUTGOING)

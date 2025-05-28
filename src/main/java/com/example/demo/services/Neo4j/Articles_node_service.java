@@ -71,9 +71,6 @@ public class Articles_node_service {
             CREATE INDEX mongoId IF NOT EXISTS FOR (a:ArticlesNode) ON (a.mongoId)
         """).run();
         
-        neo4jClient.query("""
-            CREATE INDEX author IF NOT EXISTS FOR (a:ArticlesNode) ON (a.author)
-        """).run();
     }
     @Transactional
     public String doMappAllArticles(){

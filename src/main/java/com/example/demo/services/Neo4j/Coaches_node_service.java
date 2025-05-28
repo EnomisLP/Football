@@ -61,13 +61,6 @@ public class Coaches_node_service {
             CREATE INDEX mongoId IF NOT EXISTS FOR (c:CoachesNode) ON (c.mongoId)
         """).run();
         
-        neo4jClient.query("""
-            CREATE INDEX longName IF NOT EXISTS FOR (c:CoachesNode) ON (c.longName)
-        """).run();
-        
-        neo4jClient.query("""
-            CREATE INDEX gender IF NOT EXISTS FOR (c:CoachesNode) ON (c.gender)
-        """).run();
     }
 
     @Transactional

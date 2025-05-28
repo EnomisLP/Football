@@ -53,13 +53,6 @@ public class Teams_node_service {
             CREATE INDEX mongoId IF NOT EXISTS FOR (t:TeamsNode) ON (t.mongoId)
         """).run();
         
-        neo4jClient.query("""
-            CREATE INDEX longName IF NOT EXISTS FOR (t:TeamsNode) ON (t.longName)
-        """).run();
-        
-        neo4jClient.query("""
-            CREATE INDEX gender IF NOT EXISTS FOR (t:TeamsNode) ON (t.gender)
-        """).run();
     }
     @Transactional
     public String doMapAllTheNodes(){

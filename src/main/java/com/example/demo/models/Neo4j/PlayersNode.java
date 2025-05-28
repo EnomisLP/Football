@@ -38,7 +38,6 @@ public class PlayersNode{
     private String mongoId;
 
     @Property(name = "longName")
-    @Indexed
     private String longName;
 
     @Property(name = "age")
@@ -48,7 +47,6 @@ public class PlayersNode{
     private String nationalityName;
 
     @Property(name="gender")
-    @Indexed
     private String gender;
 
     @JsonIgnore

@@ -58,13 +58,6 @@ public class Players_node_service {
             CREATE INDEX mongoId IF NOT EXISTS FOR (p:PlayersNode) ON (p.mongoId)
         """).run();
         
-        neo4jClient.query("""
-            CREATE INDEX longName IF NOT EXISTS FOR (p:PlayersNode) ON (p.longName)
-        """).run();
-        
-        neo4jClient.query("""
-            CREATE INDEX gender IF NOT EXISTS FOR (p:PlayersNode) ON (p.gender)
-        """).run();
     }
 
     public String MapAllTheNodes() {

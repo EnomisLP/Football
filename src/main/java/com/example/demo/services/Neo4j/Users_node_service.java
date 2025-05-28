@@ -512,9 +512,6 @@ public class Users_node_service {
     }
 
     private void ensureUserNodeIndexes() {
-        neo4jClient.query("""
-            CREATE INDEX mongoId IF NOT EXISTS FOR (u:UsersNode) ON (u.mongoId)
-        """).run();
         
         neo4jClient.query("""
             CREATE INDEX userName IF NOT EXISTS FOR (u:UsersNode) ON (u.userName)

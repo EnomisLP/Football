@@ -23,6 +23,7 @@ public class Coaches{
     @Id
     @GeneratedValue
     private String _id;
+    @Indexed
     @Field("long_name")
     private String long_name;
     @Field("short_name")
@@ -30,7 +31,6 @@ public class Coaches{
     @Field("nationality_name")
     private String nationality_name;
     @Field("gender")
-    @Indexed
     private String gender;
     private List<TeamObj> team;
     //Constructors, Getters and Setters automatically Generated

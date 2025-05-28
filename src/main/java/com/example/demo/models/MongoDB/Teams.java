@@ -26,6 +26,7 @@ public class Teams {
     @GeneratedValue
     private String _id;
     @Field("team_name")
+    @Indexed
     private String team_name;
 
     private List<FifaStatsTeam> fifaStats;
@@ -40,7 +41,6 @@ public class Teams {
     @Field("nationality_name")
     private String nationality_name;
     @Field("gender")
-    @Indexed
     private String gender;
     //Constructor, Getters, Setters automatically generated
 

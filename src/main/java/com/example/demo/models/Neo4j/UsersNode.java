@@ -37,7 +37,6 @@ public class UsersNode {
     private Long _id;
 
     @Property(name = "mongoId")
-    @Indexed(unique = true)
     private String mongoId;
 
     @Property(name = "userName")
