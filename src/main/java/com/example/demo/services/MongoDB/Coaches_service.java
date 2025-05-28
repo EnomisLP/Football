@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.management.RuntimeErrorException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 
@@ -63,7 +64,7 @@ public class Coaches_service {
     }
 
     //CREATE
-    @Transactional
+    @Async("customAsyncExecutor")
     public Coaches createCoach(createCoachRequest request){
         Coaches coachM = new Coaches();
         coachM.setGender(request.getGender());
@@ -82,6 +83,7 @@ public class Coaches_service {
 
      //UPDATE
      @Transactional
+     @Async("customAsyncExecutor")
      public Coaches updateCoach(String id, updateCoach coachDetails) {
         Optional<Coaches> optionalCoach = CMr.findById(id);
         if (optionalCoach.isPresent()) {
@@ -124,6 +126,7 @@ public class Coaches_service {
     }
     
     @Transactional
+    @Async("customAsyncExecutor")
     public Coaches updateTeamCoach(String id, Integer fifaV, updateTeamCoach request){
         Optional<Coaches> optionalCoach = CMr.findById(id);
         Optional<Teams> optionalTeam = TMs.findById(request.getTeam_mongo_id());
@@ -186,6 +189,7 @@ public class Coaches_service {
     }
     
     @Transactional
+    @Async("customAsyncExecutor")
     public Coaches updateFifaCoach(String id, Integer oldFifaV, Integer newFifaV){
         if(oldFifaV.equals(newFifaV)){
             throw new RuntimeException("The FIFA version is the same as the one already in the database: " + oldFifaV);
@@ -239,6 +243,7 @@ public class Coaches_service {
 
 
     @Transactional
+    @Async("customAsyncExecutor")
     public void deleteCoach(String id){
         Optional<Coaches> coach = CMr.findById(id);
         Optional<CoachesNodeDTO> coachNode = Cmr.findByMongoIdLight(id);
@@ -263,6 +268,8 @@ public class Coaches_service {
         } 
     }
 
+    @Transactional
+    @Async("customAsyncExecutor")
     public void deleteTeamCoach(String id, Integer fifaV){
         Optional<Coaches> optionalCoach = CMr.findById(id);
         Optional<CoachesNodeDTO> optionalCoachNode = Cmr.findByMongoIdLight(id);

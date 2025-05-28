@@ -19,7 +19,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -205,7 +204,7 @@ public class Users_node_service {
     }
     //OPERATIONS TO MANAGE PLAYERS IN THE TEAM OF A USER
     
-    @Async("customAsyncExecutor")
+    
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -228,7 +227,7 @@ public class Users_node_service {
 
 
     
-    @Async("customAsyncExecutor")
+    
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -251,7 +250,7 @@ public class Users_node_service {
     }
 
      
-    @Async("customAsyncExecutor")
+    
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -273,7 +272,6 @@ public class Users_node_service {
     }
 
     
-    @Async("customAsyncExecutor")
     @Retryable(
     value = { Exception.class },
     maxAttempts = 3,
@@ -301,7 +299,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> LIKE_ARTICLE(String username, String articleId) throws JsonProcessingException {
+    public void LIKE_ARTICLE(String username, String articleId) throws JsonProcessingException {
         Map<String, Object> neo4jPayload = new HashMap<>();
         neo4jPayload.put("username", username);
         neo4jPayload.put("articleId", articleId);
@@ -312,7 +310,6 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-        return CompletableFuture.completedFuture("Request submitted...");
     
         } 
 
@@ -322,7 +319,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> UNLIKE_ARTICLE(String username, String articleId) throws JsonProcessingException {
+    public void UNLIKE_ARTICLE(String username, String articleId) throws JsonProcessingException {
         Map<String, Object> neo4jPayload = new HashMap<>();
         neo4jPayload.put("username", username);
         neo4jPayload.put("articleId", articleId);
@@ -333,7 +330,6 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-        return CompletableFuture.completedFuture("Request submitted...");
             
         } 
 
@@ -343,7 +339,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> FOLLOW(String Username, String targetUsername) throws JsonProcessingException {
+    public void FOLLOW(String Username, String targetUsername) throws JsonProcessingException {
         Map<String, Object> neo4jPayload = new HashMap<>();
         neo4jPayload.put("username", Username);
         neo4jPayload.put("targetUsername", targetUsername);
@@ -354,8 +350,6 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-        return CompletableFuture.completedFuture("Request submitted...");
-    
     
     } 
 
@@ -365,7 +359,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> UNFOLLOW(String Username, String targetUsername) throws JsonProcessingException {
+    public void UNFOLLOW(String Username, String targetUsername) throws JsonProcessingException {
         Map<String, Object> neo4jPayload = new HashMap<>();
         neo4jPayload.put("username", Username);
         neo4jPayload.put("targetUsername", targetUsername);
@@ -376,7 +370,6 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-        return CompletableFuture.completedFuture("Request submitted...");
             
     } 
     
@@ -386,7 +379,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> team_LIKE(String username, String teamMongoId) throws JsonProcessingException {
+    public void team_LIKE(String username, String teamMongoId) throws JsonProcessingException {
         Map<String, Object> neo4jPayload = new HashMap<>();
         neo4jPayload.put("username", username);
         neo4jPayload.put("teamMongoId", teamMongoId);
@@ -397,8 +390,6 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-        return CompletableFuture.completedFuture("Request submitted...");
-        
     } 
      
 
@@ -407,7 +398,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> team_UNLIKE(String username, String teamMongoId) throws JsonProcessingException {
+    public void team_UNLIKE(String username, String teamMongoId) throws JsonProcessingException {
         Map<String, Object> neo4jPayload = new HashMap<>();
         neo4jPayload.put("username", username);
         neo4jPayload.put("teamMongoId", teamMongoId);
@@ -418,7 +409,6 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-        return CompletableFuture.completedFuture("Request submitted...");
         } 
     
     @Retryable(
@@ -426,7 +416,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> coach_LIKE(String username, String coachMongoId) throws JsonProcessingException {
+    public void coach_LIKE(String username, String coachMongoId) throws JsonProcessingException {
         System.out.println("Attempting to find user: " + username);
         Map<String, Object> neo4jPayload = new HashMap<>();
         neo4jPayload.put("username", username);
@@ -438,7 +428,6 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-        return CompletableFuture.completedFuture("Request submitted...");
             
         } 
     
@@ -447,7 +436,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> coach_UNLIKE(String username, String coachMongoId) throws JsonProcessingException {
+    public void coach_UNLIKE(String username, String coachMongoId) throws JsonProcessingException {
         Map<String, Object> neo4jPayload = new HashMap<>();
         neo4jPayload.put("username", username);
         neo4jPayload.put("coachMongoId", coachMongoId);
@@ -458,7 +447,6 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-        return CompletableFuture.completedFuture("Request submitted...");
         } 
 
     
@@ -467,7 +455,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> player_LIKE(String username, String playerMongoId) throws JsonProcessingException {
+    public void player_LIKE(String username, String playerMongoId) throws JsonProcessingException {
             Map<String, Object> neo4jPayload = new HashMap<>();
         neo4jPayload.put("username", username);
         neo4jPayload.put("playerMongoId", playerMongoId);
@@ -478,7 +466,6 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-        return CompletableFuture.completedFuture("Request submitted...");
 
             
         } 
@@ -488,7 +475,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> player_UNLIKE(String username, String playerMongoId) throws JsonProcessingException {
+    public void player_UNLIKE(String username, String playerMongoId) throws JsonProcessingException {
         Map<String, Object> neo4jPayload = new HashMap<>();
         neo4jPayload.put("username", username);
         neo4jPayload.put("playerMongoId", playerMongoId);
@@ -499,7 +486,6 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-        return CompletableFuture.completedFuture("Request submitted...");
            
         } 
     

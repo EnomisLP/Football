@@ -148,6 +148,7 @@ public class Coaches_node_service {
         return "Number of Relationships Created: " + counter;
     }
     
+    
     public List<TeamsNodeDTO> showTrainedHistory(String coachMongoId){
         Optional<CoachesNodeDTO> optionalCoach = CMn.findByMongoIdLight(coachMongoId);
         if(optionalCoach.isPresent()){

@@ -174,7 +174,6 @@ public class ResilientEventConsumer {
     }
 
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
     private void handleNeo4jArticleCreated(String payload) throws JsonProcessingException {
         Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String articleId = (String) eventData.get("articleId");
@@ -278,7 +277,7 @@ public class ResilientEventConsumer {
     }
 
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+
     private void handleUserCreation(String payload) throws JsonProcessingException {
         Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -303,9 +302,8 @@ public class ResilientEventConsumer {
             throw e;
         }
     }
-
-    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     @Transactional
+    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     private void handleNeo4jDeleteUser(String payload) throws JsonProcessingException {
         Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -325,7 +323,7 @@ public class ResilientEventConsumer {
     }
 
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    
     private String handleNeo4jAddInMTeam(String payload) throws JsonProcessingException{
         Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -369,7 +367,7 @@ public class ResilientEventConsumer {
     }
     
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    
     private String handleNeo4jAddInFTeam(String payload) throws JsonProcessingException{
     Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
     String username = (String) eventData.get("username");
@@ -414,7 +412,7 @@ public class ResilientEventConsumer {
     }
     
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    
     private void handleNeo4jRemoveInMTeam(String payload) throws JsonProcessingException{
          Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -438,7 +436,7 @@ public class ResilientEventConsumer {
     }
     
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    
     private void handleNeo4jRemoveInFTeam(String payload) throws JsonProcessingException{
         Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -462,7 +460,7 @@ public class ResilientEventConsumer {
     }
 
      @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    
     private void handleNeo4jLikeArticle(String payload) throws JsonProcessingException{
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -477,7 +475,7 @@ public class ResilientEventConsumer {
     }
 
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    
     private void handleNeo4jUnlikeArticle(String payload) throws JsonProcessingException{
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -492,7 +490,7 @@ public class ResilientEventConsumer {
     }
 
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    
     private void handleNeo4jFollow(String payload) throws JsonProcessingException{
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -509,7 +507,7 @@ public class ResilientEventConsumer {
     }
 
      @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    
     private void handleNeo4jUnFollow(String payload) throws JsonProcessingException{
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -523,8 +521,8 @@ public class ResilientEventConsumer {
         }
     }
 
-       @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
+    
     private void handleNeo4jLikeTeam(String payload) throws JsonProcessingException{
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -538,8 +536,8 @@ public class ResilientEventConsumer {
         }
     }
 
-       @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
+    
     private void handleNeo4jUnlikeTeam(String payload) throws JsonProcessingException{
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -553,8 +551,8 @@ public class ResilientEventConsumer {
         }
     }
 
-       @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
+    
     private void handleNeo4jLikeCoach(String payload) throws JsonProcessingException{
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -568,8 +566,8 @@ public class ResilientEventConsumer {
         }
     }
 
-        @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
+    
     private void handleNeo4jUnlikeCoach(String payload) throws JsonProcessingException{
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -583,8 +581,8 @@ public class ResilientEventConsumer {
         }
     }
 
-        @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
+    
     private void handleNeo4jLikePlayer(String payload) throws JsonProcessingException{
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");
@@ -599,7 +597,7 @@ public class ResilientEventConsumer {
     }
 
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    @Transactional
+    
     private void handleNeo4jUnlikePlayer(String payload) throws JsonProcessingException{
        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
         String username = (String) eventData.get("username");

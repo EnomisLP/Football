@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.management.RuntimeErrorException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
@@ -68,7 +69,7 @@ public class Players_service {
         return PMr.findAllByGender(gender, page);
     }
     //CREATE
-    @Transactional
+    @Async("customAsyncExecutor")
     public Players createPlayer(createPlayerRequest request){
         Players playerM = new Players();
         playerM.setAge(request.getAge());
@@ -93,6 +94,7 @@ public class Players_service {
 
     //UPDATE
     @Transactional
+    @Async("customAsyncExecutor")
     public Players updatePlayer(String id, updatePlayer playerDetails) {
         Optional<Players> optionalPlayer = PMr.findById(id);
         if (optionalPlayer.isPresent()) {
@@ -128,6 +130,7 @@ public class Players_service {
     }
     
     @Transactional
+    @Async("customAsyncExecutor")
     public Players updateFifaPlayer(String id, Integer fifaV, updateFifaPlayer request){
         Optional<Players> optionalPlayer = PMr.findById(id);
         if (optionalPlayer.isPresent()) {
@@ -233,6 +236,7 @@ public class Players_service {
     }
     
     @Transactional
+    @Async("customAsyncExecutor")
     public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer request) {
         Players existingPlayer = PMr.findById(id)
             .orElseThrow(() -> new RuntimeException("Player not found in MongoDB"));
@@ -267,6 +271,7 @@ public class Players_service {
 
     //DELETE
     @Transactional
+    @Async("customAsyncExecutor")
     public void deletePlayer(String id){
         Optional<Players> player = PMr.findById(id);
         Optional<PlayersNodeDTO> playerNode = Pmr.findByMongoIdLight(id);
@@ -287,6 +292,7 @@ public class Players_service {
     }
 
     @Transactional
+    @Async("customAsyncExecutor")
     public void deleteFifaPlayer(String id, Integer fifaV){
         Optional<Players> player = PMr.findById(id);
         Optional<PlayersNodeDTO> playerNode = Pmr.findByMongoIdLight(id);

@@ -14,10 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
 
 import com.example.demo.models.MongoDB.OutboxEvent;
 
@@ -56,8 +53,8 @@ public class Articles_service {
         return Ar.findAll(pageable);
         
     }
-    @Async("customAsyncExecutor")
-    @Transactional
+    
+    
     @Retryable(
         value = { Exception.class },
         maxAttempts = 3,

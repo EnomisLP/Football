@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jClient;
+
 import org.springframework.stereotype.Service;
 
 import com.example.demo.aggregations.DTO.MostEngaggedPlayer;
@@ -30,6 +31,7 @@ public class NodeService {
         }
     }
     // Method to find the most famous team based on the number of likes from users to players of specific FIFA version
+    
     public Collection<TopTeam> findMostFamousTeam(int fifaVersion) {
         return this.neo4jClient.query(
             "MATCH (p:PlayersNode)-[r:PLAYS_IN_TEAM]->(t:TeamsNode) " +
@@ -64,6 +66,7 @@ public class NodeService {
 
     // Method to find the most engaged player based on the number of likes, teams, and followers
     // and the number of teams they are in
+   
     public Collection<MostEngaggedPlayer> findMostEngagedPlayer() {
         return this.neo4jClient.query(
             "MATCH (p:PlayersNode) " +
@@ -104,6 +107,7 @@ public class NodeService {
 
     // Method to find the top 10 users with the most diverse interests based on the number of different entities they like
     // and the number of teams they have in their teams
+    
     public Collection<UserInterestDiversity> findUserInterestDiversity() {
         return this.neo4jClient.query("MATCH (u:UsersNode)-[r:LIKES|HAS_IN_M_TEAM|HAS_IN_F_TEAM]->(entity) " +
             "WITH u, " +

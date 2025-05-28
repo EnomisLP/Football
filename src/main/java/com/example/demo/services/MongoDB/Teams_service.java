@@ -4,6 +4,7 @@ import java.util.Optional;
 import javax.management.RuntimeErrorException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.models.MongoDB.Coaches;
@@ -71,7 +72,7 @@ public class Teams_service {
         return TMr.findAllByGender(gender, page);
     }
     //CREATE
-    @Transactional
+    @Async("customAsyncExecutor")
     public Teams createTeam(createTeamRequest request){
         Teams teamM = new Teams();
         teamM.setGender(request.getGender());
@@ -92,6 +93,7 @@ public class Teams_service {
 
     //UPDATE
     @Transactional
+    @Async("customAsyncExecutor")
     public Teams updateTeam(String id, updateTeam teamsDetails) {
         Optional<Teams> optionalTeam = TMr.findById(id);
         if (optionalTeam.isPresent()) {
@@ -145,6 +147,8 @@ public class Teams_service {
         }
     }
 
+    @Async("customAsyncExecutor")
+    @Transactional
     public Teams updateFifaTeam(String id, Integer fifaV, updateFifaTeam request) {
         Optional<Teams> optionalTeam = TMr.findById(id);
         if(optionalTeam.isPresent()){
@@ -215,6 +219,8 @@ public class Teams_service {
         }
     }
     
+    @Async("customAsyncExecutor")
+    @Transactional
     public Teams updateCoachTeam(String id, Integer fifaV, updateCoachTeam request){
         Optional<Teams> optionalTeam = TMr.findById(id);
         Optional<TeamsNodeDTO> optionalTeamNode = Tmr.findByMongoIdLight(id);
@@ -290,6 +296,7 @@ public class Teams_service {
 
     }  
     //DELETE
+    @Async("customAsyncExecutor")
     @Transactional
     public void deleteTeam(String id){
         Optional<Teams> team = TMr.findById(id);
@@ -338,6 +345,8 @@ public class Teams_service {
         }
         
     }
+    
+    @Async("customAsyncExecutor")
     @Transactional
     public void deleteFifaTeam(String id, Integer fifaV){
         Optional<Teams> team = TMr.findById(id);

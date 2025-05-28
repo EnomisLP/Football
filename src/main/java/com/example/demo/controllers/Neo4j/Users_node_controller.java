@@ -155,27 +155,27 @@ public class Users_node_controller {
     // FOLLOW / UNFOLLOW
     @PutMapping("user/{target}/follow")
     @Operation(summary = "Follow a user", tags={"User"})
-    public CompletableFuture<String> FOLLOW(Authentication auth, @PathVariable String target) throws JsonProcessingException {
-        return Uns.FOLLOW(auth.getName(), target);
+    public void FOLLOW(Authentication auth, @PathVariable String target) throws JsonProcessingException {
+         Uns.FOLLOW(auth.getName(), target);
     }
 
     @DeleteMapping("user/{target}/unfollow")
     @Operation(summary = "Remove follow from a user", tags={"User"})
-    public CompletableFuture<String> UNFOLLOW(Authentication auth, @PathVariable String target) throws JsonProcessingException {
-        return Uns.UNFOLLOW(auth.getName(), target);
+    public void UNFOLLOW(Authentication auth, @PathVariable String target) throws JsonProcessingException {
+         Uns.UNFOLLOW(auth.getName(), target);
     }
 
     //LIKE / UNLIKE ARTICLES
      @PostMapping("article/{articleId}/like")
     @Operation(summary = "LIKE an article by its mongoId", tags={"Article"})
-    public CompletableFuture<String> articleLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
-        return Uns.LIKE_ARTICLE(auth.getName(), articleId);
+    public void articleLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
+         Uns.LIKE_ARTICLE(auth.getName(), articleId);
     }
 
      @DeleteMapping("article/{articleId}/unlike")
     @Operation(summary = "UNLIKE an article by its mongoId", tags={"Article"})
-    public CompletableFuture<String> articleUNLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
-        return Uns.UNLIKE_ARTICLE(auth.getName(), articleId);
+    public void articleUNLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
+         Uns.UNLIKE_ARTICLE(auth.getName(), articleId);
     }
     
     // ADD TO TEAM
@@ -194,38 +194,38 @@ public class Users_node_controller {
     // LIKES
     @PostMapping("team/{_id}/like")
     @Operation(summary = "LIKE a team by its mongoId", tags={"Team"})
-    public CompletableFuture<String> teamLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
-        return Uns.team_LIKE(auth.getName(), _id);
+    public void teamLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+         Uns.team_LIKE(auth.getName(), _id);
     }
 
        @DeleteMapping("team/{_id}/unlike")
     @Operation(summary = "UNLIKE a team by its mongoId", tags={"Team"})
-    public CompletableFuture<String> teamUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
-        return Uns.team_UNLIKE(auth.getName(), _id);
+    public void teamUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+         Uns.team_UNLIKE(auth.getName(), _id);
     }
 
      @PostMapping("player/{_id}/like")
     @Operation(summary = "LIKE a player by its mongoId", tags={"Player"})
-    public CompletableFuture<String> playerLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
-        return Uns.player_LIKE(auth.getName(), _id);
+    public void playerLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+         Uns.player_LIKE(auth.getName(), _id);
     }
 
     @DeleteMapping("player/{_id}/unlike")
     @Operation(summary = "UNLIKE a player by its mongoId", tags={"Player"})
-    public CompletableFuture<String> playerUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
-        return Uns.player_UNLIKE(auth.getName(), _id);
+    public void playerUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+         Uns.player_UNLIKE(auth.getName(), _id);
     }
 
    @PostMapping("coach/{_id}/like")
     @Operation(summary = "LIKE a coach by its mongoId", tags={"Coach"})
-    public CompletableFuture<String> coachLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
-        return Uns.coach_LIKE(auth.getName(), _id);
+    public void coachLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+         Uns.coach_LIKE(auth.getName(), _id);
     }
 
      @DeleteMapping("coach/{_id}/unlike")
     @Operation(summary = "UNLIKE a coach by its mongoId", tags={"Coach"})
-    public CompletableFuture<String> coachUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
-        return Uns.coach_UNLIKE(auth.getName(), _id);
+    public void coachUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+         Uns.coach_UNLIKE(auth.getName(), _id);
     }
     
 }

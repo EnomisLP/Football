@@ -39,7 +39,7 @@ public class SecurityConfig {
                                  "/api/v1/team/{_id}","/api/v1/coach/{_id}").permitAll()
                 .requestMatchers("/api/v1/signup").anonymous()
                 .requestMatchers("/swagger-ui/**","/v3/api-docs/**","/swagger-resources/**","/webjars/**").permitAll()
-                .anyRequest().denyAll()
+                .anyRequest().permitAll()
             )
             .userDetailsService(mongoUserDetailService)
             .httpBasic(httpBasic -> httpBasic.realmName("MyApp"))

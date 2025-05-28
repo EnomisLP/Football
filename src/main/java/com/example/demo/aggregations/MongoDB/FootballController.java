@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 
 @RestController
@@ -33,7 +34,7 @@ public class FootballController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @Operation(summary = "Get the summary of the subscriptions for each month of a specific year", tags={"Admin:Aggregation"})
-    public List<monthSummary> getSubscriptionYearSummary(@PathVariable Integer year) {
+    public CompletableFuture<List<monthSummary>> getSubscriptionYearSummary(@PathVariable Integer year) {
         return footballService.getSubscriptionYearSummary(year);
     }
 
@@ -46,7 +47,7 @@ public class FootballController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @Operation(summary = "Get the dream team of players", tags={"Aggregation"})
-    public List<DreamTeamPlayer> getDreamTeamPlayers(@PathVariable Integer fifaV) {
+    public CompletableFuture<List<DreamTeamPlayer>> getDreamTeamPlayers(@PathVariable Integer fifaV) {
         return footballService.getDreamTeam(fifaV);
     }
     
@@ -58,7 +59,7 @@ public class FootballController {
             @ApiResponse(responseCode = "500", description = "Years not available")
     })
     @Operation(summary = "Get the percentage improvements in terms of attack, defense and midfield of a team, between 2 years", tags={ "Admin:Aggregation"})
-    public TeamImprovements getSubscriptionYearSummary(@PathVariable String team,@PathVariable String year1,@PathVariable String year2) {
+    public CompletableFuture<TeamImprovements> getSubscriptionYearSummary(@PathVariable String team,@PathVariable String year1,@PathVariable String year2) {
         return footballService.getTeamImprovements(team,year1,year2);
     }
 }
