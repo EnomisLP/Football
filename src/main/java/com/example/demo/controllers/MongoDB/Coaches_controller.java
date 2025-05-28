@@ -23,7 +23,7 @@ public class Coaches_controller {
     }
 
     // READ: Get coach by ID
-    @GetMapping("/admin/coach/{_id}")
+    @GetMapping("coach/{_id}")
     @Operation(summary = "READ: Get a coach by ID", tags={"Coach"})
     public Coaches getCoach(@PathVariable String _id) {
         return coachesMservice.getCoach(_id);

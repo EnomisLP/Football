@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
@@ -15,14 +17,14 @@ public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
 
     boolean existsByMongoId(String mongoId);
     Optional<PlayersNode> findByMongoId(String get_id);
+
     @Query("MATCH (p:PlayersNode {mongoId: $mongoId}) " +
             "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender")
     Optional<PlayersNodeDTO> findByMongoIdLight(String mongoId);
     @Query(
     value = "MATCH (p:PlayersNode {gender: $gender}) " +
             "RETURN  p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender",
-    countQuery = "MATCH (p:PlayersNode {gender: $gender}) RETURN count( p)"
-)
+    countQuery = "MATCH (p:PlayersNode {gender: $gender}) RETURN count( p)")
     Page<PlayersNodeDTO> findAllByGenderWithPagination(String gender, Pageable page);
 
     List<PlayersNode> findAllByGender(String gender);

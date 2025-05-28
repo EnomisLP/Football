@@ -24,14 +24,14 @@ public class Teams_controller {
     }
 
     // READ: Get team by ID
-    @GetMapping("/admin/team/{_id}")
+    @GetMapping("team/{_id}")
     @Operation(summary = "READ: Get a team document by its ID", tags={"Team"})
     public Teams getTeam(@PathVariable String _id) {
         return teamsMService.getTeam(_id);
     }
 
     // READ: Get all teams by gender with pagination
-    @GetMapping("admin/byGender/{gender}")
+    @GetMapping("admin/team/byGender/{gender}")
     @Operation(summary = "READ: Get all teams for a specific gender with pagination", tags={"Admin:Team"})
     public Page<Teams> getAllTeams(@RequestParam(defaultValue = "0") int page,
                                    @RequestParam(defaultValue = "50") int size, @PathVariable String gender) {

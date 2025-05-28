@@ -33,8 +33,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/user/{_id}/**","api/v1/user/team/**",
                                  "/api/v1/player/{_id}/**","/api/v1/team/{_id}/**",
                                  "/api/v1/coach/{_id}/**","/api/v1/article/{_id}/**",
-                                 "/api/v1/article/new","/api/v1/article/edit/{_id}",
-                                 "/api/v1/search/filter/**").hasRole("USER")
+                                 "/api/v1/user/article/**","/api/v1/search/filter/**").hasRole("USER")
                 .requestMatchers("/api/v1/auth/me", "/api/v1/enrolments/**").authenticated()
                 .requestMatchers("/api/v1/search/**","/api/v1/user/{_id}","/api/v1/player/{_id}",
                                  "/api/v1/team/{_id}","/api/v1/coach/{_id}").permitAll()

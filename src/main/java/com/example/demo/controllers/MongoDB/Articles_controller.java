@@ -11,6 +11,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.swagger.v3.oas.annotations.Operation;
 
+import java.util.concurrent.CompletableFuture;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -24,7 +30,7 @@ public class Articles_controller {
     }
 
     // READ: Get a specific article by ID
-    @GetMapping("/admin/article/{id}")
+    @GetMapping("article/{id}")
     @Operation(summary = "READ: Get an article by ID", tags={"Article"})
     public Articles getArticle(@PathVariable String id) {
         return articlesService.getArticle(id);
@@ -38,9 +44,11 @@ public class Articles_controller {
         PageRequest pageable = PageRequest.of(page, size);
         return articlesService.getAllArticles(pageable);
     }
-     @DeleteMapping("admin/article/delete/{articleId}")
+
+    @DeleteMapping("admin/article/delete/{articleId}")
     @Operation(summary = "Delete an article by its id", tags={"Admin:Article"})
     public CompletableFuture<String> deleteArticle(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
         return articlesService.deleteArticle(auth.getName(), articleId);
     }
+
 }
