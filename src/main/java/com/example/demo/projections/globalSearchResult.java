@@ -20,10 +20,10 @@ import lombok.Setter;
 
 public class globalSearchResult {
     
-    @Field("labels")
-    private List<String> labels;
+    private String name;
     
-    @Field("properties")
-    private Map<String,Object> properties;
+    private String mongo_id;
+    
+    private String type;
     
 }
