@@ -32,6 +32,7 @@ import com.example.demo.projections.ArticlesNodeDTO;
 import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.projections.UsersNodeDTO;
 import com.example.demo.projections.UsersNodeProjection;
+import com.example.demo.projections.ffCountDTO;
 import com.example.demo.repositories.MongoDB.OutboxEventRepository;
 import com.example.demo.repositories.MongoDB.Players_repository;
 import com.example.demo.repositories.MongoDB.Users_repository;
@@ -509,6 +510,19 @@ public class Users_node_service {
         else{
             throw new RuntimeErrorException(null, "User not found with userName: " + userName);
         }
+    }
+    
+    public ffCountDTO countFollowersAndFollowings(String username){
+        ffCountDTO dto = new ffCountDTO();
+        Optional<ffCountDTO> optionalResult= Unr.countFollowersAndFollowings(username);
+        if (optionalResult.isEmpty()) {
+            dto.setFollowersCount(-1L);
+            dto.setFollowingsCount(-1L);
+            return dto;
+        }
+        dto= optionalResult.get();
+
+        return dto;
     }
 
     private void ensureUserNodeIndexes() {

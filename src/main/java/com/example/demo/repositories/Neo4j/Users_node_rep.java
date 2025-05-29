@@ -1,5 +1,7 @@
 package com.example.demo.repositories.Neo4j;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -12,6 +14,7 @@ import com.example.demo.models.Neo4j.UsersNode;
 import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.projections.UsersNodeDTO;
 import com.example.demo.projections.UsersNodeProjection;
+import com.example.demo.projections.ffCountDTO;
 
 
 
@@ -147,4 +150,12 @@ Integer countPlayersInMTeamByUsername(String userName);
 @Query("MATCH (u:UsersNode {userName: $userName})-[r:HAS_IN_F_TEAM]->() " +
 "RETURN count(r)")
 Integer countPlayersInFTeamByUsername(String userName);
+
+@Query("MATCH (u:UsersNode {userName: $username}) " +
+       "OPTIONAL MATCH (follower)-[:FOLLOWS]->(u) " +
+       "OPTIONAL MATCH (u)-[:FOLLOWS]->(following) " +
+       "RETURN " +
+       "count(DISTINCT follower) AS followersCount, " +
+       "count(DISTINCT following) AS followingsCount")
+Optional<ffCountDTO> countFollowersAndFollowings(String username);
 }
