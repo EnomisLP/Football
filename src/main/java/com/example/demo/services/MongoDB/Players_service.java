@@ -85,7 +85,6 @@ public class Players_service {
         PlayersNode playerNode = new PlayersNode();
         playerNode.setMongoId(playerM.get_id());
         playerNode.setLongName(playerM.getLong_name());
-        playerNode.setAge(playerM.getAge());
         playerNode.setNationalityName(playerM.getNationality_name());
         playerNode.setGender(playerM.getGender());
         Pmr.save(playerNode);
@@ -113,8 +112,7 @@ public class Players_service {
                Pmr.updatePlayerAttributes(
                     existingPlayer.get_id(),
                     playerDetails.getLong_name(),
-                    playerDetails.getGender(),
-                    playerDetails.getAge()
+                    playerDetails.getGender()
                 );
                 
                 // Save the updated player back to the repository

@@ -20,7 +20,6 @@ public class PlayersNodeJsonComponent {
             gen.writeStringField("mongoId", player.getMongoId());
             gen.writeStringField("longName", player.getLongName());
             gen.writeStringField("gender", player.getGender());
-            gen.writeNumberField("age", player.getAge());
             gen.writeStringField("nationalityName", player.getNationalityName());
             gen.writeEndObject();
         }
@@ -37,7 +36,6 @@ public class PlayersNodeJsonComponent {
             if (node.has("mongoId")) player.setMongoId(node.get("mongoId").asText());
             if (node.has("longName")) player.setLongName(node.get("longName").asText());
             if (node.has("gender")) player.setGender(node.get("gender").asText());
-            if (node.has("age")) player.setAge(node.get("age").asInt());
             if (node.has("nationalityName")) player.setNationalityName(node.get("nationalityName").asText());
 
             return player;

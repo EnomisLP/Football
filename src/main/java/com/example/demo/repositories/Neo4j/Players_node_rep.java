@@ -45,7 +45,7 @@ public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
     @Query("MATCH (p:PlayersNode) " +
            "WHERE p.mongoId = $mongoId " +
            "SET p.longName = $longName, p.gender = $gender, p.age = $age")
-    void updatePlayerAttributes(String mongoId, String longName, String gender, Integer age);
+    void updatePlayerAttributes(String mongoId, String longName, String gender);
 
     @Query( "MATCH (p:PlayersNode {mongoId: $mongoId})-[r:PLAYS_IN_TEAM]->(t:TeamsNode) "+
     "WHERE r.fifaVersion = $fifaV "+

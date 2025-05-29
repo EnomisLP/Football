@@ -81,7 +81,6 @@ public class Players_node_service {
             PlayersNode playerNode = new PlayersNode();
             playerNode.setMongoId(player.get_id());
             playerNode.setLongName(player.getLong_name());
-            playerNode.setAge(player.getAge());
             playerNode.setNationalityName(player.getNationality_name());
             playerNode.setGender(player.getGender());
             nodeToInsert++;

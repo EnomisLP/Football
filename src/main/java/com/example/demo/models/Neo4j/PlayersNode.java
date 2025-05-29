@@ -40,9 +40,6 @@ public class PlayersNode{
     @Property(name = "longName")
     private String longName;
 
-    @Property(name = "age")
-    private Integer age;
-
     @Property(name = "nationalityName")
     private String nationalityName;
 
