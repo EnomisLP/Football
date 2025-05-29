@@ -23,17 +23,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.DTO.ArticlesNodeDTO;
+import com.example.demo.DTO.PlayersNodeDTO;
+import com.example.demo.DTO.UsersNodeDTO;
+import com.example.demo.DTO.UsersNodeProjection;
+import com.example.demo.DTO.ffCountDTO;
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.MongoDB.OutboxEvent;
 import com.example.demo.models.MongoDB.Players;
 import com.example.demo.models.MongoDB.Users;
 import com.example.demo.models.Neo4j.UsersNode;
-import com.example.demo.projections.ArticlesNodeDTO;
-import com.example.demo.projections.PlayersNodeDTO;
-import com.example.demo.projections.UsersNodeDTO;
-import com.example.demo.projections.UsersNodeProjection;
-import com.example.demo.projections.ffCountDTO;
-import com.example.demo.repositories.MongoDB.OutboxEventRepository;
+import com.example.demo.repositories.MongoDB.OutboxEvent_repository;
 import com.example.demo.repositories.MongoDB.Players_repository;
 import com.example.demo.repositories.MongoDB.Users_repository;
 import com.example.demo.repositories.Neo4j.Articles_node_rep;
@@ -60,7 +60,7 @@ public class Users_node_service {
     private final Coaches_node_rep CMn;
     private static final AtomicInteger interactionCounter = new AtomicInteger(0);
     private final Articles_node_rep AR;
-    private final OutboxEventRepository outboxEventRepository;
+    private final OutboxEvent_repository outboxEventRepository;
     private final ObjectMapper objectMapper;
 
     @Autowired
@@ -69,7 +69,7 @@ public class Users_node_service {
 
     public Users_node_service(Users_node_rep unr, Users_repository ur, Players_node_rep pmnr,
         Teams_node_rep tmn, Players_repository pmr, Coaches_node_rep cmn, Articles_node_rep ar,
-        OutboxEventRepository oE, ObjectMapper oM) {
+        OutboxEvent_repository oE, ObjectMapper oM) {
         this.Unr = unr;
         this.Ur = ur;
         this.PMNr = pmnr;

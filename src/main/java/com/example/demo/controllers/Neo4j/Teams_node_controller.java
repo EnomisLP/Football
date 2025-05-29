@@ -5,9 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
-import com.example.demo.projections.CoachesNodeDTO;
-import com.example.demo.projections.PlayersNodeDTO;
-import com.example.demo.projections.TeamsNodeDTO;
+
+import com.example.demo.DTO.CoachesNodeDTO;
+import com.example.demo.DTO.PlayersNodeDTO;
+import com.example.demo.DTO.TeamsNodeDTO;
 import com.example.demo.services.Neo4j.Teams_node_service;
 
 import io.swagger.v3.oas.annotations.Operation;

@@ -11,12 +11,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
+
+import com.example.demo.DTO.CoachesNodeDTO;
+import com.example.demo.DTO.PlayersNodeDTO;
+import com.example.demo.DTO.TeamsNodeDTO;
 import com.example.demo.models.MongoDB.Teams;
 
 import com.example.demo.models.Neo4j.TeamsNode;
-import com.example.demo.projections.CoachesNodeDTO;
-import com.example.demo.projections.PlayersNodeDTO;
-import com.example.demo.projections.TeamsNodeDTO;
 import com.example.demo.repositories.MongoDB.Teams_repository;
 import com.example.demo.repositories.Neo4j.Teams_node_rep;
 

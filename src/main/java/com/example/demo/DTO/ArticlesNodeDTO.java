@@ -1,4 +1,4 @@
-package com.example.demo.projections;
+package com.example.demo.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsersNodeDTO {
-    private String mongoId;
-    private String userName;
+
+public class ArticlesNodeDTO {
+    public String mongoId;
+    public String title;
+    public String author;
 }

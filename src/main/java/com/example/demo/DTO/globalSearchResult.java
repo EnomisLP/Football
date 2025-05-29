@@ -1,4 +1,4 @@
-package com.example.demo.projections;
+package com.example.demo.DTO;
 
 import java.util.List;
 import java.util.Map;

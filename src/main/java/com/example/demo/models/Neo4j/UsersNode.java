@@ -10,8 +10,6 @@ import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
-
-import com.example.demo.configurations.JSON.UsersNodeJsonComponent;
 import com.example.demo.relationships.has_in_F_team;
 import com.example.demo.relationships.has_in_M_team;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -28,8 +26,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonSerialize(using = UsersNodeJsonComponent.UsersNodeSerializer.class)
-@JsonDeserialize(using = UsersNodeJsonComponent.UsersNodeDeserializer.class)
+
 public class UsersNode {
 
     @Id

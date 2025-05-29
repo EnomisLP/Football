@@ -10,8 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 
-import com.example.demo.projections.globalSearchResult;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,7 +23,7 @@ import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 
-import com.example.demo.projections.globalSearchResult;
+import com.example.demo.DTO.globalSearchResult;
 import com.example.demo.aggregations.DTO.facetCountDTO;
 import com.example.demo.aggregations.DTO.facetResultDTO;
 

@@ -18,7 +18,7 @@ import com.example.demo.models.MongoDB.OutboxEvent;
 import com.example.demo.models.MongoDB.ROLES;
 import com.example.demo.models.MongoDB.Users;
 import com.example.demo.repositories.MongoDB.Articles_repository;
-import com.example.demo.repositories.MongoDB.OutboxEventRepository;
+import com.example.demo.repositories.MongoDB.OutboxEvent_repository;
 import com.example.demo.repositories.MongoDB.Users_repository;
 import com.example.demo.repositories.Neo4j.Articles_node_rep;
 import com.example.demo.repositories.Neo4j.Users_node_rep;
@@ -45,11 +45,11 @@ public class Users_service {
     private final PasswordEncoder passwordEncoder;
     private final Articles_repository Ar;
     private final Articles_node_rep AR;
-    private final OutboxEventRepository outboxEventRepository;
+    private final OutboxEvent_repository outboxEventRepository;
     private final ObjectMapper objectMapper;
 
     public Users_service(Users_repository ur, Users_node_rep UNR, PasswordEncoder pe,
-    Articles_repository ar, Users_node_service uns, Articles_node_rep articleNode, OutboxEventRepository outboxEventRepository, ObjectMapper objectMapper) {
+    Articles_repository ar, Users_node_service uns, Articles_node_rep articleNode, OutboxEvent_repository outboxEventRepository, ObjectMapper objectMapper) {
         this.Ur = ur;
         this.UNr = UNR;
         this.passwordEncoder=pe;

@@ -8,7 +8,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.management.RuntimeErrorException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.example.demo.repositories.MongoDB.OutboxEventRepository;
+import com.example.demo.repositories.MongoDB.OutboxEvent_repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,10 +30,10 @@ import com.example.demo.repositories.MongoDB.Articles_repository;
 public class Articles_service {
     
     private final Articles_repository Ar;
-    private final OutboxEventRepository outboxEventRepository;
+    private final OutboxEvent_repository outboxEventRepository;
     private final ObjectMapper objectMapper;
 
-    public Articles_service(Articles_repository ar, OutboxEventRepository outboxEventRepository, ObjectMapper objectMapper) {
+    public Articles_service(Articles_repository ar, OutboxEvent_repository outboxEventRepository, ObjectMapper objectMapper) {
         this.Ar = ar;
         this.outboxEventRepository = outboxEventRepository;
         this.objectMapper = objectMapper;

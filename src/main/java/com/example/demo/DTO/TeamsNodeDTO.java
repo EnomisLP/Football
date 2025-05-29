@@ -1,4 +1,4 @@
-package com.example.demo.projections;
+package com.example.demo.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,10 +9,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlayersNodeDTO {
-
+public class TeamsNodeDTO {
     private String mongoId;
     private String longName;
     private String gender;
-    private Integer fifaV;
+    private Integer fifaVersion;
 }

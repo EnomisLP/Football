@@ -1,4 +1,4 @@
-package com.example.demo.projections;
+package com.example.demo.DTO;
 
 
 // Replace the class with an interface

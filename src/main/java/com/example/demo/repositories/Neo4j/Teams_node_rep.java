@@ -9,10 +9,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
+
+import com.example.demo.DTO.CoachesNodeDTO;
+import com.example.demo.DTO.PlayersNodeDTO;
+import com.example.demo.DTO.TeamsNodeDTO;
 import com.example.demo.models.Neo4j.TeamsNode;
-import com.example.demo.projections.CoachesNodeDTO;
-import com.example.demo.projections.PlayersNodeDTO;
-import com.example.demo.projections.TeamsNodeDTO;
 
 
 @Repository

@@ -10,9 +10,10 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import com.example.demo.DTO.CoachesNodeDTO;
+import com.example.demo.DTO.TeamsNodeDTO;
 import com.example.demo.models.Neo4j.CoachesNode;
-import com.example.demo.projections.CoachesNodeDTO;
-import com.example.demo.projections.TeamsNodeDTO;
 
 @Repository
 public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{

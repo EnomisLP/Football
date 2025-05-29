@@ -1,4 +1,4 @@
-package com.example.demo.configurations;
+package com.example.demo.configurations.Swagger;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.context.annotation.Configuration;

@@ -1,5 +1,5 @@
 package com.example.demo.aggregations.DTO;
-import com.example.demo.projections.PlayersNodeDTO;
+import com.example.demo.DTO.PlayersNodeDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

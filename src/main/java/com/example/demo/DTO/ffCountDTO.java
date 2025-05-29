@@ -1,6 +1,6 @@
 
 
-package com.example.demo.projections;
+package com.example.demo.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

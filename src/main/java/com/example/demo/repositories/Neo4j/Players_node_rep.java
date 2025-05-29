@@ -7,9 +7,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
+
+import com.example.demo.DTO.PlayersNodeDTO;
+import com.example.demo.DTO.TeamsNodeDTO;
 import com.example.demo.models.Neo4j.PlayersNode;
-import com.example.demo.projections.PlayersNodeDTO;
-import com.example.demo.projections.TeamsNodeDTO;
 @Repository
 public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
 

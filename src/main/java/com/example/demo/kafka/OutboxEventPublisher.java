@@ -1,4 +1,4 @@
-package com.example.demo.scheduler;
+package com.example.demo.kafka;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Propagation;
 import com.example.demo.configurations.Neo4j.Neo4jHealthChecker;
 import com.example.demo.configurations.Neo4j.Neo4jRecoveryEvent;
 import com.example.demo.models.MongoDB.OutboxEvent;
-import com.example.demo.repositories.MongoDB.OutboxEventRepository;
+import com.example.demo.repositories.MongoDB.OutboxEvent_repository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OutboxEventPublisher {
 
-    private final OutboxEventRepository outboxEventRepository;
+    private final OutboxEvent_repository outboxEventRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
     private final Neo4jHealthChecker neo4jHealthChecker;
@@ -35,7 +35,7 @@ public class OutboxEventPublisher {
     private static final int MAX_RETRY_COUNT = 5;
 
     public OutboxEventPublisher(
-            OutboxEventRepository outboxEventRepository,
+            OutboxEvent_repository outboxEventRepository,
             KafkaTemplate<String, String> kafkaTemplate,
             ObjectMapper objectMapper,
             Neo4jHealthChecker neo4jHealthChecker) {

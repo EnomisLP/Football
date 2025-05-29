@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.example.demo.models.MongoDB.OutboxEvent;
 
 @Repository
-public interface OutboxEventRepository extends MongoRepository<OutboxEvent, String> {
+public interface OutboxEvent_repository extends MongoRepository<OutboxEvent, String> {
     
     /**
      * Trova eventi non pubblicati (metodo originale)

@@ -1,4 +1,4 @@
-package com.example.demo.configurations;
+package com.example.demo.configurations.Swagger;
 
 import com.example.demo.services.MongoDB.MongoUserDetailService;
 import lombok.RequiredArgsConstructor;

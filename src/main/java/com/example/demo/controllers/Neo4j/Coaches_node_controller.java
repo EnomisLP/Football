@@ -4,9 +4,9 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
-import com.example.demo.projections.CoachesNodeDTO;
-import com.example.demo.projections.TeamsNodeDTO;
 
+import com.example.demo.DTO.CoachesNodeDTO;
+import com.example.demo.DTO.TeamsNodeDTO;
 import com.example.demo.services.Neo4j.Coaches_node_service;
 
 

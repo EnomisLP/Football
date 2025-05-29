@@ -10,11 +10,12 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import com.example.demo.DTO.PlayersNodeDTO;
+import com.example.demo.DTO.UsersNodeDTO;
+import com.example.demo.DTO.UsersNodeProjection;
+import com.example.demo.DTO.ffCountDTO;
 import com.example.demo.models.Neo4j.UsersNode;
-import com.example.demo.projections.PlayersNodeDTO;
-import com.example.demo.projections.UsersNodeDTO;
-import com.example.demo.projections.UsersNodeProjection;
-import com.example.demo.projections.ffCountDTO;
 
 
 

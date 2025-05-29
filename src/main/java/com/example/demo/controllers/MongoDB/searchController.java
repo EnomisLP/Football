@@ -1,5 +1,6 @@
 package com.example.demo.controllers.MongoDB;
 
+import com.example.demo.DTO.globalSearchResult;
 import com.example.demo.services.MongoDB.globalSearchService;
 
 import java.util.concurrent.CompletableFuture;
@@ -15,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import com.example.demo.projections.globalSearchResult;
 
 
 

@@ -10,10 +10,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.DTO.ArticlesNodeDTO;
+import com.example.demo.DTO.UsersNodeDTO;
 import com.example.demo.models.MongoDB.Articles;
 import com.example.demo.models.Neo4j.ArticlesNode;
-import com.example.demo.projections.ArticlesNodeDTO;
-import com.example.demo.projections.UsersNodeDTO;
 import com.example.demo.repositories.MongoDB.Articles_repository;
 import com.example.demo.repositories.Neo4j.Articles_node_rep;
 import com.example.demo.repositories.Neo4j.Users_node_rep;

@@ -7,11 +7,11 @@ import org.springframework.data.neo4j.core.Neo4jClient;
 
 import org.springframework.stereotype.Service;
 
+import com.example.demo.DTO.PlayersNodeDTO;
 import com.example.demo.aggregations.DTO.MostEngaggedPlayer;
 import com.example.demo.aggregations.DTO.TopTeam;
 import com.example.demo.aggregations.DTO.UserInterestDiversity;
 import com.example.demo.models.Neo4j.TeamsNode;
-import com.example.demo.projections.PlayersNodeDTO;
 
 import lombok.extern.slf4j.Slf4j;
 

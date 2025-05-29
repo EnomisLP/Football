@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
+import com.example.demo.DTO.ArticlesNodeDTO;
+import com.example.demo.DTO.PlayersNodeDTO;
+import com.example.demo.DTO.UsersNodeDTO;
+import com.example.demo.DTO.UsersNodeProjection;
+import com.example.demo.DTO.ffCountDTO;
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
-import com.example.demo.projections.ArticlesNodeDTO;
-import com.example.demo.projections.PlayersNodeDTO;
-import com.example.demo.projections.UsersNodeDTO;
-import com.example.demo.projections.ffCountDTO;
-import com.example.demo.projections.UsersNodeProjection;
 import com.example.demo.services.Neo4j.Users_node_service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 

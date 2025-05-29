@@ -10,7 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import com.example.demo.projections.globalSearchResult;
+import com.example.demo.DTO.globalSearchResult;
 import com.example.demo.aggregations.DTO.facetCountDTO;
 
 

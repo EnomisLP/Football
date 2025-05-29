@@ -1,7 +1,8 @@
 package com.example.demo.controllers.Neo4j;
 
 import org.springframework.web.bind.annotation.RestController;
-import com.example.demo.projections.ArticlesNodeDTO;
+
+import com.example.demo.DTO.ArticlesNodeDTO;
 import com.example.demo.services.Neo4j.Articles_node_service;
 
 import io.swagger.v3.oas.annotations.Operation;

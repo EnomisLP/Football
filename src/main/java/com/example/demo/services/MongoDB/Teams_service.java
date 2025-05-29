@@ -7,6 +7,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.DTO.CoachesNodeDTO;
+import com.example.demo.DTO.PlayersNodeDTO;
+import com.example.demo.DTO.TeamsNodeDTO;
 import com.example.demo.models.MongoDB.Coaches;
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.models.MongoDB.FifaStatsTeam;
@@ -15,10 +18,6 @@ import com.example.demo.models.MongoDB.TeamObj;
 import com.example.demo.models.MongoDB.Teams;
 import com.example.demo.models.Neo4j.CoachesNode;
 import com.example.demo.models.Neo4j.TeamsNode;
-import com.example.demo.projections.CoachesNodeDTO;
-import com.example.demo.projections.PlayersNodeDTO;
-import com.example.demo.projections.TeamsNodeDTO;
-
 import com.example.demo.repositories.MongoDB.Coaches_repository;
 import com.example.demo.repositories.MongoDB.Players_repository;
 import com.example.demo.repositories.MongoDB.Teams_repository;

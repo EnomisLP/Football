@@ -8,8 +8,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.stereotype.Repository;
 
+import com.example.demo.DTO.ArticlesNodeDTO;
 import com.example.demo.models.Neo4j.ArticlesNode;
-import com.example.demo.projections.ArticlesNodeDTO;
 
 
 @Repository

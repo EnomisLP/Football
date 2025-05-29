@@ -1,4 +1,4 @@
-package com.example.demo.configurations;
+package com.example.demo.configurations.Transaction;
 import org.springframework.context.annotation.Configuration;
 
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
