@@ -1,17 +1,21 @@
 package com.example.demo.controllers.Neo4j;
 
 import java.util.List;
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import com.example.demo.models.MongoDB.FifaStatsPlayer;
 import com.example.demo.projections.ArticlesNodeDTO;
 import com.example.demo.projections.PlayersNodeDTO;
 import com.example.demo.projections.UsersNodeDTO;
+import com.example.demo.projections.ffCountDTO;
 import com.example.demo.projections.UsersNodeProjection;
 import com.example.demo.services.Neo4j.Users_node_service;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -153,6 +157,20 @@ public class Users_node_controller {
     }
 
     // FOLLOW / UNFOLLOW
+    
+    @GetMapping("user/{target}/followersAndFollowingsCounts")
+    @Operation(summary = "Get the number of followers and followings of a user", tags={"User"})
+    public ResponseEntity<ffCountDTO> getFFCount(@PathVariable String target) throws JsonProcessingException {
+         ffCountDTO dto = Uns.countFollowersAndFollowings(target);
+         if (dto.getFollowersCount() == -1 && dto.getFollowingsCount() == -1) {
+                // Return 404 Not Found
+                return ResponseEntity.notFound().build();
+            } else {
+                // Return 200 OK with the DTO
+                return ResponseEntity.ok(dto);
+            }
+    }
+    
     @PutMapping("user/{target}/follow")
     @Operation(summary = "Follow a user", tags={"User"})
     public void FOLLOW(Authentication auth, @PathVariable String target) throws JsonProcessingException {
