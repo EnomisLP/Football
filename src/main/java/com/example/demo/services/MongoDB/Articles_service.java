@@ -33,7 +33,9 @@ public class Articles_service {
     private final OutboxEvent_repository outboxEventRepository;
     private final ObjectMapper objectMapper;
 
-    public Articles_service(Articles_repository ar, OutboxEvent_repository outboxEventRepository, ObjectMapper objectMapper) {
+    public Articles_service(Articles_repository ar, 
+    OutboxEvent_repository outboxEventRepository,
+    ObjectMapper objectMapper) {
         this.Ar = ar;
         this.outboxEventRepository = outboxEventRepository;
         this.objectMapper = objectMapper;

@@ -1,7 +1,7 @@
 package com.example.demo.controllers.MongoDB;
 
 import com.example.demo.DTO.globalSearchResult;
-import com.example.demo.services.MongoDB.globalSearchService;
+import com.example.demo.services.MongoDB.GlobalSearch_service;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -27,9 +27,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 public class searchController {
     
-    private final globalSearchService gss;
+    private final GlobalSearch_service gss;
     
-    public searchController(globalSearchService gss){
+    public searchController(GlobalSearch_service gss){
         this.gss=gss;
     }
     

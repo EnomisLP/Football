@@ -1,6 +1,6 @@
 package com.example.demo.configurations.Swagger;
 
-import com.example.demo.services.MongoDB.MongoUserDetailService;
+import com.example.demo.services.MongoDB.MongoUserDetail_service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final MongoUserDetailService mongoUserDetailService;
+    private final MongoUserDetail_service mongoUserDetailService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

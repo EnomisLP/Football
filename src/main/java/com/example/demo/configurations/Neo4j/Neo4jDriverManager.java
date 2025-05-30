@@ -54,7 +54,7 @@ public class Neo4jDriverManager {
                 driverLock.writeLock().unlock();
             }
             
-            log.info("✅ Connected to Neo4j successfully at startup");
+            log.info(" Connected to Neo4j successfully at startup");
         } catch (Exception e) {
             driverLock.writeLock().lock();
             try {
@@ -64,7 +64,7 @@ public class Neo4jDriverManager {
                 driverLock.writeLock().unlock();
             }
             
-            log.warn("⚠️ Neo4j is down at startup, using NoOpDriver: {}", e.getMessage());
+            log.warn(" Neo4j is down at startup, using NoOpDriver: {}", e.getMessage());
         }
     }
     
@@ -124,7 +124,7 @@ public class Neo4jDriverManager {
                 driverLock.writeLock().unlock();
             }
             
-            log.info("🎉 Successfully reconnected to Neo4j!");
+            log.info(" Successfully reconnected to Neo4j!");
             return true;
             
         } catch (Exception e) {
@@ -159,7 +159,7 @@ public class Neo4jDriverManager {
             driverLock.writeLock().unlock();
         }
         
-        log.warn("⚠️ Switched to NoOpDriver due to connection loss");
+        log.warn(" Switched to NoOpDriver due to connection loss");
     }
     
     @PreDestroy

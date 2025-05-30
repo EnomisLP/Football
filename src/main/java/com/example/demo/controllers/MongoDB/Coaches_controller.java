@@ -1,4 +1,6 @@
 package com.example.demo.controllers.MongoDB;
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -42,21 +44,21 @@ public class Coaches_controller {
     // CREATE: Create a new coach
     @PostMapping("admin/coach/new")
     @Operation(summary = "CREATE: Create a new coach", tags={"Admin:Coach"})
-    public Coaches createCoach(@RequestBody createCoachRequest coach) {
+    public CompletableFuture<Coaches> createCoach(@RequestBody createCoachRequest coach) {
         return coachesMservice.createCoach(coach);
     }
 
     // UPDATE: Update an existing coach by ID
     @PutMapping("admin/coach/modify/{_id}")
     @Operation(summary = "UPDATE: Update an existing coach by ID", tags={"Admin:Coach"})
-    public Coaches updateCoach(@PathVariable String _id, @RequestBody updateCoach coachDetails) {
+    public CompletableFuture<Coaches> updateCoach(@PathVariable String _id, @RequestBody updateCoach coachDetails) {
         return coachesMservice.updateCoach(_id, coachDetails);
     }
 
     // UPDATE: update team of an existing coach by ID
     @PutMapping("admin/coach/modify/{_id}/{fifaV}")
     @Operation(summary = "UPDATE: update team of an existing coach by ID", tags={"Admin:Coach"})
-    public Coaches updateTeam(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateTeamCoach coachDetails) {
+    public CompletableFuture<Coaches> updateTeam(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateTeamCoach coachDetails) {
         return coachesMservice.updateTeamCoach(_id, fifaV, coachDetails);
     }
 

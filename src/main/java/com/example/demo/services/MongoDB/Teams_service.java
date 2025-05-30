@@ -1,6 +1,8 @@
 package com.example.demo.services.MongoDB;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
 import javax.management.RuntimeErrorException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -72,7 +74,8 @@ public class Teams_service {
     }
     //CREATE
     @Async("customAsyncExecutor")
-    public Teams createTeam(createTeamRequest request){
+    @Transactional
+    public CompletableFuture<Teams> createTeam(createTeamRequest request){
         Teams teamM = new Teams();
         teamM.setGender(request.getGender());
         teamM.setLeague_id(request.getLeague_id());
@@ -87,13 +90,13 @@ public class Teams_service {
         newTeam.setLongName(teamM.getTeam_name());
         newTeam.setGender(teamM.getGender());
         Tmr.save(newTeam);
-        return teamM;
+        return CompletableFuture.completedFuture(teamM);
     }
 
     //UPDATE
     @Transactional
     @Async("customAsyncExecutor")
-    public Teams updateTeam(String id, updateTeam teamsDetails) {
+    public CompletableFuture<Teams> updateTeam(String id, updateTeam teamsDetails) {
         Optional<Teams> optionalTeam = TMr.findById(id);
         if (optionalTeam.isPresent()) {
             Teams existingTeam = optionalTeam.get();
@@ -135,7 +138,7 @@ public class Teams_service {
                 Tmr.updateTeamName(id, teamsDetails.getTeam_name());
 
                 // Save the updated team back to the repository
-                return TMr.save(existingTeam);
+                return CompletableFuture.completedFuture(TMr.save(existingTeam));
             }
             else{
                 throw new RuntimeException("Team with id: " + id+" not correctly mapped in Neo4j");
@@ -148,7 +151,7 @@ public class Teams_service {
 
     @Async("customAsyncExecutor")
     @Transactional
-    public Teams updateFifaTeam(String id, Integer fifaV, updateFifaTeam request) {
+    public CompletableFuture<Teams> updateFifaTeam(String id, Integer fifaV, updateFifaTeam request) {
         Optional<Teams> optionalTeam = TMr.findById(id);
         if(optionalTeam.isPresent()){
             Teams existingTeam = optionalTeam.get();
@@ -210,7 +213,7 @@ public class Teams_service {
                     continue;
                 }
             }
-            return TMr.save(existingTeam);
+            return CompletableFuture.completedFuture(TMr.save(existingTeam));
             
         }
         else{

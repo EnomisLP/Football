@@ -1,4 +1,6 @@
 package com.example.demo.controllers.MongoDB;
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -44,21 +46,21 @@ public class Players_controller {
     // CREATE: Create a new player
     @PostMapping("admin/player/new")
     @Operation(summary = "CREATE: Add a new player", tags={"Admin:Player"})
-    public Players createPlayer(@RequestBody createPlayerRequest player) {
+    public CompletableFuture<Players> createPlayer(@RequestBody createPlayerRequest player) {
         return playersMService.createPlayer(player);
     }
 
     // UPDATE: Update an existing player
     @PutMapping("admin/player/modify/{_id}")
     @Operation(summary = "UPDATE: Update an existing player by its ID", tags={"Admin:Player"})
-    public Players updatePlayer(@PathVariable String _id, @RequestBody updatePlayer playerDetails) {
+    public CompletableFuture<Players> updatePlayer(@PathVariable String _id, @RequestBody updatePlayer playerDetails) {
         return playersMService.updatePlayer(_id, playerDetails);
     }
 
     // UPDATE: Update FIFA version of a player
     @PutMapping("admin/player/modify/{_id}/{fifaV}")
     @Operation(summary = "UPDATE: Update a specific FIFA version of a player by its ID", tags={"Admin:Player"})
-    public Players updateFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV,
+    public CompletableFuture<Players> updateFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV,
                                       @RequestBody updateFifaPlayer playerDetails) {
         return playersMService.updateFifaPlayer(_id, fifaV, playerDetails);
     }
@@ -66,7 +68,7 @@ public class Players_controller {
     // UPDATE: Update team of a player
     @PutMapping("admin/player/modify/{_id}/{fifaV}/team")
     @Operation(summary = "UPDATE: Update the team of a player by its ID", tags={"Admin:Player"})
-    public Players updateTeam(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateTeamPlayer teamDetails) {
+    public CompletableFuture<Players> updateTeam(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateTeamPlayer teamDetails) {
         return playersMService.updateTeamPlayer(_id, fifaV, teamDetails);
     }
 

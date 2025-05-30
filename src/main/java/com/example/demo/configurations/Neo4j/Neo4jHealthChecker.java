@@ -182,7 +182,7 @@ public class Neo4jHealthChecker {
      */
     private void onNeo4jRecovered() {
         long failures = consecutiveFailures.get();
-        log.info("🎉 Neo4j recovered! Connection restored after {} consecutive failures.", failures);
+        log.info(" Neo4j recovered! Connection restored after {} consecutive failures.", failures);
         
         // Pubblica evento di recovery
         try {
@@ -196,7 +196,7 @@ public class Neo4jHealthChecker {
      * Chiamato quando Neo4j va down
      */
     private void onNeo4jWentDown() {
-        log.warn("⚠️ Neo4j connection lost. Switching to eventual consistency mode.");
+        log.warn(" Neo4j connection lost. Switching to eventual consistency mode.");
     }
     
     /**

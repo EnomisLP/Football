@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class MongoUserDetailService implements UserDetailsService {
+public class MongoUserDetail_service implements UserDetailsService {
 
     private final Users_repository userRepository;
 

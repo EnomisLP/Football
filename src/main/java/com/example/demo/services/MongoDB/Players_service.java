@@ -2,6 +2,7 @@ package com.example.demo.services.MongoDB;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import javax.management.RuntimeErrorException;
 import org.springframework.data.domain.Page;
@@ -68,8 +69,9 @@ public class Players_service {
         return PMr.findAllByGender(gender, page);
     }
     //CREATE
+    @Transactional
     @Async("customAsyncExecutor")
-    public Players createPlayer(createPlayerRequest request){
+    public CompletableFuture<Players> createPlayer(createPlayerRequest request){
         Players playerM = new Players();
         playerM.setAge(request.getAge());
         playerM.setDob(request.getDob());
@@ -87,13 +89,13 @@ public class Players_service {
         playerNode.setNationalityName(playerM.getNationality_name());
         playerNode.setGender(playerM.getGender());
         Pmr.save(playerNode);
-        return playerM;
+        return CompletableFuture.completedFuture(playerM);
     };
 
     //UPDATE
     @Transactional
     @Async("customAsyncExecutor")
-    public Players updatePlayer(String id, updatePlayer playerDetails) {
+    public CompletableFuture<Players> updatePlayer(String id, updatePlayer playerDetails) {
         Optional<Players> optionalPlayer = PMr.findById(id);
         if (optionalPlayer.isPresent()) {
             Players existingPlayer = optionalPlayer.get();
@@ -115,7 +117,7 @@ public class Players_service {
                 );
                 
                 // Save the updated player back to the repository
-                return PMr.save(existingPlayer);
+                return CompletableFuture.completedFuture(PMr.save(existingPlayer));
             }
             else{
                 throw new RuntimeException("Player with id: " + id+ "not correctly mapped in Neo4j");
@@ -128,7 +130,7 @@ public class Players_service {
     
     @Transactional
     @Async("customAsyncExecutor")
-    public Players updateFifaPlayer(String id, Integer fifaV, updateFifaPlayer request){
+    public CompletableFuture<Players> updateFifaPlayer(String id, Integer fifaV, updateFifaPlayer request){
         Optional<Players> optionalPlayer = PMr.findById(id);
         if (optionalPlayer.isPresent()) {
             Players existingPlayer = optionalPlayer.get();
@@ -220,7 +222,7 @@ public class Players_service {
                         break;
                     }
                 }
-                return PMr.save(existingPlayer);
+                return CompletableFuture.completedFuture(PMr.save(existingPlayer));
             }
             else{
                 throw new RuntimeException("Player with id: " + id+ "not correctly mapped in Neo4j");
@@ -234,7 +236,7 @@ public class Players_service {
     
     @Transactional
     @Async("customAsyncExecutor")
-    public Players updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer request) {
+    public CompletableFuture<Players> updateTeamPlayer(String id, Integer fifaV, updateTeamPlayer request) {
         Players existingPlayer = PMr.findById(id)
             .orElseThrow(() -> new RuntimeException("Player not found in MongoDB"));
 
@@ -261,9 +263,9 @@ public class Players_service {
             targetStat.getTeam().setTeam_name(existingTeam.getTeam_name());
             targetStat.getTeam().setTeam_mongo_id(request.getTeam_mongo_id());
             targetStat.getTeam().setFifa_version(fifaV);
-            return PMr.save(existingPlayer);
+            return CompletableFuture.completedFuture(PMr.save(existingPlayer));
         }
-        return existingPlayer; // No change needed
+        return CompletableFuture.completedFuture(existingPlayer); // No change needed
     }
 
     //DELETE

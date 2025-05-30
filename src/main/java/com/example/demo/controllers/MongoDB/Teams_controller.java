@@ -1,4 +1,6 @@
 package com.example.demo.controllers.MongoDB;
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -42,21 +44,21 @@ public class Teams_controller {
     // CREATE: Create a new team
     @PostMapping("admin/team/new")
     @Operation(summary = "CREATE: Add a new team", tags={"Admin:Team"})
-    public Teams createTeam(@RequestBody createTeamRequest team) {
+    public CompletableFuture<Teams> createTeam(@RequestBody createTeamRequest team) {
         return teamsMService.createTeam(team);
     }
 
     // UPDATE: Update an existing team
     @PutMapping("admin/team/modify/{_id}")
     @Operation(summary = "UPDATE: Update an existing team by its ID", tags={"Admin:Team"})
-    public Teams updateTeam(@PathVariable String _id, @RequestBody updateTeam teamDetails) {
+    public CompletableFuture<Teams> updateTeam(@PathVariable String _id, @RequestBody updateTeam teamDetails) {
         return teamsMService.updateTeam(_id, teamDetails);
     }
 
     // UPDATE: Update a fifa version of a team
     @PutMapping("admin/team/modify/{_id}/{fifaV}")
     @Operation(summary = "UPDATE: Update a FIFA version of a team", tags={"Admin:Team"})
-    public Teams updateFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateFifaTeam teamDetails) {
+    public CompletableFuture<Teams> updateFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateFifaTeam teamDetails) {
         return teamsMService.updateFifaTeam(_id, fifaV, teamDetails);
     }
 

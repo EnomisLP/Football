@@ -1,6 +1,7 @@
 package com.example.demo.services.MongoDB;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import javax.management.RuntimeErrorException;
 import org.springframework.data.domain.Page;
@@ -63,7 +64,8 @@ public class Coaches_service {
 
     //CREATE
     @Async("customAsyncExecutor")
-    public Coaches createCoach(createCoachRequest request){
+    @Transactional
+    public CompletableFuture<Coaches> createCoach(createCoachRequest request){
         Coaches coachM = new Coaches();
         coachM.setGender(request.getGender());
         coachM.setLong_name(request.getLong_name());
@@ -76,13 +78,13 @@ public class Coaches_service {
         coachNode.setNationalityName(coachM.getNationality_name());
         coachNode.setGender(coachM.getGender());
         Cmr.save(coachNode);
-        return coachM;
+        return CompletableFuture.completedFuture(coachM);
     };
 
      //UPDATE
      @Transactional
      @Async("customAsyncExecutor")
-     public Coaches updateCoach(String id, updateCoach coachDetails) {
+     public CompletableFuture<Coaches> updateCoach(String id, updateCoach coachDetails) {
         Optional<Coaches> optionalCoach = CMr.findById(id);
         if (optionalCoach.isPresent()) {
             Coaches existingCoach = optionalCoach.get();
@@ -111,7 +113,7 @@ public class Coaches_service {
                 
                Cmr.updateAttributesByMongoId(id, coachDetails.getShort_name(), coachDetails.getLong_name(), coachDetails.getGender());
                 // Save the updated coach back to the repository
-                return CMr.save(existingCoach);
+                return CompletableFuture.completedFuture(CMr.save(existingCoach));
                 
             }    
             else{
@@ -125,7 +127,7 @@ public class Coaches_service {
     
     @Transactional
     @Async("customAsyncExecutor")
-    public Coaches updateTeamCoach(String id, Integer fifaV, updateTeamCoach request){
+    public CompletableFuture<Coaches> updateTeamCoach(String id, Integer fifaV, updateTeamCoach request){
         Optional<Coaches> optionalCoach = CMr.findById(id);
         Optional<Teams> optionalTeam = TMs.findById(request.getTeam_mongo_id());
         Optional<CoachesNodeDTO> optionalCoachNode = Cmr.findByMongoIdLight(id);
@@ -138,7 +140,7 @@ public class Coaches_service {
                     for(TeamObj team : Check){
                         if(team.getFifa_version().equals(fifaV)){
                             if(team.getTeam_mongo_id().equals(request.getTeam_mongo_id())){
-                                return existingCoach;
+                                return CompletableFuture.completedFuture(existingCoach);
                             }
                         }
                     }
@@ -175,7 +177,7 @@ public class Coaches_service {
                     }
                     
                 
-            return existingCoach;
+            return CompletableFuture.completedFuture(existingCoach);
             }
             else{
                 throw new RuntimeException("Teams not found with id: " + request.getTeam_mongo_id());

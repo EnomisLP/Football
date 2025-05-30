@@ -29,7 +29,7 @@ import com.example.demo.aggregations.DTO.facetResultDTO;
 
 
 @Service
-public class globalSearchService {
+public class GlobalSearch_service {
 
     @Autowired
     private MongoTemplate mongoTemplate;
