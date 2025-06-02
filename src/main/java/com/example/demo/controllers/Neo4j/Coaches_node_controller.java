@@ -4,6 +4,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import com.example.demo.DTO.CoachesNodeDTO;
 import com.example.demo.DTO.TeamsNodeDTO;
@@ -11,6 +13,9 @@ import com.example.demo.services.Neo4j.Coaches_node_service;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 
 
 
@@ -69,5 +74,11 @@ public class Coaches_node_controller{
     @Operation(summary = "MAP all MANAGES_TEAMS relationships", tags={"Admin:Map"})
     public String mapManagesTeam(@PathVariable String gender){
         return coachesMNodeService.MapAllManagesTeam(gender);
+    }
+    
+    @GetMapping("coach/{_id}/check_like")
+    @Operation(summary = "Check if the user alredy liked the coach", tags={"Coach"})
+    public ResponseEntity<Boolean> checkLike(@PathVariable String _id,Authentication auth) {
+        return ResponseEntity.ok(this.coachesMNodeService.checkLike(_id,auth.getName()));
     }
 }

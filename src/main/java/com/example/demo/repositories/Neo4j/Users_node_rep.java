@@ -159,4 +159,8 @@ Integer countPlayersInFTeamByUsername(String userName);
        "count(DISTINCT follower) AS followersCount, " +
        "count(DISTINCT following) AS followingsCount")
 Optional<ffCountDTO> countFollowersAndFollowings(String username);
+
+    @Query("MATCH (u:UsersNode {userName: $username})-[r:FOLLOWS]->(x:UsersNode {mongoId: $mongoId})" +
+       "RETURN COUNT(r) > 0 AS relationshipExists")
+    boolean checkFollows(String mongoId, String username);
 }

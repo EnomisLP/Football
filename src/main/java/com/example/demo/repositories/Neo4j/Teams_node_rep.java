@@ -57,4 +57,8 @@ public interface Teams_node_rep extends Neo4jRepository<TeamsNode,Long>{
     @Query("MATCH (t:TeamsNode {mongoId: $mongoId}) " +
            "SET t.gender = $newGender ")
     void updateTeamGender(String mongoId, String newGender);
+    
+    @Query("MATCH (u:UsersNode {userName: $username})-[r:LIKES]->(t:TeamsNode {mongoId: $mongoId})" +
+       "RETURN COUNT(r) > 0 AS relationshipExists")
+    boolean checkLike(String mongoId, String username);
 }

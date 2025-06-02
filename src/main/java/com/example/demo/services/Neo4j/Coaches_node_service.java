@@ -172,4 +172,8 @@ public class Coaches_node_service {
             throw new RuntimeErrorException(null, "Coach with id:" + coachMongoId + " not found or team not found for this year");
         }
     }
+    
+    public boolean checkLike(String articleId,String username){
+        return this.CMn.checkLike(articleId,username);
+    }
 }

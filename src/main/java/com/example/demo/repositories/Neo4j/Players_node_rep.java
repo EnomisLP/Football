@@ -52,6 +52,10 @@ public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
     "WHERE r.fifaVersion = $fifaV "+
     "RETURN t.mongoId AS mongoId, t.longName AS longName, t.gender AS gender, r.fifaVersion AS fifaVersion")
     TeamsNodeDTO findTeam(String mongoId, Integer fifaV);
+    
+    @Query("MATCH (u:UsersNode {userName: $username})-[r:LIKES]->(p:PlayersNode {mongoId: $mongoId})" +
+       "RETURN COUNT(r) > 0 AS relationshipExists")
+    boolean checkLike(String mongoId, String username);
 
 
 }

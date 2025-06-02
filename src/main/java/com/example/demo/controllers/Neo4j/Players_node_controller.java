@@ -5,11 +5,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import com.example.demo.DTO.PlayersNodeDTO;
 import com.example.demo.DTO.TeamsNodeDTO;
 import com.example.demo.services.Neo4j.Players_node_service;
 import io.swagger.v3.oas.annotations.Operation;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -71,4 +76,11 @@ public class Players_node_controller {
     public String mapAllPlayersToNeo4j() {
         return playersNodeService.MapAllTheNodes();
     }
+    
+    @GetMapping("player/{_id}/check_like")
+    @Operation(summary = "Check if the user alredy liked the player", tags={"Player"})
+    public ResponseEntity<Boolean> checkLike(@PathVariable String _id,Authentication auth) {
+        return ResponseEntity.ok(this.playersNodeService.checkLike(_id,auth.getName()));
+    }
+    
 }

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.bson.types.ObjectId;
 
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators;
@@ -114,17 +115,19 @@ public class FootballService {
         return CompletableFuture.completedFuture(result.getMappedResults());
     }
     @Async("customAsyncExecutor")
-    public CompletableFuture<TeamImprovements> getTeamImprovements(String team,String year1,String year2){
+    public CompletableFuture<TeamImprovements> getTeamImprovements(String _id,String year1,String year2){
+        
+        ObjectId objectId = new ObjectId(_id);
         
         //String manipulation phase
         Integer firstYear= Integer.parseInt(year1.substring(year1.length()-2,year1.length()));
         Integer secondYear= Integer.parseInt(year2.substring(year2.length()-2,year2.length()));
         
-        System.out.println(team+" "+firstYear+" "+secondYear);
+        //System.out.println(team+" "+firstYear+" "+secondYear);
         
         Aggregation aggregation = Aggregation.newAggregation(
         // Stage 1: Match
-        Aggregation.match(Criteria.where("team_name").is(team)),
+        Aggregation.match(Criteria.where("_id").is(objectId)),
 
         // Stage 2: Project filtered stats for FIFA 24 and 23
         Aggregation.project()

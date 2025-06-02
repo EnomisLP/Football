@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import com.example.demo.DTO.CoachesNodeDTO;
 import com.example.demo.DTO.PlayersNodeDTO;
@@ -12,6 +14,9 @@ import com.example.demo.DTO.TeamsNodeDTO;
 import com.example.demo.services.Neo4j.Teams_node_service;
 
 import io.swagger.v3.oas.annotations.Operation;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -49,7 +54,7 @@ public class Teams_node_controller {
         return teamsNodeService.MapAllTheNodes();
     }
     
-    @GetMapping("team/{_id}/current_formation")
+    @GetMapping("team/{_id}/formation")
     @Operation(summary = "Show formation of a Team for the current Year", tags={"Team"})
     public List<PlayersNodeDTO> showCurrentFormation(@PathVariable String _id){
         return teamsNodeService.showCurrentFormation(_id);
@@ -71,5 +76,11 @@ public class Teams_node_controller {
     @Operation(summary = "Show coach of a Team for a specific Year", tags={"Team"})
     public CoachesNodeDTO showSpecificCoach(@PathVariable String _id, @PathVariable Integer fifaV){
         return teamsNodeService.showSpecificCoach(_id, fifaV);
+    }
+    
+    @GetMapping("team/{_id}/check_like")
+    @Operation(summary = "Check if the user alredy liked the team", tags={"Team"})
+    public ResponseEntity<Boolean> checkLike(@PathVariable String _id,Authentication auth) {
+        return ResponseEntity.ok(this.teamsNodeService.checkLike(_id,auth.getName()));
     }
 }

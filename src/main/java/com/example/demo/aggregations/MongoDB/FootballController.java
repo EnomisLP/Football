@@ -52,7 +52,7 @@ public class FootballController {
     }
     
     // Modify with team id not name
-    @GetMapping("/admin/team/{team}/analytics/improvement/{year1}/{year2}")
+    @GetMapping("/team/{_id}/analytics/improvement/{year1}/{year2}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved information"),
             @ApiResponse(responseCode = "404", description = "Team not found"),

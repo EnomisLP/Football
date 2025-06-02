@@ -105,4 +105,7 @@ public class Articles_node_service {
         ArticlesNode articleNode = Ar.findByMongoId(mongoId).orElseThrow(() -> new RuntimeException("Article not found with id: " + mongoId));
         Ar.delete(articleNode);
     }
+    public boolean checkLike(String articleId,String username){
+        return this.Ar.checkLike(articleId,username);
+    }
 }

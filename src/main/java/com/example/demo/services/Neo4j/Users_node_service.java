@@ -633,5 +633,9 @@ public class Users_node_service {
         return "Finished";
     }
     
+    public boolean checkFollows(String articleId,String username){
+        return this.Unr.checkFollows(articleId,username);
+    }
+    
 }
 

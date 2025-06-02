@@ -165,6 +165,10 @@ public class Players_node_service {
             throw new RuntimeErrorException(null, "Player with id:" + playerMongoId +"not found or team not mapped for current year");
         }
     }
+    
+    public boolean checkLike(String articleId,String username){
+        return this.PMn.checkLike(articleId,username);
+    }
 
     
 }

@@ -108,4 +108,7 @@ public class Teams_node_service {
     public CoachesNodeDTO showSpecificCoach(String mongoId, Integer fifaV){
         return TMn.findCoach(mongoId, fifaV);
     }
+    public boolean checkLike(String articleId,String username){
+        return this.TMn.checkLike(articleId,username);
+    }
 }

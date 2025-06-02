@@ -6,6 +6,8 @@ import com.example.demo.DTO.ArticlesNodeDTO;
 import com.example.demo.services.Neo4j.Articles_node_service;
 
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +16,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 
 
 @RestController
@@ -50,6 +55,12 @@ public class Articles_node_controller {
     @Operation(summary = "Map all articles", tags={"Admin:Map"})
     public String mapAllArticles() {
         return articlesNodeService.MappAllArticles();
+    }
+    
+    @GetMapping("article/{_id}/check_like")
+    @Operation(summary = "Check if alredy the user liked the article", tags={"Article"})
+    public ResponseEntity<Boolean> checkLike(@PathVariable String _id,Authentication auth) {
+        return ResponseEntity.ok(articlesNodeService.checkLike(_id,auth.getName()));
     }
     
 }

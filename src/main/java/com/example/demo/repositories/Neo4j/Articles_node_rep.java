@@ -30,27 +30,32 @@ public interface Articles_node_rep extends Neo4jRepository<ArticlesNode, Long> {
            "RETURN a")
     List<ArticlesNode> findByAuthor(String userName);
 
-@Query("MATCH (n:ArticlesNode) RETURN n.mongoId AS mongoId, n.title AS title, n.author AS author")
-List<ArticlesNodeDTO> findAllLight();
+    @Query("MATCH (n:ArticlesNode) RETURN n.mongoId AS mongoId, n.title AS title, n.author AS author")
+    List<ArticlesNodeDTO> findAllLight();
 
-@Query(value ="MATCH (n:ArticlesNode) RETURN n.mongoId AS mongoId, n.title AS title, n.author AS author",
-countQuery = "MATCH (n:ArticlesNode) RETURN COUNT(n)"
-)
-Page<ArticlesNodeDTO> findAllLightWithPagination(PageRequest page);
-@Query(
-    value = "MATCH (n:ArticlesNode {author: $author}) RETURN n.mongoId AS mongoId, n.title AS title, n.author AS author",
-    countQuery = "MATCH (n:ArticlesNode {author: $author}) RETURN COUNT(n)"
-)
-Page<ArticlesNodeDTO> findAllByAuthorWithPaginationLight(@Param("author") String author, PageRequest pageable);
+    @Query(value ="MATCH (n:ArticlesNode) RETURN n.mongoId AS mongoId, n.title AS title, n.author AS author",
+    countQuery = "MATCH (n:ArticlesNode) RETURN COUNT(n)"
+    )
+    Page<ArticlesNodeDTO> findAllLightWithPagination(PageRequest page);
+    @Query(
+        value = "MATCH (n:ArticlesNode {author: $author}) RETURN n.mongoId AS mongoId, n.title AS title, n.author AS author",
+        countQuery = "MATCH (n:ArticlesNode {author: $author}) RETURN COUNT(n)"
+    )
+    Page<ArticlesNodeDTO> findAllByAuthorWithPaginationLight(@Param("author") String author, PageRequest pageable);
 
 
 
-@Query("MATCH (a:ArticlesNode {mongoId : $mongoId}) " +
-       "SET a.title = $newTitle ")
-void updateArticleTitle(String mongoId, String newTitle);
+    @Query("MATCH (a:ArticlesNode {mongoId : $mongoId}) " +
+        "SET a.title = $newTitle ")
+    void updateArticleTitle(String mongoId, String newTitle);
 
-@Query("MATCH (a:ArticlesNode {mongoId : $mongoId}) "+
-       "DETACH DELETE a"
-)
-void deleteByMongoIdLight(String mongoId);
+    @Query("MATCH (a:ArticlesNode {mongoId : $mongoId}) "+
+        "DETACH DELETE a"
+    )
+    void deleteByMongoIdLight(String mongoId);
+
+    @Query("MATCH (u:UsersNode {userName: $username})-[r:LIKES]->(a:ArticlesNode {mongoId: $mongoId})" +
+       "RETURN COUNT(r) > 0 AS relationshipExists")
+    boolean checkLike(String mongoId, String username);
 }
+

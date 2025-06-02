@@ -246,4 +246,10 @@ public class Users_node_controller {
          Uns.coach_UNLIKE(auth.getName(), _id);
     }
     
+    @GetMapping("user/{_id}/check_follow")
+    @Operation(summary = "Check if the user alredy follow the target user", tags={"User"})
+    public ResponseEntity<Boolean> checkFollows(@PathVariable String _id,Authentication auth) {
+        return ResponseEntity.ok(this.Uns.checkFollows(_id,auth.getName()));
+    }
+    
 }
