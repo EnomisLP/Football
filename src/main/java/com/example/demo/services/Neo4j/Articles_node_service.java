@@ -108,4 +108,7 @@ public class Articles_node_service {
     public boolean checkLike(String articleId,String username){
         return this.Ar.checkLike(articleId,username);
     }
+    public Integer countLike(String id){
+        return this.Ar.countLike(id);
+    }
 }

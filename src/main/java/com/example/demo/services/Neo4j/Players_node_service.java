@@ -170,5 +170,7 @@ public class Players_node_service {
         return this.PMn.checkLike(articleId,username);
     }
 
-    
+    public Integer countLike(String id){
+        return this.PMn.countLike(id);
+    }
 }

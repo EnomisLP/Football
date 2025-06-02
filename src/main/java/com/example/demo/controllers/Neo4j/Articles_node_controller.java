@@ -57,10 +57,16 @@ public class Articles_node_controller {
         return articlesNodeService.MappAllArticles();
     }
     
-    @GetMapping("article/{_id}/check_like")
+    @GetMapping("/article/{_id}/check_like")
     @Operation(summary = "Check if alredy the user liked the article", tags={"Article"})
     public ResponseEntity<Boolean> checkLike(@PathVariable String _id,Authentication auth) {
         return ResponseEntity.ok(articlesNodeService.checkLike(_id,auth.getName()));
+    }
+
+     @GetMapping("article/{_id}/count_like")
+    @Operation(summary = "Counts number of likes ", tags={"Article"})
+    public ResponseEntity<Integer> countLike(@PathVariable String _id) {
+        return ResponseEntity.ok(articlesNodeService.countLike(_id));
     }
     
 }

@@ -82,5 +82,10 @@ public class Players_node_controller {
     public ResponseEntity<Boolean> checkLike(@PathVariable String _id,Authentication auth) {
         return ResponseEntity.ok(this.playersNodeService.checkLike(_id,auth.getName()));
     }
+     @GetMapping("player/{_id}/count_like")
+    @Operation(summary = "Counts number of likes", tags={"Player"})
+    public ResponseEntity<Integer> countLike(@PathVariable String _id) {
+        return ResponseEntity.ok(this.playersNodeService.countLike(_id));
+    }
     
 }

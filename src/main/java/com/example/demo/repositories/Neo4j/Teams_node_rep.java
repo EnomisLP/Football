@@ -61,4 +61,8 @@ public interface Teams_node_rep extends Neo4jRepository<TeamsNode,Long>{
     @Query("MATCH (u:UsersNode {userName: $username})-[r:LIKES]->(t:TeamsNode {mongoId: $mongoId})" +
        "RETURN COUNT(r) > 0 AS relationshipExists")
     boolean checkLike(String mongoId, String username);
+
+      @Query("MATCH (u:UsersNode)-[r:LIKES]->(a:TeamsNode {mongoId : $id})" +
+       "RETURN COUNT(r)")
+    Integer countLike(String id);
 }

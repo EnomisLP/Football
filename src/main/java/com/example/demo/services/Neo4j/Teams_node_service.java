@@ -111,4 +111,7 @@ public class Teams_node_service {
     public boolean checkLike(String articleId,String username){
         return this.TMn.checkLike(articleId,username);
     }
+    public Integer countLike(String id){
+        return this.TMn.countLike(id);
+    }
 }
