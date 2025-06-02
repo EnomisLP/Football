@@ -1,134 +1,46 @@
-db.Users.aggregate([
-  {
-    $match: {
-      signup_date: { $regex: "2023" }  // Replace "2023" with your actual year variable
-    }
-  },
-  {
-    $addFields: {
-      dateTokens: { $split: ["$signup_date", "/"] }
-    }
-  },
-  {
-    $addFields: {
-      signup_month: { $arrayElemAt: ["$dateTokens", 1] }
-    }
-  },
-  {
-    $group: {
-      _id: "$signup_month",
-      new_users: { $sum: 1 }
-    }
-  },
-  {
-    $sort: { _id: 1 }
-  }
-])
-___________________________________________________________________________________-
-db.Players.aggregate([
-  { $unwind: "$fifaStats" },
-  { $match: { "fifaStats.fifa_version": 24 } }, // Replace 24 with your variable
-  {
-    $addFields: {
-      positions: { $split: ["$fifaStats.player_positions", ", "] }
-    }
-  },
-  { $unwind: "$positions" },
-  {
-    $match: {
-      positions: {
-        $in: [
-          "GK", "RB", "CB", "LB", "RWB",
-          "CDM", "CM", "CAM",
-          "RW", "LW", "ST"
-        ]
-      }
-    }
-  },
-  {
-    $group: {
-      _id: "$positions",
-      overall: { $max: "$fifaStats.overall" },
-      position: { $first: "$fifaStats.player_positions" },
-      playerName: { $first: "$long_name" }
-    }
-  },
-  {
-    $project: {
-      _id: 0,
-      position: "$position",
-      overall: "$overall",
-      playerName: "$playerName"
-    }
-  }
-])
-_____________________________________________________________________________________
-db.Teams.aggregate([
-  {
-    $match: { team_name: "Barcelona" } // Replace with your team
-  },
-  {
-    $project: {
-      first_stats: {
-        $arrayElemAt: [
-          {
-            $filter: {
-              input: "$fifaStats",
-              as: "st",
-              cond: { $eq: ["$$st.fifa_version", 24] } // Replace with year2
-            }
-          }, 0
-        ]
-      },
-      second_stats: {
-        $arrayElemAt: [
-          {
-            $filter: {
-              input: "$fifaStats",
-              as: "st",
-              cond: { $eq: ["$$st.fifa_version", 23] } // Replace with year1
-            }
-          }, 0
-        ]
-      }
-    }
-  },
-  {
-    $project: {
-      _id: 0,
-      attack_improvement: {
-        $multiply: [
-          {
-            $divide: [
-              { $subtract: ["$second_stats.attack", "$first_stats.attack"] },
-              "$first_stats.attack"
-            ]
-          },
-          100
-        ]
-      },
-      midfield_improvement: {
-        $multiply: [
-          {
-            $divide: [
-              { $subtract: ["$second_stats.midfield", "$first_stats.midfield"] },
-              "$first_stats.midfield"
-            ]
-          },
-          100
-        ]
-      },
-      defence_improvement: {
-        $multiply: [
-          {
-            $divide: [
-              { $subtract: ["$second_stats.defence", "$first_stats.defence"] },
-              "$first_stats.defence"
-            ]
-          },
-          100
-        ]
-      }
-    }
-  }
-])
+
+------------------------GLOBAL SEARCH----------------------------
+{"$match": {"username": {"$regularExpression": {"pattern": "messi",
+"options": "i"}}}}
+
+ {"$project": {"mongo_id": "$_id", "name": "$username", "type": "user"}}
+ 
+ {"$unionWith": {"coll": "Coaches", "pipeline": [
+ {"$match": {"long_name": {"$regularExpression": 
+ {"pattern": "messi", "options": "i"}}}},
+ {"$project": {"mongo_id": "$_id", "name": "$long_name", "type": "coach"}}]}}
+ 
+ {"$unionWith": {"coll": "Teams", "pipeline": [
+ {"$match": {"team_name": {"$regularExpression": 
+ {"pattern": "messi", "options": "i"}}}},
+ {"$project": {"mongo_id": "$_id", "name": "$team_name", "type": "team"}}]}}
+ 
+ {"$unionWith": 
+ {"coll": "Players", "pipeline": [
+ {"$match": {"long_name": {"$regularExpression": 
+ {"pattern": "messi", "options": "i"}}}},
+ {"$project": {"mongo_id": "$_id", "name": "$long_name", "type": "player"}}
+ ]}}
+ {"$facet": 
+ {"data": [{"$skip": 0}, {"$limit": 10}], "count": 
+ [{"$count": "count"}]}}
+
+ ----------------DREAM TEAM----------------------------
+ Document{{$unwind=$fifaStats}}
+ Document{{$match=Document{{fifaStats.fifa_version=22}}}}
+ Document{{$addFields=Document{{positions=Document{{$split=[$fifaStats.player_positions, , ]}}}}}}
+ Document{{$unwind=$positions}}
+ Document{{$match=Document{{positions=Document{{$in=[GK, RB, CB, LB, RWB, CDM, CM, CAM, RW, LW, ST]}}}}}}
+ Document{{$group=Document{{_id=$positions, overall=Document{{$max=$fifaStats.overall}}, position=Document{{$first=$fifaStats.player_positions}}, playerName=Document{{$first=$long_name}}}}}}
+
+ --------------------SIGN-UP SUMMARY----------------------------
+ Document{{$match=Document{{signup_date=2020}}}}
+ Document{{$addFields=Document{{dateTokens=Document{{$split=[$signup_date, /]}}}}}}
+ Document{{$addFields=Document{{signup_month=Document{{$arrayElemAt=[$dateTokens, 1]}}}}}}
+ Document{{$group=Document{{_id=$signup_month, new_users=Document{{$sum=1}}}}}}
+ Document{{$sort=Document{{_id=1}}}}
+
+ -------------------TEAM IMPROVMENT----------------------
+ Document{{$match=Document{{team_name=France}}}}
+ Document{{$project=Document{{first_stats=Document{{$arrayElemAt=[Document{{$filter=Document{{input=$fifaStats, as=st, cond=Document{{$eq=[$$st.fifa_version, 24]}}}}}}, 0]}}, second_stats=Document{{$arrayElemAt=[Document{{$filter=Document{{input=$fifaStats, as=st, cond=Document{{$eq=[$$st.fifa_version, 20]}}}}}}, 0]}}}}}}
+ Document{{$project=Document{{_id=0, attack_improvement=Document{{$multiply=[Document{{$divide=[Document{{$subtract=[$second_stats.attack, $first_stats.attack]}}, $first_stats.attack]}}, 100]}}, midfield_improvement=Document{{$multiply=[Document{{$divide=[Document{{$subtract=[$second_stats.midfield, $first_stats.midfield]}}, $first_stats.midfield]}}, 100]}}, defence_improvement=Document{{$multiply=[Document{{$divide=[Document{{$subtract=[$second_stats.defence, $first_stats.defence]}}, $first_stats.defence]}}, 100]}}}}}}

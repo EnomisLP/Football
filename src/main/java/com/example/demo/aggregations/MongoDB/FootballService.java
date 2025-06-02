@@ -60,7 +60,9 @@ public class FootballService {
         AggregationResults<monthSummary> result = mongoTemplate.aggregate(
             aggregation, "Users", monthSummary.class
         );
-    
+        //aggregation.toPipeline(Aggregation.DEFAULT_CONTEXT).forEach(stage -> 
+        //    System.out.println(" " + stage.toString())
+        //);
         // Return the list of the best players for the selected positions
         return CompletableFuture.completedFuture(result.getMappedResults());
     }
@@ -109,6 +111,9 @@ public class FootballService {
         AggregationResults<DreamTeamPlayer> result = mongoTemplate.aggregate(
             aggregation, "Players", DreamTeamPlayer.class
         );
+        //aggregation.toPipeline(Aggregation.DEFAULT_CONTEXT).forEach(stage -> 
+        //System.out.println(" " + stage.toString())
+        //);
 
         // Return the list of the best players for the selected positions
         return CompletableFuture.completedFuture(result.getMappedResults());
@@ -171,7 +176,10 @@ public class FootballService {
         // Run the aggregation
         AggregationResults<TeamImprovements> result = mongoTemplate.aggregate(
             aggregation,"Teams",TeamImprovements.class);
-        
+        //aggregation.toPipeline(Aggregation.DEFAULT_CONTEXT).forEach(stage -> 
+       // System.out.println(" " + stage.toString())
+       // );
+
         return CompletableFuture.completedFuture(result.getUniqueMappedResult());
     }
 }
