@@ -173,44 +173,44 @@ public class ResilientEventConsumer {
         }
     }
 
-    @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
-    private void handleNeo4jArticleCreated(String payload) throws JsonProcessingException {
-        Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
-        String articleId = (String) eventData.get("articleId");
-        String username = (String) eventData.get("username");
+        @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
+        private void handleNeo4jArticleCreated(String payload) throws JsonProcessingException {
+            Map<String, Object> eventData = objectMapper.readValue(payload, new TypeReference<>() {});
+            String articleId = (String) eventData.get("articleId");
+            String username = (String) eventData.get("username");
 
-        try {
-            // Verifica che i prerequisiti esistano
-            Optional<UsersNodeDTO> userOptional = usersNodeRepository.findByUserNameLight(username);
-            if (userOptional.isEmpty()) {
-                log.error("User not found for article creation: {}", username);
-                return;
+            try {
+                // Verifica che i prerequisiti esistano
+                Optional<UsersNodeDTO> userOptional = usersNodeRepository.findByUserNameLight(username);
+                if (userOptional.isEmpty()) {
+                    log.error("User not found for article creation: {}", username);
+                    return;
+                }
+
+                // Verifica se l'articolo già exists (idempotenza)
+                Optional<ArticlesNodeDTO> existingArticle = articlesNodeRepository.findByMongoIdLight(articleId);
+                if (existingArticle.isPresent()) {
+                    log.info("Article {} already exists in Neo4j, skipping creation", articleId);
+                    return;
+                }
+
+                // Crea l'articolo
+                ArticlesNode article = new ArticlesNode();
+                article.setMongoId(articleId);
+                article.setTitle((String) eventData.get("title"));
+                article.setAuthor(username);
+                articlesNodeRepository.save(article);
+
+                // Crea la relazione
+                usersNodeRepository.createWroteRelationToArticle(username, articleId);
+                
+                log.info("Successfully created article {} and relation for user {}", articleId, username);
+
+            } catch (Exception e) {
+                log.error("Failed to create article {} for user {}: {}", articleId, username, e.getMessage());
+                throw e; // Per trigger del retry
             }
-
-            // Verifica se l'articolo già exists (idempotenza)
-            Optional<ArticlesNodeDTO> existingArticle = articlesNodeRepository.findByMongoIdLight(articleId);
-            if (existingArticle.isPresent()) {
-                log.info("Article {} already exists in Neo4j, skipping creation", articleId);
-                return;
-            }
-
-            // Crea l'articolo
-            ArticlesNode article = new ArticlesNode();
-            article.setMongoId(articleId);
-            article.setTitle((String) eventData.get("title"));
-            article.setAuthor(username);
-            articlesNodeRepository.save(article);
-
-            // Crea la relazione
-            usersNodeRepository.createWroteRelationToArticle(username, articleId);
-            
-            log.info("Successfully created article {} and relation for user {}", articleId, username);
-
-        } catch (Exception e) {
-            log.error("Failed to create article {} for user {}: {}", articleId, username, e.getMessage());
-            throw e; // Per trigger del retry
         }
-    }
     
     @Retryable(value = {Exception.class}, maxAttempts = 3, backoff = @Backoff(delay = 2000))
     @Transactional
