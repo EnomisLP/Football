@@ -61,9 +61,7 @@ public class Players_service {
             throw new RuntimeErrorException(null, "Player not found with id: " + id);
         }
     }
-    public List<PlayersNode> getAllPlayers(String gender){
-        return Pmr.findAllByGender(gender);
-    }
+   
 
     public Page<Players> getAllPlayers(PageRequest page, String gender){
         return PMr.findAllByGender(gender, page);
@@ -129,110 +127,132 @@ public class Players_service {
     }
     
     @Transactional
-    @Async("customAsyncExecutor")
-    public CompletableFuture<Players> updateFifaPlayer(String id, Integer fifaV, updateFifaPlayer request){
-        Optional<Players> optionalPlayer = PMr.findById(id);
-        if (optionalPlayer.isPresent()) {
-            Players existingPlayer = optionalPlayer.get();
-            Optional<PlayersNodeDTO> optionalPlayerNode = Pmr.findByMongoIdLight(existingPlayer.get_id());
-            if(optionalPlayerNode.isPresent()){
-                List<FifaStatsPlayer> stats = existingPlayer.getFifaStats();
-                for(FifaStatsPlayer stat: stats){
-                    if(stat.getFifa_version().equals(fifaV)){
-                        if(!fifaV.equals(request.getFifa_version())){
-                            stat.setFifa_version(request.getFifa_version());
-                            Pmr.createPlaysInTeamRelationToTeam(id, stat.getTeam().getTeam_mongo_id(), request.getFifa_version());
-                            Pmr.deletePlaysInTeamRelationToTeam(id, stat.getTeam().getTeam_mongo_id(), fifaV);
-
-                            List<UsersNodeDTO> users = Unr.findUsersByMongoIdAndFifaVersion(id, fifaV);
-                            if(users != null){
-                                for(UsersNodeDTO user : users){
-                                    List<PlayersNodeDTO> players = Unr.findHasInMTeamRelationshipsByUsername(user.getUserName());
-                                    List<PlayersNodeDTO> fPlayers = Unr.findHasInFTeamRelationshipsByUsername(user.getUserName());
-                                    if(existingPlayer.getGender().equals("male")){
-                                        if(players != null){
-                                            for(PlayersNodeDTO player : players){
-                                                Unr.deleteHasInMTeamRelation(user.getUserName(), player.getMongoId());
-                                                Unr.createHasInMTeamRelation(user.getUserName(), player.getMongoId(), request.getFifa_version());
-                                             
-                                            }
-                                        }
-                                    }
-                                    if(existingPlayer.getGender().equals("female")){
-                                        if(fPlayers != null){
-                                        for(PlayersNodeDTO fPlayer : fPlayers){
-                                            Unr.deleteHasInFTeamRelation(user.getUserName(), fPlayer.getMongoId());
-                                            Unr.createHasInFTeamRelation(user.getUserName(), fPlayer.getMongoId(), request.getFifa_version());
-                                        }
-                                    }
-                                    }
-                                    
-                                   
-                                }
-                            }
-                        }
-                        stat.setOverall(request.getOverall());
-                        stat.setPotential(request.getPotential());
-                        stat.setValue_eur(request.getValue_eur());
-                        stat.setWage_eur(request.getWage_eur());
-                        stat.setClub_position(request.getClub_position());
-                        stat.setClub_jersey_number(request.getClub_jersey_number());
-                        stat.setClub_contract_valid_until_year(request.getClub_contract_valid_until_year());
-                        stat.setLeague_name(request.getLeague_name());
-                        stat.setLeague_level(request.getLeague_level());
-                        stat.setPace(request.getPace());
-                        stat.setShooting(request.getShooting());
-                        stat.setDribbling(request.getDribbling());
-                        stat.setPassing(request.getPassing());
-                        stat.setDefending(request.getDefending());
-                        stat.setPhysic(request.getPhysic());
-                        stat.setAttacking_crossing(request.getAttacking_crossing());
-                        stat.setAttacking_finishing(request.getAttacking_finishing());
-                        stat.setAttacking_heading_accuracy(request.getAttacking_heading_accuracy());
-                        stat.setAttacking_short_passing(request.getAttacking_short_passing());
-                        stat.setAttacking_volleys(request.getAttacking_volleys());
-                        stat.setSkill_dribbling(request.getSkill_dribbling());
-                        stat.setSkill_curve(request.getSkill_curve());
-                        stat.setSkill_fk_accuracy(request.getSkill_fk_accuracy());
-                        stat.setSkill_long_passing(request.getSkill_long_passing());
-                        stat.setSkill_ball_control(request.getSkill_ball_control());
-                        stat.setMovement_acceleration(request.getMovement_acceleration());
-                        stat.setMovement_agility(request.getMovement_agility());
-                        stat.setMovement_reactions(request.getMovement_reactions());
-                        stat.setMovement_balance(request.getMovement_balance());
-                        stat.setMovement_sprint_speed(request.getMovement_sprint_speed());
-                        stat.setPower_shot_power(request.getPower_shot_power());
-                        stat.setPower_jumping(request.getPower_jumping());
-                        stat.setPower_stamina(request.getPower_stamina());
-                        stat.setPower_strength(request.getPower_strength());
-                        stat.setPower_long_shots(request.getPower_long_shots());
-                        stat.setMentality_aggression(request.getMentality_aggression());
-                        stat.setMentality_interceptions(request.getMentality_interceptions());
-                        stat.setMentality_positioning(request.getMentality_positioning());
-                        stat.setMentality_vision(request.getMentality_vision());
-                        stat.setMentality_penalties(request.getMentality_penalties());
-                        stat.setDefending_marking_awareness(request.getDefending_marking_awareness());
-                        stat.setDefending_standing_tackle(request.getDefending_standing_tackle());
-                        stat.setDefending_sliding_tackle(request.getDefending_sliding_tackle());
-                        stat.setGoalkeeping_diving(request.getGoalkeeping_diving());
-                        stat.setGoalkeeping_handling(request.getGoalkeeping_handling());
-                        stat.setGoalkeeping_kicking(request.getGoalkeeping_kicking());
-                        stat.setGoalkeeping_positioning(request.getGoalkeeping_positioning());
-                        stat.setGoalkeeping_reflexes(request.getGoalkeeping_reflexes());
-                        break;
-                    }
-                }
-                return CompletableFuture.completedFuture(PMr.save(existingPlayer));
-            }
-            else{
-                throw new RuntimeException("Player with id: " + id+ "not correctly mapped in Neo4j");
-            }
-        }
-        else {
-            throw new RuntimeException("Player not found with id: " + id);
-        }
-
+@Async("customAsyncExecutor")
+public CompletableFuture<Players> updateFifaPlayer(String id, Integer fifaV, updateFifaPlayer request) {
+    Optional<Players> optionalPlayer = PMr.findById(id);
+    if (optionalPlayer.isEmpty()) {
+        throw new RuntimeException("Player not found with id: " + id);
     }
+
+    Players existingPlayer = optionalPlayer.get();
+    Optional<PlayersNodeDTO> optionalPlayerNode = Pmr.findByMongoIdLight(existingPlayer.get_id());
+    if (optionalPlayerNode.isEmpty()) {
+        throw new RuntimeException("Player with id: " + id + " not correctly mapped in Neo4j");
+    }
+
+    List<FifaStatsPlayer> stats = existingPlayer.getFifaStats();
+    for (FifaStatsPlayer stat : stats) {
+        if (!stat.getFifa_version().equals(fifaV)) continue;
+
+        // If FIFA version changed, update relationships
+        if (!fifaV.equals(request.getFifa_version())) {
+            stat.setFifa_version(request.getFifa_version());
+
+            Pmr.createPlaysInTeamRelationToTeam(id, stat.getTeam().getTeam_mongo_id(), request.getFifa_version());
+            Pmr.deletePlaysInTeamRelationToTeam(id, stat.getTeam().getTeam_mongo_id(), fifaV);
+
+            List<UsersNodeDTO> users = Unr.findUsersByMongoIdAndFifaVersion(id, fifaV);
+            if (users != null) {
+                for (UsersNodeDTO user : users) {
+                    updateUserTeamRelations(user, existingPlayer.getGender(), request.getFifa_version());
+                }
+            }
+        }
+
+        updateStatValues(stat, request);
+        break;
+    }
+
+    return CompletableFuture.completedFuture(PMr.save(existingPlayer));
+}
+
+private void updateUserTeamRelations(UsersNodeDTO user, String gender, Integer newFifaVersion) {
+    if ("male".equals(gender)) {
+        List<PlayersNodeDTO> players = Unr.findHasInMTeamRelationshipsByUsername(user.getUserName());
+        if (players != null) {
+            for (PlayersNodeDTO player : players) {
+                Unr.deleteHasInMTeamRelation(user.getUserName(), player.getMongoId());
+                Unr.createHasInMTeamRelation(user.getUserName(), player.getMongoId(), newFifaVersion);
+            }
+        }
+    } else if ("female".equals(gender)) {
+        List<PlayersNodeDTO> fPlayers = Unr.findHasInFTeamRelationshipsByUsername(user.getUserName());
+        if (fPlayers != null) {
+            for (PlayersNodeDTO fPlayer : fPlayers) {
+                Unr.deleteHasInFTeamRelation(user.getUserName(), fPlayer.getMongoId());
+                Unr.createHasInFTeamRelation(user.getUserName(), fPlayer.getMongoId(), newFifaVersion);
+            }
+        }
+    }
+}
+
+private void updateStatValues(FifaStatsPlayer stat, updateFifaPlayer request) {
+    stat.setOverall(request.getOverall());
+    stat.setPotential(request.getPotential());
+    stat.setValue_eur(request.getValue_eur());
+    stat.setWage_eur(request.getWage_eur());
+    stat.setClub_position(request.getClub_position());
+    stat.setClub_jersey_number(request.getClub_jersey_number());
+    stat.setClub_contract_valid_until_year(request.getClub_contract_valid_until_year());
+    stat.setLeague_name(request.getLeague_name());
+    stat.setLeague_level(request.getLeague_level());
+
+    // Physical and technical attributes
+    stat.setPace(request.getPace());
+    stat.setShooting(request.getShooting());
+    stat.setDribbling(request.getDribbling());
+    stat.setPassing(request.getPassing());
+    stat.setDefending(request.getDefending());
+    stat.setPhysic(request.getPhysic());
+
+    // Attacking
+    stat.setAttacking_crossing(request.getAttacking_crossing());
+    stat.setAttacking_finishing(request.getAttacking_finishing());
+    stat.setAttacking_heading_accuracy(request.getAttacking_heading_accuracy());
+    stat.setAttacking_short_passing(request.getAttacking_short_passing());
+    stat.setAttacking_volleys(request.getAttacking_volleys());
+
+    // Skill
+    stat.setSkill_dribbling(request.getSkill_dribbling());
+    stat.setSkill_curve(request.getSkill_curve());
+    stat.setSkill_fk_accuracy(request.getSkill_fk_accuracy());
+    stat.setSkill_long_passing(request.getSkill_long_passing());
+    stat.setSkill_ball_control(request.getSkill_ball_control());
+
+    // Movement
+    stat.setMovement_acceleration(request.getMovement_acceleration());
+    stat.setMovement_agility(request.getMovement_agility());
+    stat.setMovement_reactions(request.getMovement_reactions());
+    stat.setMovement_balance(request.getMovement_balance());
+    stat.setMovement_sprint_speed(request.getMovement_sprint_speed());
+
+    // Power
+    stat.setPower_shot_power(request.getPower_shot_power());
+    stat.setPower_jumping(request.getPower_jumping());
+    stat.setPower_stamina(request.getPower_stamina());
+    stat.setPower_strength(request.getPower_strength());
+    stat.setPower_long_shots(request.getPower_long_shots());
+
+    // Mentality
+    stat.setMentality_aggression(request.getMentality_aggression());
+    stat.setMentality_interceptions(request.getMentality_interceptions());
+    stat.setMentality_positioning(request.getMentality_positioning());
+    stat.setMentality_vision(request.getMentality_vision());
+    stat.setMentality_penalties(request.getMentality_penalties());
+
+    // Defending
+    stat.setDefending_marking_awareness(request.getDefending_marking_awareness());
+    stat.setDefending_standing_tackle(request.getDefending_standing_tackle());
+    stat.setDefending_sliding_tackle(request.getDefending_sliding_tackle());
+
+    // Goalkeeping
+    stat.setGoalkeeping_diving(request.getGoalkeeping_diving());
+    stat.setGoalkeeping_handling(request.getGoalkeeping_handling());
+    stat.setGoalkeeping_kicking(request.getGoalkeeping_kicking());
+    stat.setGoalkeeping_positioning(request.getGoalkeeping_positioning());
+    stat.setGoalkeeping_reflexes(request.getGoalkeeping_reflexes());
+}
+
     
     @Transactional
     @Async("customAsyncExecutor")

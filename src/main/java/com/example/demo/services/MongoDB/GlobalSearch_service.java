@@ -151,18 +151,23 @@ public class GlobalSearch_service {
         String collection=iterator.next();
         
         
-        pipeline.add(new Document("$match", new Document(collectionAttributeMappings.get(collection), pattern)));
-        pipeline.add(new Document("$project", new Document("mongo_id", "$_id")
+        pipeline.add(new Document("$match", 
+        new Document(collectionAttributeMappings.get(collection), pattern)));
+        pipeline.add(new Document("$project", 
+        new Document("mongo_id", "$_id")
                 .append("name", "$"+collectionAttributeMappings.get(collection))
                 .append("type", collection)));
 
         // Conditional $unionWith stages
         while(iterator.hasNext()){
             collection=iterator.next();
-            pipeline.add(new Document("$unionWith", new Document("coll", collectionNameMappings.get(collection))
+            pipeline.add(new Document("$unionWith", 
+            new Document("coll", collectionNameMappings.get(collection))
                     .append("pipeline", List.of(
-                            new Document("$match", new Document(collectionAttributeMappings.get(collection), pattern)),
-                            new Document("$project", new Document("mongo_id", "$_id")
+                            new Document("$match", 
+                            new Document(collectionAttributeMappings.get(collection), pattern)),
+                            new Document("$project", 
+                            new Document("mongo_id", "$_id")
                                     .append("name", "$"+collectionAttributeMappings.get(collection))
                                     .append("type", collection))
                     ))
@@ -192,16 +197,20 @@ public class GlobalSearch_service {
                 .toList());
         
         
-        AggregationResults<facetResultDTO> results = mongoTemplate.aggregate(aggregation,collectionNameMappings.get(collection), facetResultDTO.class);
+        AggregationResults<facetResultDTO> results = mongoTemplate.aggregate(aggregation,
+        collectionNameMappings.get(collection),
+        facetResultDTO.class);
         facetResultDTO facetResult = results.getUniqueMappedResult();
 
         List<globalSearchResult> content = facetResult != null && facetResult.getData() != null
                 ? facetResult.getData()
                 : Collections.emptyList();
 
-        long total = (facetResult != null && facetResult.getCount() != null && !facetResult.getCount().isEmpty())
+        long total = (facetResult != null && facetResult.getCount() != null &&
+         !facetResult.getCount().isEmpty())
                 ? facetResult.getCount().get(0).getCount()
                 : 0L;
+        //pipeline.forEach(stage -> System.out.println(" " +stage.toJson()));
 
         return new PageImpl<>(content, pageable, total);
     }
