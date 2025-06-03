@@ -159,10 +159,10 @@ public class Users_node_controller {
 
     // FOLLOW / UNFOLLOW
     
-    @GetMapping("user/{target}/followersAndFollowingsCounts")
+    @GetMapping("user/{userName}/followersAndFollowingsCounts")
     @Operation(summary = "Get the number of followers and followings of a user", tags={"User"})
-    public ResponseEntity<ffCountDTO> getFFCount(@PathVariable String target) throws JsonProcessingException {
-         ffCountDTO dto = Uns.countFollowersAndFollowings(target);
+    public ResponseEntity<ffCountDTO> getFFCount(@PathVariable String userName) throws JsonProcessingException {
+         ffCountDTO dto = Uns.countFollowersAndFollowings(userName);
          if (dto.getFollowersCount() == -1 && dto.getFollowingsCount() == -1) {
                 // Return 404 Not Found
                 return ResponseEntity.notFound().build();
@@ -172,15 +172,15 @@ public class Users_node_controller {
             }
     }
     
-    @PutMapping("user/{target}/follow")
+    @PutMapping("user/{userName}/follow")
     @Operation(summary = "Follow a user", tags={"User"})
-    public void FOLLOW(Authentication auth, @PathVariable String target) throws JsonProcessingException {
-         Uns.FOLLOW(auth.getName(), target);
+    public void FOLLOW(Authentication auth, @PathVariable String userName) throws JsonProcessingException {
+         Uns.FOLLOW(auth.getName(), userName);
     }
 
-    @DeleteMapping("user/{target}/unfollow")
+    @DeleteMapping("user/{userName}/unfollow")
     @Operation(summary = "Remove follow from a user", tags={"User"})
-    public void UNFOLLOW(Authentication auth, @PathVariable String target) throws JsonProcessingException {
+    public void UNFOLLOW(Authentication auth, @PathVariable String userName) throws JsonProcessingException {
          Uns.UNFOLLOW(auth.getName(), target);
     }
 

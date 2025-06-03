@@ -93,7 +93,7 @@ public class Users_controller {
         return usersService.registerUser(request.getUsername(), request.getPassword(), request.getNationality_name(), request.getE_mail());
     }
 
-     @PostMapping("user/change_password")
+     @PostMapping("user/modify/change_password")
     @Operation(summary = "Change password", tags={"User"})
     public CompletableFuture<String> changePassword(@RequestBody ChangePasswordRequest request, Authentication auth) {
         return usersService.changePassword(auth.getName(), request.getOldPassword(), request.getNewPassword());

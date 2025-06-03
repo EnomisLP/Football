@@ -37,23 +37,27 @@ public class searchController {
         this.gss=gss;
     }
     
-    @GetMapping("/{name}")
+    @GetMapping("/{name}","/{name}/{filter}")
     @Operation(summary = "Global search")
     public ResponseEntity<Page<globalSearchResult>> search(@PathVariable String name,Pageable pageable,
-            @RequestParam(required = false) String Filter) {
+            @PathVariable(required = false) String filter) {
         List<String> allowedFilters = Arrays.asList("user", "coach", "team", "player");
+        
+        
         List<String> collectionsToSearch = null;
-        if (Filter == null)
+        if (Filter == null){
             collectionsToSearch= Arrays.asList("user", "coach", "team", "player");
+        }
         if (Filter != null && !Filter.trim().isEmpty()) {
             collectionsToSearch = Arrays.stream(Filter.split(","))
             .map(String::trim)
             .filter(s -> !s.isEmpty())
             .map(String::toLowerCase)
             .collect(Collectors.toList());
+            
+            collectionsToSearch.removeIf(s -> !allowedFilters.contains(s));
         }
         
-        collectionsToSearch.removeIf(s -> !allowedFilters.contains(s));
         
         return ResponseEntity.ok(gss.globalSearch(name, pageable,collectionsToSearch));
     }
