@@ -181,7 +181,7 @@ public class Users_node_controller {
     @DeleteMapping("user/{userName}/unfollow")
     @Operation(summary = "Remove follow from a user", tags={"User"})
     public void UNFOLLOW(Authentication auth, @PathVariable String userName) throws JsonProcessingException {
-         Uns.UNFOLLOW(auth.getName(), target);
+         Uns.UNFOLLOW(auth.getName(), userName);
     }
 
     //LIKE / UNLIKE ARTICLES

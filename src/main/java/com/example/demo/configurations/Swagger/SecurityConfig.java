@@ -33,7 +33,7 @@ public class SecurityConfig {
                                  "/api/v1/team/{_id}","/api/v1/coach/{_id}","/api/v1/user/{userName}/followersAndFollowingsCounts").permitAll()
                 .requestMatchers("/api/v1/signup").anonymous()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                .reqeustMatchers("/api/v1/search/{name}/{filter}",
+                .requestMatchers("/api/v1/search/{name}/{filter}",
                                  "/api/v1/user/{userName}/followers","/api/v1/user/{userName}/followings",
                                  "/api/v1/user/{userName}/articles","/api/v1/player/{_id}/team/**",
                                  "/api/v1/team/{_id}/formation/**","/api/v1/team/{_id}/coach/**",
@@ -41,7 +41,7 @@ public class SecurityConfig {
                                  "/api/v1/article/{id}","/api/v1/team/{_id}/analytics/**").hasAnyRole("ADMIN","USER")
                 .requestMatchers("/api/v1/user/{_id}/**","api/v1/user/team/**",
                                  "/api/v1/user/article/**","/api/v1/user/{target}/**",
-                                 "/api/v1/user/modify/**","/api/v1/user/{userName}/**","/api/v1/user/settings/**"
+                                 "/api/v1/user/modify/**","/api/v1/user/{userName}/**","/api/v1/user/settings/**",
                                  "/api/v1/player/{_id}/**","/api/v1/team/{_id}/**",
                                  "/api/v1/coach/{_id}/**","/api/v1/article/{_id}/**").hasRole("USER")
                 .requestMatchers("/api/v1/auth/me", "/api/v1/enrolments/**").authenticated()
