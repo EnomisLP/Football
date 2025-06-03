@@ -138,7 +138,7 @@ public class GlobalSearch_service {
     }*/
     // Version 2
     public Page<globalSearchResult> globalSearch(String keyword, Pageable pageable, List<String> searchInCollections) {
-
+        
         Pattern pattern = Pattern.compile(keyword, Pattern.CASE_INSENSITIVE);
         
         if(searchInCollections.isEmpty())
@@ -148,19 +148,18 @@ public class GlobalSearch_service {
         List<Document> pipeline = new ArrayList<>();
         ListIterator<String> iterator = searchInCollections.listIterator();
         
-        String collection=iterator.next();
-        
+        String firstCollection=iterator.next();
         
         pipeline.add(new Document("$match", 
-        new Document(collectionAttributeMappings.get(collection), pattern)));
+        new Document(collectionAttributeMappings.get(firstCollection), pattern)));
         pipeline.add(new Document("$project", 
         new Document("mongo_id", "$_id")
-                .append("name", "$"+collectionAttributeMappings.get(collection))
-                .append("type", collection)));
+                .append("name", "$"+collectionAttributeMappings.get(firstCollection))
+                .append("type", firstCollection)));
 
         // Conditional $unionWith stages
         while(iterator.hasNext()){
-            collection=iterator.next();
+            String collection=iterator.next();
             pipeline.add(new Document("$unionWith", 
             new Document("coll", collectionNameMappings.get(collection))
                     .append("pipeline", List.of(
@@ -190,15 +189,15 @@ public class GlobalSearch_service {
                 ))
         );
         pipeline.add(facetStage);
-
+        
+        //pipeline.forEach(stage -> System.out.println(stage.toJson()));
         // Run aggregation
         Aggregation aggregation = Aggregation.newAggregation(pipeline.stream()
                 .map(stage -> (AggregationOperation) context -> stage)
                 .toList());
         
-        
         AggregationResults<facetResultDTO> results = mongoTemplate.aggregate(aggregation,
-        collectionNameMappings.get(collection),
+        collectionNameMappings.get(firstCollection),
         facetResultDTO.class);
         facetResultDTO facetResult = results.getUniqueMappedResult();
 

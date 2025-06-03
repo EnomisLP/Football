@@ -47,6 +47,7 @@ public class searchController {
         List<String> collectionsToSearch = null;
         if (filter == null){
             collectionsToSearch= Arrays.asList("user", "coach", "team", "player");
+            //System.out.println(collectionsToSearch);
             
         }
         if (filter != null && !filter.trim().isEmpty()) {
@@ -57,6 +58,7 @@ public class searchController {
             .collect(Collectors.toList());
             
             collectionsToSearch.removeIf(s -> !allowedFilters.contains(s));
+            //System.out.println(collectionsToSearch);
         }
         
         return ResponseEntity.ok(gss.globalSearch(name, pageable,collectionsToSearch));
