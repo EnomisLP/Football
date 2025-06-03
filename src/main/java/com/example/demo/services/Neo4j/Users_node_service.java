@@ -633,8 +633,8 @@ public class Users_node_service {
         return "Finished";
     }
     
-    public boolean checkFollows(String articleId,String username){
-        return this.Unr.checkFollows(articleId,username);
+    public boolean checkFollows(String username,String mongoId){
+        return this.Unr.checkFollows(username,mongoId);
     }
     
 }

@@ -30,6 +30,10 @@ public class Users {
     private String password;
     @Field("signup_date")
     private String signup_date;
+    @Field("nationality_name")
+    private String nationality_name;
+    @Field("email")
+    private String e_mail;
     private List<ROLES> roles;
 
 }

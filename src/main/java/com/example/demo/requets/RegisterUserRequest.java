@@ -12,4 +12,10 @@ public class RegisterUserRequest {
 
     @NotBlank
     private String password;
+
+    @NotBlank
+    private String nationality_name;
+
+    @NotBlank
+    private String e_mail;
 }

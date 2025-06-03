@@ -13,6 +13,7 @@ import javax.management.RuntimeErrorException;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.example.demo.DTO.MongoUserDTO;
 import com.example.demo.models.MongoDB.Articles;
 import com.example.demo.models.MongoDB.OutboxEvent;
 import com.example.demo.models.MongoDB.ROLES;
@@ -73,6 +74,20 @@ public class Users_service {
             throw new RuntimeErrorException(null, "User not found with username: " + username);
         }
     }
+    public MongoUserDTO getUser(String id){
+        Optional<Users> optional = Ur.findById(id);
+        if(optional.isPresent()){
+            Users user = optional.get();
+            MongoUserDTO DTO = new MongoUserDTO();
+            DTO.setUsername(user.getUsername());
+            DTO.setEmail(user.getE_mail());
+            DTO.setNationality_name(user.getNationality_name());
+            return DTO;
+        }
+        else{
+            throw new RuntimeErrorException(null, "User not found with id: "+id);
+        }
+    }
 
     @Retryable(
     value = { Exception.class },
@@ -89,6 +104,8 @@ public class Users_service {
             
             userNew.setUsername(request.getUsername());
             userNew.setRoles(request.getRoles());
+            userNew.setNationality_name(request.getNationality_name());
+            userNew.setE_mail(request.getE_mail());
             userNew.setSignup_date(signUpDate.toString());
             // Hash the password using BCrypt
             String hashedPassword = passwordEncoder.encode(request.getPassword());
@@ -304,11 +321,14 @@ public CompletableFuture<Articles> createArticle(String username, createArticleR
         maxAttempts = 3,
         backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<Users> registerUser(String username, String password) throws JsonProcessingException {
+    public CompletableFuture<Users> registerUser(String username, String password, String nationality,
+    String email) throws JsonProcessingException {
         createUserRequest request = new createUserRequest(
             username,
             password,
-            List.of(ROLES.ROLE_USER)
+            List.of(ROLES.ROLE_USER),
+            nationality,
+            email
         );
         return createUser(request);
     }

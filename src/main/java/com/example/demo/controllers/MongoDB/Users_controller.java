@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo.DTO.MongoUserDTO;
 import com.example.demo.models.MongoDB.Articles;
 import com.example.demo.models.MongoDB.Users;
 import com.example.demo.requets.ChangePasswordRequest;
@@ -39,6 +40,11 @@ public class Users_controller {
     @Operation(summary = "READ operation - Get user by Username", tags={"Admin:User"})
     public Users getUserById(@PathVariable String username) {
         return usersService.getUserByUsername(username);
+    }
+      @GetMapping("user/{_id}")
+    @Operation(summary="Retrieve the informations about an user", tags={"User"})
+    public MongoUserDTO getUser(@PathVariable String _id) {
+        return usersService.getUser(_id);
     }
 
     @PutMapping("user/modify/changeUsername/{newUserName}")
@@ -84,7 +90,7 @@ public class Users_controller {
     @PostMapping("/signup")
     @Operation(summary = "Register a new User", tags={"Anonymous"})
     public CompletableFuture<Users> register(@RequestBody RegisterUserRequest request) throws JsonProcessingException {
-        return usersService.registerUser(request.getUsername(), request.getPassword());
+        return usersService.registerUser(request.getUsername(), request.getPassword(), request.getNationality_name(), request.getE_mail());
     }
 
      @PostMapping("user/change_password")

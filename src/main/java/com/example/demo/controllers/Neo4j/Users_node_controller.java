@@ -67,6 +67,8 @@ public class Users_node_controller {
         return Uns.getUserArticles(userName, pageable);
     }
 
+
+
     /* DISABLED
     @GetMapping("Users_Node/user/articles/{articleId}")
     @Operation(summary = "READ: get a specific article of a user", tags={"Clarify"})
@@ -74,7 +76,6 @@ public class Users_node_controller {
         return Uns.getSpecificUserArticle(auth.getName(), articleId);
     }
     */
-    
     
     @GetMapping("user/team/male/getStats")
     @Operation(summary="Retrieve the stats of the players inside the personal team (Male)", tags={"User"})
@@ -248,8 +249,8 @@ public class Users_node_controller {
     
     @GetMapping("user/{_id}/check_follow")
     @Operation(summary = "Check if the user alredy follow the target user", tags={"User"})
-    public ResponseEntity<Boolean> checkFollows(@PathVariable String _id,Authentication auth) {
-        return ResponseEntity.ok(this.Uns.checkFollows(_id,auth.getName()));
+    public ResponseEntity<Boolean> checkFollows(Authentication auth, @PathVariable String _id) {
+        return ResponseEntity.ok(this.Uns.checkFollows(auth.getName(), _id));
     }
     
 }
