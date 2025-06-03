@@ -27,7 +27,6 @@ public class Players {
     @Field("short_name")
     private  String short_name;
     @Field("long_name")
-    @Indexed
     private String long_name;
     @Field("age")
     private Integer age;

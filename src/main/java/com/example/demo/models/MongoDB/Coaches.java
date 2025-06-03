@@ -23,7 +23,6 @@ public class Coaches{
     @Id
     @GeneratedValue
     private String _id;
-    @Indexed
     @Field("long_name")
     private String long_name;
     @Field("short_name")

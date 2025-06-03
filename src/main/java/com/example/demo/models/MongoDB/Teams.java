@@ -26,7 +26,6 @@ public class Teams {
     @GeneratedValue
     private String _id;
     @Field("team_name")
-    @Indexed
     private String team_name;
 
     private List<FifaStatsTeam> fifaStats;

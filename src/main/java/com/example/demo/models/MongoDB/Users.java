@@ -25,7 +25,6 @@ public class Users {
 
     private String _id;
     @Field("username")
-    @Indexed
     private String username;
     @Field("password")
     private String password;
