@@ -33,7 +33,7 @@ public class SecurityConfig {
                                  "/api/v1/team/{_id}","/api/v1/coach/{_id}","/api/v1/user/{userName}/followersAndFollowingsCounts").permitAll()
                 .requestMatchers("/api/v1/signup").anonymous()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/v1/search/{name}/{filter}",
+                .requestMatchers("/api/v1/search/{name}/{filter}","/api/v1/search/filter/**"
                                  "/api/v1/user/{userName}/followers","/api/v1/user/{userName}/followings",
                                  "/api/v1/user/{userName}/articles","/api/v1/player/{_id}/team/**",
                                  "/api/v1/team/{_id}/formation/**","/api/v1/team/{_id}/coach/**",
