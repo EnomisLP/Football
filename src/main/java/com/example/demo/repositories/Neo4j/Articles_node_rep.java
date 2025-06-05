@@ -61,5 +61,9 @@ public interface Articles_node_rep extends Neo4jRepository<ArticlesNode, Long> {
      @Query("MATCH (u:UsersNode)-[r:LIKES]->(a:ArticlesNode {mongoId : $id})" +
        "RETURN COUNT(r)")
     Integer countLike(String id);
+
+    @Query("MATCH (u:UsersNode {userName : $username})-[r:WROTE]->(a:ArticlesNode {author : $username}) "+
+    "DETACH DELETE a")
+    void deleteUserArticles(String username);
 }
 

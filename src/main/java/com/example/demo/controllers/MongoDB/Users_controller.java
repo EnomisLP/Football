@@ -47,12 +47,6 @@ public class Users_controller {
         return usersService.getUser(_id);
     }
 
-    @PutMapping("user/modify/changeUsername/{newUserName}")
-    @Operation(summary = "UPDATE operation - Update an existing user", tags={"User"})
-    public CompletableFuture<Users> updateUserName(Authentication auth, @PathVariable String newUserName) throws JsonProcessingException {
-        return usersService.updateUserName(auth.getName(), newUserName);
-    }
-
     @DeleteMapping("admin/delete/{username}")
      @Operation(summary = "DELETE operation - Delete a user by username", tags={"Admin:User"})
     public CompletableFuture<Void> deleteUserAdmin(@PathVariable String username) throws JsonProcessingException {

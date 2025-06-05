@@ -171,7 +171,7 @@ public class Users_service {
     )
     public CompletableFuture<Void> deleteUser(String username) throws JsonProcessingException {
         Optional<Users> user = Ur.findByUsername(username);
-        
+        List<Articles> userArticles = Ar.findByAuthor(username);
         if(user.isPresent()){
             Users existingUser = user.get();
             // Prepare Outbox event to delete UsersNode in Neo4j
@@ -185,7 +185,11 @@ public class Users_service {
             neo4jUserDeleteEvent.setCreatedAt(LocalDateTime.now());
             outboxEventRepository.save(neo4jUserDeleteEvent);
             Ur.deleteById(existingUser.get_id());
-            
+            if(!userArticles.isEmpty()){
+                for(Articles article : userArticles){
+                    Ar.delete(article);
+                }
+            }
             return CompletableFuture.completedFuture(null);
         }
         
