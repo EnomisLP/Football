@@ -87,6 +87,12 @@ public class Users_controller {
         return usersService.registerUser(request.getUsername(), request.getPassword(), request.getNationality_name(), request.getE_mail());
     }
 
+    @PostMapping("/admin/create_admin")
+    @Operation(summary = "Register a new Admin", tags={"Admin"})
+    public CompletableFuture<Users> registerAdmin(@RequestBody RegisterUserRequest request) throws JsonProcessingException {
+        return usersService.registerUser(request.getUsername(), request.getPassword(), request.getNationality_name(), request.getE_mail());
+    }
+
      @PostMapping("user/modify/change_password")
     @Operation(summary = "Change password", tags={"User"})
     public CompletableFuture<String> changePassword(@RequestBody ChangePasswordRequest request, Authentication auth) {

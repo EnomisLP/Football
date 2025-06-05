@@ -336,6 +336,22 @@ public CompletableFuture<Articles> createArticle(String username, createArticleR
         );
         return createUser(request);
     }
+    @Retryable(
+        value = { Exception.class },
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public CompletableFuture<Users> registerAdmin(String username, String password, String nationality,
+    String email) throws JsonProcessingException {
+        createUserRequest request = new createUserRequest(
+            username,
+            password,
+            List.of(ROLES.ROLE_ADMIN),
+            nationality,
+            email
+        );
+        return createUser(request);
+    }
 
     @Retryable(
         value = { Exception.class },
