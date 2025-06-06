@@ -15,5 +15,6 @@ public class CoachesNodeDTO {
     private String longName;
     private Integer fifaVersion;
     private String gender;
+    private String nationality_name;
 
 }

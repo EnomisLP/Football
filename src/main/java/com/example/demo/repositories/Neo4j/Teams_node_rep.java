@@ -36,11 +36,11 @@ public interface Teams_node_rep extends Neo4jRepository<TeamsNode,Long>{
     List<TeamsNode> findAllByGender(String gender);
     @Query( "MATCH (t:TeamsNode {mongoId: $mongoId})<-[r:PLAYS_IN_TEAM]-(p:PlayersNode) "+
     "WHERE r.fifaVersion = $fifaV "+
-    "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender, r.fifaVersion AS fifaV")
+    "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender,p.nationalityName As nationality_name, r.fifaVersion AS fifaV")
     List<PlayersNodeDTO> findFormation(String mongoId, Integer fifaV);
     @Query( "MATCH (t:TeamsNode {mongoId: $mongoId})<-[r:MANAGES_TEAM]-(p:CoachesNode) "+
     "WHERE r.fifaVersion = $fifaV "+
-    "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender, r.fifaVersion AS fifaV")
+    "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender, p.nationalityName As nationality_name, r.fifaVersion AS fifaV")
     CoachesNodeDTO findCoach(String mongoId, Integer fifaV);
     Optional<TeamsNode> findByLongName(String string);
 

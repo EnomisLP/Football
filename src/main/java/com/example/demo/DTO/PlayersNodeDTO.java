@@ -15,4 +15,5 @@ public class PlayersNodeDTO {
     private String longName;
     private String gender;
     private Integer fifaV;
+    private String nationality_name;
 }
