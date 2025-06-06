@@ -8,6 +8,7 @@ import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.DTO.PlayersNodeDTO;
+import com.example.demo.DTO.TeamsNodeDTO;
 import com.example.demo.aggregations.DTO.MostEngaggedPlayer;
 import com.example.demo.aggregations.DTO.TopTeam;
 import com.example.demo.aggregations.DTO.UserInterestDiversity;
@@ -40,26 +41,26 @@ public class NodeService {
             "UNWIND teamPlayers AS player " +
             "OPTIONAL MATCH (u:UsersNode)-[l:LIKES]->(player) " +
             "WITH t, COUNT(l) AS totalFame " +  
-            "RETURN t AS teamNode, totalFame " +
+            "RETURN t.mongoId AS mongoId, t.longName AS longName, t.gender AS gender, totalFame " +
             "ORDER BY totalFame DESC " +
             "LIMIT 10")
             .bind(fifaVersion).to("fifaVersion")
             .fetchAs(TopTeam.class)
             .mappedBy((typeSystem, record) -> {
-                var teamNode = record.get("teamNode");
-                if (teamNode == null || teamNode.isNull()) {
-                    return null;
-                } else {
-                    TeamsNode team = new TeamsNode();
-                    team.setMongoId(teamNode.get("mongoId").asString());
-                    team.setLongName(teamNode.get("longName").asString());
-                    team.setGender(teamNode.get("gender").asString());
+                var mongoId = record.get("mongoId");
+                var longName = record.get("longName");
+                var gender = record.get("gender");
+                    TeamsNodeDTO team = new TeamsNodeDTO();
+                    team.setMongoId(mongoId.asString());
+                    team.setLongName(longName.asString());
+                    team.setGender(gender.asString());
+                    team.setFifaVersion(fifaVersion);
                     
                     var fameValue = record.get("totalFame");
                     Integer totalFame = fameValue.isNull() ? 0 : fameValue.asInt();
                     
                     return new TopTeam(team, totalFame);
-                }
+                
             })
             .all();
     }
@@ -96,6 +97,7 @@ public class NodeService {
                     player.setMongoId(playerNode.get("mongoId").asString());
                     player.setLongName(playerNode.get("longName").asString());
                     player.setGender(playerNode.get("gender").asString());
+                    player.setNationality_name(playerNode.get("nationalityName").asString());
                    
                     Integer totalEngagement = record.get("totalEngagement").asInt();
                     return new MostEngaggedPlayer(player, totalEngagement);

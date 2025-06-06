@@ -43,6 +43,7 @@ public class SecurityConfig {
                                  "/api/v1/user/article/**","/api/v1/user/{target}/**",
                                  "/api/v1/user/modify/**","/api/v1/user/{userName}/**","/api/v1/user/settings/**",
                                  "/api/v1/player/{_id}/**","/api/v1/team/{_id}/**",
+                                 "/api/v1/user/team/dreamTeam/**",
                                  "/api/v1/coach/{_id}/**","/api/v1/article/{_id}/**").hasRole("USER")
                 .requestMatchers("/api/v1/auth/me", "/api/v1/enrolments/**").authenticated()
                 .requestMatchers("/swagger-ui/**","/v3/api-docs/**","/swagger-resources/**","/webjars/**").permitAll()

@@ -1,5 +1,6 @@
 package com.example.demo.aggregations.DTO;
 
+import com.example.demo.DTO.TeamsNodeDTO;
 import com.example.demo.models.Neo4j.TeamsNode;
 
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TopTeam {
-    private TeamsNode teamNode;
+    private TeamsNodeDTO teamNode;
     private Integer totalFame;
 }
 
