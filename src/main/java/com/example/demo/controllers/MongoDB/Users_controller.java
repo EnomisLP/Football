@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,14 +50,14 @@ public class Users_controller {
 
     @DeleteMapping("admin/delete/{username}")
      @Operation(summary = "DELETE operation - Delete a user by username", tags={"Admin:User"})
-    public CompletableFuture<Void> deleteUserAdmin(@PathVariable String username) throws JsonProcessingException {
-        return usersService.deleteUser(username);
+    public CompletableFuture<String> deleteUserAdmin(@PathVariable String username) throws JsonProcessingException {
+         return usersService.deleteUser(username);
     }
 
     @DeleteMapping("user/settings/deleteAccount")
      @Operation(summary = "DELETE operation - Delete a user by username", tags={"User"})
-    public CompletableFuture<Void> deleteUser(Authentication auth) throws JsonProcessingException {
-        return usersService.deleteUser(auth.getName());
+    public CompletableFuture<String> deleteUser(Authentication auth) throws JsonProcessingException {
+       return usersService.deleteUser(auth.getName());
     }
 
     // USER INTERACTION IN THE APP

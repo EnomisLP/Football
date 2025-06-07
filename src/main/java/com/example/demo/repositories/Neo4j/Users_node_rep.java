@@ -83,11 +83,11 @@ public interface Users_node_rep extends Neo4jRepository<UsersNode, Long>{
   "RETURN u.mongoId AS mongoId, u.userName AS userName")
   List<UsersNodeDTO> findUsersByMongoIdAndFifaVersion(String mongoId, Integer fifaV);
  @Query("MATCH (u:UsersNode {userName: $username})-[r:HAS_IN_M_TEAM]->(p:PlayersNode) " +
- "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender, r.fifaVersion AS fifaV")
+ "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender,p.nationalityName AS nationality_name, r.fifaVersion AS fifaV")
   List<PlayersNodeDTO> findHasInMTeamRelationshipsByUsername(String username);
 
   @Query("MATCH (u:UsersNode {userName: $username})-[r:HAS_IN_F_TEAM]->(p:PlayersNode) " +
- "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender, r.fifaVersion AS fifaV")
+ "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender, p.nationalityName AS nationality_name, r.fifaVersion AS fifaV")
   List<PlayersNodeDTO> findHasInFTeamRelationshipsByUsername(String username);
 
   @Query("MATCH (u:UsersNode {userName: $from}), (a:ArticlesNode {mongoId: $articleId}) "+

@@ -169,7 +169,7 @@ public class Users_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<Void> deleteUser(String username) throws JsonProcessingException {
+    public CompletableFuture<String> deleteUser(String username) throws JsonProcessingException {
         Optional<Users> user = Ur.findByUsername(username);
         List<Articles> userArticles = Ar.findByAuthor(username);
         if(user.isPresent()){
@@ -190,7 +190,7 @@ public class Users_service {
                     Ar.delete(article);
                 }
             }
-            return CompletableFuture.completedFuture(null);
+            return CompletableFuture.completedFuture("User deleted...");
         }
         
         else{
@@ -365,7 +365,7 @@ public CompletableFuture<Articles> createArticle(String username, createArticleR
             if(passwordEncoder.matches(oldPassword, existing.getPassword())){
                 existing.setPassword(passwordEncoder.encode(newPassword));
                 Ur.save(existing);
-                return CompletableFuture.completedFuture("Password Changed Correctly!");
+                return CompletableFuture.completedFuture("Password chaged");
             }
             else{
                 throw new RuntimeErrorException(null, "Wrong Password, try again!");

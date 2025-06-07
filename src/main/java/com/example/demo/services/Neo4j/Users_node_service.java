@@ -211,7 +211,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> addInMTeam(String username, String playerMongoId, Integer fifaVersion) throws JsonProcessingException {
+    public void addInMTeam(String username, String playerMongoId, Integer fifaVersion) throws JsonProcessingException {
     Map<String, Object> neo4jPayload = new HashMap<>();
     neo4jPayload.put("username", username);
     neo4jPayload.put("playerMongoId", playerMongoId);
@@ -223,7 +223,7 @@ public class Users_node_service {
     event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
     event.setPublished(false);
     outboxEventRepository.save(event);
-    return CompletableFuture.completedFuture("Request submitted...");
+    return;
     }
 
 
@@ -234,7 +234,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> addInFTeam(String username, String playerMongoId, Integer fifaVersion) throws JsonProcessingException {
+    public void addInFTeam(String username, String playerMongoId, Integer fifaVersion) throws JsonProcessingException {
     Map<String, Object> neo4jPayload = new HashMap<>();
     neo4jPayload.put("username", username);
     neo4jPayload.put("playerMongoId", playerMongoId);
@@ -246,7 +246,7 @@ public class Users_node_service {
     event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
     event.setPublished(false);
     outboxEventRepository.save(event);
-    return CompletableFuture.completedFuture("Request submitted...");
+    return;
     
     }
 
@@ -257,7 +257,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> removePlayerMTeam(String username, String playerMongoId) throws JsonProcessingException {
+    public void removePlayerMTeam(String username, String playerMongoId) throws JsonProcessingException {
     Map<String, Object> neo4jPayload = new HashMap<>();
     neo4jPayload.put("username", username);
     neo4jPayload.put("playerMongoId", playerMongoId);
@@ -269,7 +269,7 @@ public class Users_node_service {
     event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
     event.setPublished(false);
     outboxEventRepository.save(event);
-    return CompletableFuture.completedFuture("Request submitted...");
+    return;
     }
 
     
@@ -278,7 +278,7 @@ public class Users_node_service {
     maxAttempts = 3,
     backoff = @Backoff(delay = 1000, multiplier = 2)
     )
-    public CompletableFuture<String> removePlayerFTeam(String username, String playerMongoId) throws JsonProcessingException{
+    public void removePlayerFTeam(String username, String playerMongoId) throws JsonProcessingException{
         Map<String, Object> neo4jPayload = new HashMap<>();
         neo4jPayload.put("username", username);
         neo4jPayload.put("playerMongoId", playerMongoId);
@@ -290,7 +290,7 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-        return CompletableFuture.completedFuture("Request submitted...");
+        return;
     }
 
     //----------------USER INTERACTIONS------------------
@@ -311,7 +311,7 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-    
+        return;
         } 
 
 
@@ -331,7 +331,7 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-            
+          return;  
         } 
 
   
@@ -351,7 +351,7 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-    
+        return;
     } 
 
     
@@ -371,7 +371,7 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-            
+         return;   
     } 
     
     
@@ -391,6 +391,7 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
+        return;
     } 
      
 
@@ -410,6 +411,7 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
+        return;
         } 
     
     @Retryable(
@@ -429,7 +431,7 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-            
+            return;
         } 
     
     @Retryable(
@@ -448,6 +450,7 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
+        return;
         } 
 
     
@@ -467,8 +470,7 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-
-            
+            return;
         } 
     
     @Retryable(
@@ -487,7 +489,7 @@ public class Users_node_service {
         event.setPayload(objectMapper.writeValueAsString(neo4jPayload));
         event.setPublished(false);
         outboxEventRepository.save(event);
-           
+          return; 
         } 
     
     //--------------------------ADMIN--------------------------

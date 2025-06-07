@@ -76,7 +76,6 @@ public class Articles_node_service {
     public String doMappAllArticles(){
         int count = 0;
         List<Articles> articles = ArM.findAll();
-        List<ArticlesNode> articlesNodes = new ArrayList<>();
         for (Articles article : articles) {
             Optional<ArticlesNode> existingArticle = Ar.findByMongoId(article.get_id());
             if(existingArticle.isPresent()){
@@ -87,12 +86,11 @@ public class Articles_node_service {
                 articleNode.setTitle(article.getTitle());
                 articleNode.setAuthor(article.getAuthor());
                 articleNode.setMongoId(article.get_id());
-                articlesNodes.add(articleNode);
+               Ar.save(articleNode);
                 count++;
             }
             
         }
-        Ar.saveAll(articlesNodes);
         return "Mapped " + count + " articles successfully.";
     }
     

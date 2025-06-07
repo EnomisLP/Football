@@ -120,7 +120,7 @@ public class Users_node_controller {
         return Uns.mapAllUsersToNeo4j();
     }
     
-    @PutMapping("admin/populate/likes_to_players")
+   /*  @PutMapping("admin/populate/likes_to_players")
     @Operation(summary = "Populate neo4j with likes to players", tags={"Admin:Populate"})
     public String populateLikesToPlayer() {
         return Uns.populateLikesToPlayer();
@@ -143,18 +143,20 @@ public class Users_node_controller {
     public String populateFollowsToUsers() {
         return Uns.populateFollowsToUsers();
     }
-
+*/
     // DELETE PLAYERS
      @DeleteMapping("user/team/male/removePlayer/{_id}")
     @Operation(summary = "Remove a player in male Team by its mongoId", tags={"Player"})
-    public CompletableFuture<String> removeMPlayer(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
-        return Uns.removePlayerMTeam(auth.getName(), _id);
+    public ResponseEntity<Void> removeMPlayer(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+         Uns.removePlayerMTeam(auth.getName(), _id);
+         return ResponseEntity.accepted().build();
     }
 
    @DeleteMapping("user/team/female/removePlayer/{_id}")
     @Operation(summary = "Remove a player in female Team by its mongoId", tags={"Player"})
-    public CompletableFuture<String> removeFPlayer(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
-        return Uns.removePlayerFTeam(auth.getName(), _id);
+    public ResponseEntity<Void> removeFPlayer(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+        Uns.removePlayerFTeam(auth.getName(), _id);
+        return ResponseEntity.accepted().build();
     }
 
     // FOLLOW / UNFOLLOW
@@ -174,77 +176,89 @@ public class Users_node_controller {
     
     @PutMapping("user/{userName}/follow")
     @Operation(summary = "Follow a user", tags={"User"})
-    public void FOLLOW(Authentication auth, @PathVariable String userName) throws JsonProcessingException {
-         Uns.FOLLOW(auth.getName(), userName);
+    public ResponseEntity<Void> FOLLOW(Authentication auth, @PathVariable String userName) throws JsonProcessingException {
+        Uns.FOLLOW(auth.getName(), userName);
+         return ResponseEntity.accepted().build();
     }
 
     @DeleteMapping("user/{userName}/unfollow")
     @Operation(summary = "Remove follow from a user", tags={"User"})
-    public void UNFOLLOW(Authentication auth, @PathVariable String userName) throws JsonProcessingException {
+    public ResponseEntity<Void> UNFOLLOW(Authentication auth, @PathVariable String userName) throws JsonProcessingException {
          Uns.UNFOLLOW(auth.getName(), userName);
+         return ResponseEntity.accepted().build();
     }
 
     //LIKE / UNLIKE ARTICLES
      @PostMapping("article/{articleId}/like")
     @Operation(summary = "LIKE an article by its mongoId", tags={"Article"})
-    public void articleLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
+    public ResponseEntity<Void> articleLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
          Uns.LIKE_ARTICLE(auth.getName(), articleId);
+         return ResponseEntity.accepted().build();
     }
 
      @DeleteMapping("article/{articleId}/unlike")
     @Operation(summary = "UNLIKE an article by its mongoId", tags={"Article"})
-    public void articleUNLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
+    public ResponseEntity<Void> articleUNLIKE(@PathVariable String articleId, Authentication auth) throws JsonProcessingException {
          Uns.UNLIKE_ARTICLE(auth.getName(), articleId);
+         return ResponseEntity.accepted().build();
     }
     
     // ADD TO TEAM
    @PostMapping("user/team/male/addPlayer/{_id}/{fifaValue}")
     @Operation(summary = "ADD a player in male Team by its mongoId", tags={"Player"})
-    public CompletableFuture<String> add_in_M_Team(@PathVariable String _id, @PathVariable int fifaValue, Authentication auth) throws JsonProcessingException {
-        return Uns.addInMTeam(auth.getName(), _id, fifaValue);
+    public ResponseEntity<Void> add_in_M_Team(@PathVariable String _id, @PathVariable int fifaValue, Authentication auth) throws JsonProcessingException {
+         Uns.addInMTeam(auth.getName(), _id, fifaValue);
+         return ResponseEntity.accepted().build();
     }
 
     @PostMapping("user/team/female/addPlayer/{_id}/{fifaValue}")
     @Operation(summary = "ADD a player in Female Team by its mongoId", tags={"Player"})
-    public CompletableFuture<String> add_in_F_Team(@PathVariable String _id, @PathVariable int fifaValue, Authentication auth) throws JsonProcessingException {
-        return Uns.addInFTeam(auth.getName(), _id, fifaValue);
+    public ResponseEntity<Void> add_in_F_Team(@PathVariable String _id, @PathVariable int fifaValue, Authentication auth) throws JsonProcessingException {
+        Uns.addInFTeam(auth.getName(), _id, fifaValue);
+        return ResponseEntity.accepted().build();
     }
 
     // LIKES
     @PostMapping("team/{_id}/like")
     @Operation(summary = "LIKE a team by its mongoId", tags={"Team"})
-    public void teamLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+    public ResponseEntity<Void> teamLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
          Uns.team_LIKE(auth.getName(), _id);
+         return ResponseEntity.accepted().build();
     }
 
        @DeleteMapping("team/{_id}/unlike")
     @Operation(summary = "UNLIKE a team by its mongoId", tags={"Team"})
-    public void teamUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+    public ResponseEntity<Void> teamUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
          Uns.team_UNLIKE(auth.getName(), _id);
+         return ResponseEntity.accepted().build();
     }
 
      @PostMapping("player/{_id}/like")
     @Operation(summary = "LIKE a player by its mongoId", tags={"Player"})
-    public void playerLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+    public ResponseEntity<Void> playerLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
          Uns.player_LIKE(auth.getName(), _id);
+         return ResponseEntity.accepted().build();
     }
 
     @DeleteMapping("player/{_id}/unlike")
     @Operation(summary = "UNLIKE a player by its mongoId", tags={"Player"})
-    public void playerUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+    public ResponseEntity<Void> playerUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
          Uns.player_UNLIKE(auth.getName(), _id);
+         return ResponseEntity.accepted().build();
     }
 
    @PostMapping("coach/{_id}/like")
     @Operation(summary = "LIKE a coach by its mongoId", tags={"Coach"})
-    public void coachLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+    public ResponseEntity<Void> coachLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
          Uns.coach_LIKE(auth.getName(), _id);
+         return ResponseEntity.accepted().build();
     }
 
      @DeleteMapping("coach/{_id}/unlike")
     @Operation(summary = "UNLIKE a coach by its mongoId", tags={"Coach"})
-    public void coachUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
+    public ResponseEntity<Void> coachUNLIKE(@PathVariable String _id, Authentication auth) throws JsonProcessingException {
          Uns.coach_UNLIKE(auth.getName(), _id);
+         return ResponseEntity.accepted().build();
     }
     
     @GetMapping("user/{_id}/check_follow")
