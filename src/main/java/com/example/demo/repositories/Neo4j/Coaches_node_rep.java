@@ -20,14 +20,14 @@ public interface Coaches_node_rep extends Neo4jRepository<CoachesNode,Long>{
 
     boolean existsByMongoId(String valueOf);
     @Query("MATCH (c:CoachesNode {mongoId: $mongoId}) " +
-           "RETURN c.mongoId AS mongoId, c.longName AS longName, c.gender AS gender, c.nationalityName AS nationality_name")
+           "RETURN c.mongoId AS mongoId, c.longName AS longName, c.gender AS gender")
     Optional<CoachesNodeDTO> findByMongoIdLight(String mongoId);
 
     Optional<CoachesNode> findByMongoId(String id);
 
     @Query(
         value = "MATCH (c:CoachesNode {gender: $gender}) " +
-                "RETURN c.mongoId AS mongoId, c.longName AS longName, c.gender AS gender, c.nationalityName AS nationality_name SKIP $skip LIMIT $limit",
+                "RETURN c.mongoId AS mongoId, c.longName AS longName, c.gender AS gender SKIP $skip LIMIT $limit",
         countQuery = "MATCH (c:CoachesNode {gender: $gender}) RETURN count(c)"
     )
     Page<CoachesNodeDTO> findAllByGenderWithPaginationLight(String gender, Pageable page);

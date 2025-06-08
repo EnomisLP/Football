@@ -29,14 +29,10 @@ public class Teams {
     private String team_name;
 
     private List<FifaStatsTeam> fifaStats;
-    @Field("league_id")
-    private Long league_id;
     @Field("league_name")
     private String league_name;
     @Field("league_level")
     private Integer league_level;
-    @Field("nationality_id")
-    private Long nationality_id;
     @Field("nationality_name")
     private String nationality_name;
     @Field("gender")

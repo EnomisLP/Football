@@ -37,9 +37,6 @@ public class CoachesNode {
     @Property(name = "longName")
     private String longName;
 
-    @Property(name = "nationalityName")
-    private String nationalityName;
-
     @Property(name = "gender")
     private String gender;
     @JsonIgnore

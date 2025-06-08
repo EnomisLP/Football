@@ -77,7 +77,6 @@ public class Coaches_node_service {
             CoachesNode coachNode = new CoachesNode();
             coachNode.setMongoId(coach.get_id());
             coachNode.setLongName(coach.getLong_name());
-            coachNode.setNationalityName(coach.getNationality_name());
             coachNode.setGender(coach.getGender());
             nodeToInsert.add(coachNode);
             

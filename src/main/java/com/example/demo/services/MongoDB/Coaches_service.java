@@ -75,7 +75,6 @@ public class Coaches_service {
         CoachesNode coachNode = new CoachesNode();
         coachNode.setMongoId(coachM.get_id());
         coachNode.setLongName(coachM.getLong_name());
-        coachNode.setNationalityName(coachM.getNationality_name());
         coachNode.setGender(coachM.getGender());
         Cmr.save(coachNode);
         return CompletableFuture.completedFuture(coachM);

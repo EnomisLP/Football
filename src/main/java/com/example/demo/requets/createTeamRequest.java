@@ -13,10 +13,8 @@ import lombok.Setter;
 public class createTeamRequest {
     
     private String team_name;
-    private Long league_id;
     private String league_name;
     private Integer league_level;
-    private Long nationality_id;
     private String nationality_name;
     private String gender;
 }
