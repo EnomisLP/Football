@@ -65,23 +65,21 @@ public class Teams_controller {
     //UPDATE : Update a coach of a team
     @PutMapping("admin/team/modify/{_id}/{fifaV}/coach")
     @Operation(summary = "UPDATE: Update a coach of a team", tags={"Admin:Team"})
-    public Teams updateCoach(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateCoachTeam coachDetails) {
+    public CompletableFuture<Teams> updateCoach(@PathVariable String _id, @PathVariable Integer fifaV, @RequestBody updateCoachTeam coachDetails) {
         return teamsMService.updateCoachTeam(_id, fifaV, coachDetails);
     }
 
     // DELETE: Delete a team by ID
     @DeleteMapping("admin/team/delete/{_id}")
     @Operation(summary = "DELETE: Delete a team by its ID", tags={"Admin:Team"})
-    public ResponseEntity<Void> deleteTeam(@PathVariable String _id) {
-        teamsMService.deleteTeam(_id);
-        return ResponseEntity.noContent().build();
+    public CompletableFuture<String> deleteTeam(@PathVariable String _id) {
+        return teamsMService.deleteTeam(_id);
     }
 
     // DELETE: Delete a team by ID and FIFA version
     @DeleteMapping("admin/team/delete/{_id}/{fifaV}")
     @Operation(summary = "DELETE: Delete FifaStatOBj of a team by its ID and FIFA version", tags={"Admin:Team"})
-    public ResponseEntity<Void> deleteTeamByFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV) {
-        teamsMService.deleteFifaTeam(_id, fifaV);
-        return ResponseEntity.noContent().build();
+    public CompletableFuture<String> deleteTeamByFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV) {
+        return teamsMService.deleteFifaTeam(_id, fifaV);
     }
 }

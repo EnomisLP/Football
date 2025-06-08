@@ -33,7 +33,7 @@ public interface Articles_node_rep extends Neo4jRepository<ArticlesNode, Long> {
     @Query("MATCH (n:ArticlesNode) RETURN n.mongoId AS mongoId, n.title AS title, n.author AS author")
     List<ArticlesNodeDTO> findAllLight();
 
-    @Query(value ="MATCH (n:ArticlesNode) RETURN n.mongoId AS mongoId, n.title AS title, n.author AS author",
+    @Query(value ="MATCH (n:ArticlesNode) RETURN n.mongoId AS mongoId, n.title AS title, n.author AS author SKIP $skip LIMIT $limit",
     countQuery = "MATCH (n:ArticlesNode) RETURN COUNT(n)"
     )
     Page<ArticlesNodeDTO> findAllLightWithPagination(PageRequest page);

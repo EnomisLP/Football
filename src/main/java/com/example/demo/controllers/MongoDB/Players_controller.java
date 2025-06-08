@@ -75,17 +75,16 @@ public class Players_controller {
     // DELETE: Delete a player by ID
     @DeleteMapping("admin/player/delete/{_id}")
     @Operation(summary = "DELETE: Delete a player by its ID", tags={"Admin:Player"})
-    public ResponseEntity<Void> deletePlayer(@PathVariable String _id) {
-        playersMService.deletePlayer(_id);
-        return ResponseEntity.noContent().build();
+    public CompletableFuture<String> deletePlayer(@PathVariable String _id) {
+       return playersMService.deletePlayer(_id);
     }
 
     //DELETE: Delete fifaVersion of a player by ID
     @DeleteMapping("admin/player/delete/{_id}/{fifaV}")
     @Operation(summary = "DELETE: Delete FifaStats Object of a player by its ID and FIFA version", tags={"Admin:Player"})
-    public ResponseEntity<Void> deleteFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV) {
-        playersMService.deleteFifaPlayer(_id, fifaV);
-        return ResponseEntity.noContent().build();
+    public CompletableFuture<String> deleteFifaVersion(@PathVariable String _id, @PathVariable Integer fifaV) {
+        return playersMService.deleteFifaPlayer(_id, fifaV);
+        
     }
     
     /* DISABLED

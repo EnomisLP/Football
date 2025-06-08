@@ -33,7 +33,6 @@ public class TeamsNode {
     private String mongoId;
     @Property(name ="longName")
     private String longName;
-
     @Property(name="gender")
     private String gender;
     @JsonIgnore

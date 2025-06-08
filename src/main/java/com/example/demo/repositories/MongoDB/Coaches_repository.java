@@ -17,15 +17,7 @@ public interface Coaches_repository extends MongoRepository<Coaches,String>{
     List<Coaches> findByGender(String gender);
     @Query("{ 'gender' : ?0 }")
     Page<Coaches> findAllByGender(String gender, PageRequest page);
-       @Query("""
-    {
-        "teams": {
-            "$elemMatch": {
-                "team_mongo_id": { $oid: ?0 }
-            }
-        }
-    }
-    """)
+       @Query("{ 'team.team_mongo_id': ?0 }")
     List<Coaches> findByTeamMongoIdInTeams(String team_mongo_id);
     
 }

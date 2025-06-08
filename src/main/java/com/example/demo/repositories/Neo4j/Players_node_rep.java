@@ -18,11 +18,11 @@ public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
     Optional<PlayersNode> findByMongoId(String get_id);
 
     @Query("MATCH (p:PlayersNode {mongoId: $mongoId}) " +
-            "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender")
+            "RETURN p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender, p.nationalityName AS nationality_name")
     Optional<PlayersNodeDTO> findByMongoIdLight(String mongoId);
     @Query(
     value = "MATCH (p:PlayersNode {gender: $gender}) " +
-            "RETURN  p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender SKIP $skip LIMIT $limit",
+            "RETURN  p.mongoId AS mongoId, p.longName AS longName, p.gender AS gender, p.nationalityName AS nationality_name SKIP $skip LIMIT $limit",
     countQuery = "MATCH (p:PlayersNode {gender: $gender}) RETURN count( p)")
     Page<PlayersNodeDTO> findAllByGenderWithPagination(String gender, Pageable page);
 
@@ -45,7 +45,7 @@ public interface Players_node_rep  extends Neo4jRepository<PlayersNode, Long>{
 
     @Query("MATCH (p:PlayersNode) " +
            "WHERE p.mongoId = $mongoId " +
-           "SET p.longName = $longName, p.gender = $gender, p.age = $age")
+           "SET p.longName = $longName, p.gender = $gender")
     void updatePlayerAttributes(String mongoId, String longName, String gender);
 
     @Query( "MATCH (p:PlayersNode {mongoId: $mongoId})-[r:PLAYS_IN_TEAM]->(t:TeamsNode) "+

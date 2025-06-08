@@ -108,18 +108,33 @@ public class Teams_service {
                     if(!players.isEmpty()){
                         for (Players player : players) {
                             List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
+                            
                             for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
+                                if(playerFifaStat.getTeam().getTeam_mongo_id() == null){
+                                    continue;
+                                }
+                                System.out.println("found! " + player.getLong_name());
+                                if (!playerFifaStat.getTeam().getTeam_mongo_id().equals(id)){
+                                    continue;
+                                }
                                 playerFifaStat.getTeam().setTeam_name(teamsDetails.getTeam_name());
                                 existingTeam.setTeam_name(teamsDetails.getTeam_name());
                                 PMr.save(player);
                             }
                         }
+                       
                     }
+                    
                     List<Coaches> coaches = CMr.findByTeamMongoIdInTeams(existingTeam.get_id());
                     if(!coaches.isEmpty()){
+                        System.out.println("Coaches found" + coaches.size());
                         for(Coaches coach : coaches){
                             List<TeamObj> teams = coach.getTeam();
                             for(TeamObj team : teams){
+                                if (!team.getTeam_mongo_id().equals(id)){
+                                    continue;
+                                }
+                                
                                 team.setTeam_name(teamsDetails.getTeam_name());
                                 CMr.save(coach);
                             }
@@ -191,11 +206,13 @@ public class Teams_service {
                             }
                         }
                         List<Coaches> coaches = CMr.findByTeamMongoIdInTeams(existingTeam.get_id());
+                        System.out.println("coaches found" + coaches.size());
                         for(Coaches coach : coaches){
                             List<TeamObj> teams = coach.getTeam();
                             for(TeamObj team : teams){
                                 if(team.getFifa_version().equals(fifaV)){
                                     team.setFifa_version(request.getFifa_version());
+                                    CMr.save(coach);
                                     break;
                                 }
                             }
@@ -223,7 +240,7 @@ public class Teams_service {
     
     @Async("customAsyncExecutor")
     @Transactional
-    public Teams updateCoachTeam(String id, Integer fifaV, updateCoachTeam request){
+    public CompletableFuture<Teams> updateCoachTeam(String id, Integer fifaV, updateCoachTeam request){
         Optional<Teams> optionalTeam = TMr.findById(id);
         Optional<TeamsNodeDTO> optionalTeamNode = Tmr.findByMongoIdLight(id);
         Optional<Coaches> optionalCoach = CMr.findById(request.getCoach_mongo_id());
@@ -236,7 +253,7 @@ public class Teams_service {
                 for(FifaStatsTeam stats : existingFifaStats){
                     if(stats.getFifa_version().equals(fifaV)){
                         if(request.getCoach_mongo_id().equals(stats.getCoach().getCoach_mongo_id())){
-                            return existingTeam;
+                            return CompletableFuture.completedFuture(existingTeam);
                         }
                         List<TeamObj> teams = existingCoach.getTeam();
                         for(TeamObj team : teams){
@@ -254,7 +271,7 @@ public class Teams_service {
                         for(Coaches coach : optCoach){
                             for(TeamObj team : teams){
                                 if(team.getFifa_version().equals(fifaV)){
-                                    Optional<CoachesNode> optionalCoachNodeOld = CMn.findByMongoId(coach.get_id());
+                                    Optional<CoachesNodeDTO> optionalCoachNodeOld = CMn.findByMongoIdLight(coach.get_id());
                                     if(optionalCoachNodeOld.isPresent()){
                                         CMn.deleteManagesRelationToTeam(coach.get_id(), team.getTeam_mongo_id(), fifaV);
                                         
@@ -267,7 +284,7 @@ public class Teams_service {
                         }
                     }
                            
-                            Optional<CoachesNode> optionalCoachNode = CMn.findByMongoId(existingCoach.get_id());
+                            Optional<CoachesNodeDTO> optionalCoachNode = CMn.findByMongoIdLight(existingCoach.get_id());
                             if(optionalCoachNode.isPresent()){
                                 CMn.createManagesRelationToTeam(existingCoach.get_id(), existingTeam.get_id(), fifaV);
                             }
@@ -283,7 +300,7 @@ public class Teams_service {
 
                     
                     }
-                    return existingTeam;
+                    return CompletableFuture.completedFuture(existingTeam);
                 
                 
             }
@@ -300,7 +317,7 @@ public class Teams_service {
     //DELETE
     @Async("customAsyncExecutor")
     @Transactional
-    public void deleteTeam(String id){
+    public CompletableFuture<String> deleteTeam(String id){
         Optional<Teams> team = TMr.findById(id);
         Optional<TeamsNodeDTO> teamsNode = Tmr.findByMongoIdLight(id);
         if(team.isPresent()){
@@ -319,6 +336,7 @@ public class Teams_service {
                         playerFifaStat.setClub_contract_valid_until_year(2999);
                         playerFifaStat.setClub_jersey_number(-1);
                         playerFifaStat.setLeague_level(-1);
+                        playerFifaStat.setFifa_version(-1);
                         PMr.save(player);
                     }
                 }
@@ -331,6 +349,7 @@ public class Teams_service {
                     for(TeamObj Team : teams){
                         Team.setTeam_name("DefaultTeam");
                         Team.setTeam_mongo_id("XXXXXXXXXXXX");
+                        Team.setFifa_version(-1);
                         CMr.save(coach);
                     }
                 }
@@ -340,7 +359,8 @@ public class Teams_service {
         }
         //Deleting team in Neo4j
         if(teamsNode.isPresent()){
-            TMs.deleteTeam(id);
+            Tmr.deleteByMongoIdLight(id);
+            return CompletableFuture.completedFuture("Deleted!");
         }
         else{
             throw new RuntimeErrorException(null, "Team not found with id: " + id);
@@ -350,7 +370,7 @@ public class Teams_service {
     
     @Async("customAsyncExecutor")
     @Transactional
-    public void deleteFifaTeam(String id, Integer fifaV){
+    public CompletableFuture<String> deleteFifaTeam(String id, Integer fifaV){
         Optional<Teams> team = TMr.findById(id);
         Optional<TeamsNodeDTO> teamsNode = Tmr.findByMongoIdLight(id);
         if(team.isPresent() && teamsNode.isPresent()){
@@ -381,7 +401,6 @@ public class Teams_service {
                         fifaStat.setMidfield(-1);
                         fifaStat.setDefence(-1);
                         fifaStat.setClub_worth_eur((long) -1);
-
                         fifaStat.getCoach().setCoach_mongo_id("XXXXXXXXXXXX");
                         fifaStat.getCoach().setCoach_name("DefaultCoachName");
 
@@ -398,8 +417,12 @@ public class Teams_service {
                         List <FifaStatsPlayer> playerFifaStats = player.getFifaStats();
                         for (FifaStatsPlayer playerFifaStat : playerFifaStats) {
                             if (playerFifaStat.getFifa_version().equals(fifaV)) {
+                                Optional<PlayersNodeDTO> playerNode = Pmn.findByMongoIdLight(player.get_id());
+                                if(playerNode.isPresent()){
+                                    Pmn.deletePlaysInTeamRelationToTeam(player.get_id(), id, fifaV);
+                                }
                                 playerFifaStat.getTeam().setTeam_name("DefaultTeam");
-                                playerFifaStat.getTeam().setTeam_mongo_id("DefaultTeam");
+                                playerFifaStat.getTeam().setTeam_mongo_id("XXXXXXXXXXXX");
                                 playerFifaStat.setClub_position("NA");
                                 playerFifaStat.setLeague_name("DefaultLeague");
                                 playerFifaStat.setClub_contract_valid_until_year(2999);
@@ -411,6 +434,25 @@ public class Teams_service {
                         }
                     }
                 }
+                List<Coaches> coaches = CMr.findByTeamMongoIdInTeams(id);
+                if(!coaches.isEmpty()){
+                    for(Coaches coach : coaches){
+                        List<TeamObj> teamOb = coach.getTeam();
+                        if(teamOb.isEmpty()){
+                            continue;
+                        }
+                        for(TeamObj TEAM : teamOb){
+                            if(TEAM.getFifa_version().equals(fifaV)){
+                                TEAM.setFifa_version(-1);
+                                TEAM.setTeam_mongo_id("XXXXXXXXXXXX");
+                                TEAM.setTeam_name("DefaultTeam");
+                                CMr.save(coach);
+                                break;
+                            }
+                        }
+                    }
+                }
+                return CompletableFuture.completedFuture("Completed");
             }
             else{
                 throw new RuntimeErrorException(null, "Fifa stats not found with id: " + id);

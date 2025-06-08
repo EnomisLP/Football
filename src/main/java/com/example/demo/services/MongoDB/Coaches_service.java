@@ -98,6 +98,9 @@ public class Coaches_service {
                     if(!teams.isEmpty()){
                         for(Teams team : teams){
                             for(FifaStatsTeam stats : team.getFifaStats()){
+                                if(!stats.getCoach().getCoach_mongo_id().equals(existingCoach.get_id())){
+                                    continue;
+                                }
                                 stats.getCoach().setCoach_name(coachDetails.getLong_name());
                                 TMs.save(team);
                             }
@@ -149,13 +152,13 @@ public class Coaches_service {
                         List<FifaStatsTeam> stats = team.getFifaStats();
                          for(FifaStatsTeam stat : stats){
                              if(stat.getFifa_version().equals(fifaV)){
-                                 stat.getCoach().setCoach_name(existingCoach.getLong_name());
-                                 stat.getCoach().setCoach_mongo_id(existingCoach.get_id());
+                                 stat.getCoach().setCoach_mongo_id("XXXXXXXXXXXX");
+                                stat.getCoach().setCoach_name("DefaultCoachName");
                                  TMs.save(team);
                              }
                          }
                      }
-
+                     
                     //Updating Neo4j
                     Optional<TeamsNodeDTO> optionalTeamsNode = TMr.findByMongoIdLight(request.getTeam_mongo_id());
                     if(optionalTeamsNode.isPresent()){
@@ -190,7 +193,7 @@ public class Coaches_service {
     
     @Transactional
     @Async("customAsyncExecutor")
-    public Coaches updateFifaCoach(String id, Integer oldFifaV, Integer newFifaV){
+    public CompletableFuture<Coaches> updateFifaCoach(String id, Integer oldFifaV, Integer newFifaV){
         if(oldFifaV.equals(newFifaV)){
             throw new RuntimeException("The FIFA version is the same as the one already in the database: " + oldFifaV);
         }
@@ -233,7 +236,7 @@ public class Coaches_service {
             }
 
             
-        return existingCoach;
+        return CompletableFuture.completedFuture(existingCoach);
         }
         else {
             throw new RuntimeException("Coach not found with id: " + id);
@@ -244,7 +247,7 @@ public class Coaches_service {
 
     @Transactional
     @Async("customAsyncExecutor")
-    public void deleteCoach(String id){
+    public CompletableFuture<String> deleteCoach(String id){
         Optional<Coaches> coach = CMr.findById(id);
         Optional<CoachesNodeDTO> coachNode = Cmr.findByMongoIdLight(id);
         if(coach.isPresent() && coachNode.isPresent()){
@@ -260,8 +263,9 @@ public class Coaches_service {
                 }
             }
             // Delete the coach from MongoDB and Neo4j
-            CMs.deleteCoach(id);
+            Cmr.deleteCoachByMongoIdLight(id);
             CMr.deleteById(coach.get().get_id());
+            return CompletableFuture.completedFuture("Completed...");
         }
         else{
             throw new RuntimeErrorException(null, "Coach not found with id: " + id);
@@ -270,7 +274,7 @@ public class Coaches_service {
 
     @Transactional
     @Async("customAsyncExecutor")
-    public void deleteTeamCoach(String id, Integer fifaV){
+    public CompletableFuture<String> deleteTeamCoach(String id, Integer fifaV){
         Optional<Coaches> optionalCoach = CMr.findById(id);
         Optional<CoachesNodeDTO> optionalCoachNode = Cmr.findByMongoIdLight(id);
         if(optionalCoach.isPresent() && optionalCoachNode.isPresent()){
@@ -325,11 +329,14 @@ public class Coaches_service {
                         break;
                     }
                 }
-
+                return CompletableFuture.completedFuture("Completed...");
             }
             else{
                 throw new RuntimeErrorException(null, "Coach team-list is empty");
             }
+        }
+        else{
+            throw new RuntimeErrorException(null, "Coach not found");
         }
     }
 

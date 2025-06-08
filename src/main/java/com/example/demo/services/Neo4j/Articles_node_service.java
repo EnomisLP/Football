@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -98,10 +99,9 @@ public class Articles_node_service {
         ensureArticlesNodeIndexes();
         return doMappAllArticles();
     }
-
     public void deleteArticle(String mongoId){
-        ArticlesNode articleNode = Ar.findByMongoId(mongoId).orElseThrow(() -> new RuntimeException("Article not found with id: " + mongoId));
-        Ar.delete(articleNode);
+        Optional<ArticlesNodeDTO> articleNode = Optional.ofNullable(Ar.findByMongoIdLight(mongoId).orElseThrow(() -> new RuntimeException("Article not found with id: " + mongoId)));
+        Ar.deleteByMongoIdLight(articleNode.get().getMongoId());
     }
     public boolean checkLike(String articleId,String username){
         return this.Ar.checkLike(articleId,username);

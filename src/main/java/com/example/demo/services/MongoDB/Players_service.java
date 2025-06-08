@@ -126,7 +126,7 @@ public class Players_service {
         }
     }
     
-    @Transactional
+@Transactional
 @Async("customAsyncExecutor")
 public CompletableFuture<Players> updateFifaPlayer(String id, Integer fifaV, updateFifaPlayer request) {
     Optional<Players> optionalPlayer = PMr.findById(id);
@@ -172,7 +172,6 @@ private void updateUserTeamRelations(UsersNodeDTO user, String gender, Integer n
         if (players != null) {
             for (PlayersNodeDTO player : players) {
                 Unr.deleteHasInMTeamRelation(user.getUserName(), player.getMongoId());
-                Unr.createHasInMTeamRelation(user.getUserName(), player.getMongoId(), newFifaVersion);
             }
         }
     } else if ("female".equals(gender)) {
@@ -180,7 +179,6 @@ private void updateUserTeamRelations(UsersNodeDTO user, String gender, Integer n
         if (fPlayers != null) {
             for (PlayersNodeDTO fPlayer : fPlayers) {
                 Unr.deleteHasInFTeamRelation(user.getUserName(), fPlayer.getMongoId());
-                Unr.createHasInFTeamRelation(user.getUserName(), fPlayer.getMongoId(), newFifaVersion);
             }
         }
     }
@@ -282,7 +280,7 @@ private void updateStatValues(FifaStatsPlayer stat, updateFifaPlayer request) {
             Pmr.createPlaysInTeamRelationToTeam(id, request.getTeam_mongo_id(), fifaV);
             targetStat.getTeam().setTeam_name(existingTeam.getTeam_name());
             targetStat.getTeam().setTeam_mongo_id(request.getTeam_mongo_id());
-            targetStat.getTeam().setFifa_version(fifaV);
+            
             return CompletableFuture.completedFuture(PMr.save(existingPlayer));
         }
         return CompletableFuture.completedFuture(existingPlayer); // No change needed
@@ -291,7 +289,7 @@ private void updateStatValues(FifaStatsPlayer stat, updateFifaPlayer request) {
     //DELETE
     @Transactional
     @Async("customAsyncExecutor")
-    public void deletePlayer(String id){
+    public CompletableFuture<String> deletePlayer(String id){
         Optional<Players> player = PMr.findById(id);
         Optional<PlayersNodeDTO> playerNode = Pmr.findByMongoIdLight(id);
         if(player.isPresent()){
@@ -302,7 +300,8 @@ private void updateStatValues(FifaStatsPlayer stat, updateFifaPlayer request) {
         }
         if(playerNode.isPresent()){
             //removing relationship in Neo4j
-            PMs.deletePlayer(id);
+            Pmr.deletePlayerByMongoIdLight(id);
+            return CompletableFuture.completedFuture("Completed...");
         }
         else{
             throw new RuntimeErrorException(null, "Player not found with id: " + id);
@@ -312,7 +311,7 @@ private void updateStatValues(FifaStatsPlayer stat, updateFifaPlayer request) {
 
     @Transactional
     @Async("customAsyncExecutor")
-    public void deleteFifaPlayer(String id, Integer fifaV){
+    public CompletableFuture<String> deleteFifaPlayer(String id, Integer fifaV){
         Optional<Players> player = PMr.findById(id);
         Optional<PlayersNodeDTO> playerNode = Pmr.findByMongoIdLight(id);
 
@@ -321,11 +320,22 @@ private void updateStatValues(FifaStatsPlayer stat, updateFifaPlayer request) {
             if(playerNode.isPresent()){
                 
                 List<FifaStatsPlayer> stats = existingPlayer.getFifaStats();
+                List<UsersNodeDTO> users = Unr.findUsersByMongoIdAndFifaVersion(id, fifaV);
+                if (users != null) {
+                    for (UsersNodeDTO user : users) {
+                        if(existingPlayer.getGender().equals("female")){
+                            Unr.deleteHasInFTeamRelation(user.getUserName(), id);
+                        }
+                        else{
+                            Unr.deleteHasInMTeamRelation(user.getUserName(), id);
+                        }
+                    }
+                }
                 for(FifaStatsPlayer stat: stats){
                     if(stat.getFifa_version().equals(fifaV)){
                        Pmr.deletePlaysInTeamRelationToTeam(id, stat.getTeam().getTeam_mongo_id(), fifaV);
                         //deleting fifaStats in MongoDB
-                        stat.setFifa_version(99);
+                        stat.setFifa_version(-1);
                         stat.setPlayer_positions("NA");
                         stat.setOverall(-1);
                         stat.setPotential(-1);
@@ -389,8 +399,8 @@ private void updateStatValues(FifaStatsPlayer stat, updateFifaPlayer request) {
                     }
                 }
                
-                
                 PMr.save(existingPlayer);
+                return CompletableFuture.completedFuture("Completed...");
             }
             else{
                 throw new RuntimeErrorException(null, "Player not found with id: " + id);

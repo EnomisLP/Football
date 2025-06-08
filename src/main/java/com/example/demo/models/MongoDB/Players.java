@@ -50,7 +50,7 @@ public class Players {
     this.fifaStats = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
         FifaStatsPlayer stats = new FifaStatsPlayer();
-        stats.setFifa_version(99);
+        stats.setFifa_version(-1);
         stats.setPlayer_positions("NA");
         stats.setOverall(-1);
         stats.setPotential(-1);

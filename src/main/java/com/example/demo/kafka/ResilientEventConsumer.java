@@ -311,8 +311,8 @@ public class ResilientEventConsumer {
         try {
             Optional<UsersNodeDTO> userOptional = usersNodeRepository.findByUserNameLight(username);
             if (userOptional.isPresent()) {
-                usersNodeRepository.deleteUserByUserNameLight(username);
                 articlesNodeRepository.deleteUserArticles(username);
+                usersNodeRepository.deleteUserByUserNameLight(username);
                 log.info("Successfully deleted user {}", username);
             } else {
                 log.warn("User not found for delete: {}", username);
