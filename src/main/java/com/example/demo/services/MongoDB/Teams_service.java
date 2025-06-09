@@ -78,10 +78,8 @@ public class Teams_service {
     public CompletableFuture<Teams> createTeam(createTeamRequest request){
         Teams teamM = new Teams();
         teamM.setGender(request.getGender());
-        
         teamM.setLeague_level(request.getLeague_level());
         teamM.setLeague_name(request.getLeague_name());
-        
         teamM.setTeam_name(request.getTeam_name());
         teamM.setNationality_name(request.getNationality_name());
         TMr.save(teamM);

@@ -120,7 +120,7 @@ public class Users_node_controller {
         return Uns.mapAllUsersToNeo4j();
     }
     
-   /*  @PutMapping("admin/populate/likes_to_players")
+    @PutMapping("admin/populate/likes_to_players")
     @Operation(summary = "Populate neo4j with likes to players", tags={"Admin:Populate"})
     public String populateLikesToPlayer() {
         return Uns.populateLikesToPlayer();
@@ -143,7 +143,7 @@ public class Users_node_controller {
     public String populateFollowsToUsers() {
         return Uns.populateFollowsToUsers();
     }
-*/
+
     // DELETE PLAYERS
      @DeleteMapping("user/team/male/removePlayer/{_id}")
     @Operation(summary = "Remove a player in male Team by its mongoId", tags={"Player"})

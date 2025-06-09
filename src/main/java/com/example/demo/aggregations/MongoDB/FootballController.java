@@ -59,7 +59,7 @@ public class FootballController {
             @ApiResponse(responseCode = "500", description = "Years not available")
     })
     @Operation(summary = "Get the percentage improvements in terms of attack, defense and midfield of a team, between 2 years", tags={ "Admin:Aggregation"})
-    public CompletableFuture<TeamImprovements> getSubscriptionYearSummary(@PathVariable String _id,@PathVariable String year1,@PathVariable String year2) {
+    public CompletableFuture<TeamImprovements> getTeamImprovement(@PathVariable String _id,@PathVariable String year1,@PathVariable String year2) {
         return footballService.getTeamImprovements(_id,year1,year2);
     }
 }
