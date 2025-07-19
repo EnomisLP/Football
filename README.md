@@ -1,38 +1,69 @@
 # Football Social Club
 
-## Overview
+## Overview and Motivations
 
-The **Football Social Club** is a web application designed for football enthusiasts, enabling them to explore various football players, teams, and coaches in detail. The system allows users to interact with each other by following other users, players, coaches, or clubs, as well as manage their own football team. Registered users can also write, edit, and delete articles, with the ability to perform advanced queries. The application uses **MongoDB**, **Neo4j**, and **Spring Boot** for data management and backend services.
-
----
-
-## Features
-
-- **User Registration & Login**: Users can register, log in, and access personalized features.
-- **Player Management**: Users can add football players to their teams and view detailed information about them.
-- **Following System**: Users can follow and unfollow users, put like to coaches, clubs.
-- **Advanced Queries**: Users can perform complex queries to retrieve detailed football data.
-- **Article Creation & Management**: Users can write, edit, and delete articles about football.
-- **Admin Privileges**: Admins have control over the entire application, including:
-  - **CRUD operations** on players, coaches, and clubs.
-  - **Global updates** applied to MongoDB and Neo4j databases.
-  - Admin can also delete, update, and add new players, coaches, or clubs.
+ Football is the world’s most popular sport, captivating billions with its dynamic
+ interplay of skill, strategy, history, and passionate communities. In the digital
+ era, the hungerfordata-driveninsights, advancedanalytics, andsociallyconnected
+ experiences has transformed how fans, analysts, and professionals engage with
+ the game. Yet, the landscape of football data remains fragmented-spread across
+ disparate sources, siloed in varying formats, and often disconnected from the social
+ and analytical features that modern users expect.
+ **The Football Social Club** project was conceived to address this gap, building
+ an integrated, scalable, and extensible platform that unites rich football datasets,
+ advanced analytics, and community-driven features. By merging traditional data
+ modelingwithstate-of-the-artNoSQLandgraphdatabasetechnologies,thisproject
+ sets out to redefine how football data is collected, explored, and experienced.
 
 ---
 
-## Actors
+## Actors and Requirments
 
-1. **Admin**:
-   - Can **create, edit, and delete** players, clubs, and coaches.
-   - Admin can manage **global data** in MongoDB and Neo4j databases.
-
-2. **Registered User**:
-   - Can **follow/unfollow** players, coaches, clubs, and users.
-   - Can view detailed data about football players, coaches, and clubs.
-   - Can **create, edit, and delete** their own articles.
-
-3. **Unregistered User**:
-   - Can **search and view** details of players, coaches, clubs, and users but cannot perform any interactive operations like following or posting articles.
+1. **Unregistered Users (Guests)**
+   **Functional Requirements**
+ • FR-1:Must be able to create an account, specifying username, email,password
+ and nationality.
+ • FR-2: Must be able to search for basic information about teams, players,
+ coaches, and users.
+2. **Registered Users (Authenticated)**
+ **Functional Requirements**
+ • FR-3: A user must be able to log in and log out.
+• FR-4: A user must be able to update personal information (Password) and to
+ delete their account.
+ • FR-5: A user must be able to create, edit, and delete their own articles.
+ • FR-6: Ausermustbeabletofollow other users, like or unlike articles, teams,
+ players and coaches.
+ • FR-7: A user must be able to search for detailed information about articles,
+ teams, players, coaches, and other users and to see its own ones.
+ • FR-7: Users must be able to create and manages it’s own female/male team,
+ by adding or removing players of any fifa version (corresponds to a version in
+ a specific year) available.
+   3.  **Administrators**
+ **Functional Requirements**
+ • FR-8 : Admins must be able to log in and log out.
+ • FR-9: Adminsmustbeabletoviewallusers, teams, coaches, players, articles
+ and their full details in batch.
+ • FR-10: Admins must be able to delete user accounts.
+ • FR-11: Admins must be able to moderate articles, by deleting them if neces
+sary.
+ • FR-12: Admins must be able to get analytics from the data.
+ • FR-13: Adminsmustbeabletoaccessauditlogsforalladministrativeactions.
+ • FR-14: Admins must be able to manually sync data between MongoDB and
+ Neo4j.
+ • FR-15: Admins must be able to execute CRUD operations on teams, players,
+ and coaches.
+ • FR-16: Admins must be able to monitor system health and performance.
+ 4. **Non-Functional Requirements**
+ • NFR-1: The system must ensure strong intra-db consistency for administra
+tor write operations. User writes operations will follow an eventual consis
+tency model to improve performance and scalability.
+ • NFR-2: Databasesmusthandledetails,regardingplayers,teams,andcoaches
+ at maximum for 10 years.
+ • NFR-3: All user passwords must be encrypted using bcrypt.
+ • NFR-4: The application must be fast and return quick responses to its users
+ in every query.
+• NFR-5: The application must be user-friendly for all its users and easy to
+ navigate
 
 ---
 
@@ -56,38 +87,29 @@ The **Football Social Club** is a web application designed for football enthusia
 
 ## Technologies
 
-- **MongoDB**: A NoSQL database used to store and manage player, coach, and team information.
-- **Neo4j**: A graph database used to manage relationships between players, coaches, and teams.
-- **Spring Boot**: The backend framework for the web application, responsible for creating APIs and handling business logic.
+ • **Java 17** – Serves as the primary programming language for backend devel
+opment, offering modern language features and long-term support.
+ • **SpringBoot3.4.4**  – A robust framework used to build and manage the REST
+ful API layer, simplifying dependency management and application configu
+ration.
+ • **MongoDB** – A NoSQL document-oriented database used for storing core do
+main data with flexible schema design.
+ • **Neo4j** – A native graph database designed to manage and efficiently query
+ complex relationship-based data.
+ • **Swagger UI** – Integrated for generating interactive API documentation, en
+abling testing and exploration of REST endpoints.
+ • **Maven 4.0** – Used for project build automation and managing dependencies
+ across modules.
+ • **Docker** – Employed to containerize application components, ensuring consis
+tent environments across development and production.
+ • **ApacheKafka 7.4.0** – A distributed event streaming platform used for han
+dling asynchronous communication between services.
+ • **Apache ZooKeeper 3.8.0** – Provides coordination and configuration man
+agement for Kafka clusters.
 
 ---
 
-## Use Cases
 
-- **Registered User**: A user can log in, add players to their team, follow other users, and interact with articles. They can also write and edit articles related to football.
-- **Admin**: Admin users can manage all aspects of the system, including adding, updating, and deleting football players, coaches, and clubs. They also manage the consistency of data across MongoDB and Neo4j.
-- **Unregistered User**: Can browse through football data (players, teams, coaches) and read articles but cannot perform any interactive actions like following others or posting articles.
-
----
-
-## How It Works
-
-1. **User Registration**: Users sign up to access additional features such as following users and creating articles.
-2. **Player and Coach Management**: Users can explore detailed player and coach profiles, including statistics, past teams, etc.
-3. **Article Management**: Users can contribute to the community by writing and managing articles on football-related topics.
-4. **Admin Role**: Admins have full control of the backend data and can modify records in MongoDB and Neo4j as needed.
-
----
-
-## Architecture
-
-- **Frontend**: Must be implemented
-- **Backend**: Spring Boot REST APIs to handle user requests, player data, and articles.
-- **Database**: 
-  - MongoDB for storing player, coach, and team data.
-  - Neo4j to handle relationships between players, coaches, and teams (e.g., players in a team, coaches managing teams).
-  
----
 
 ## How to Contribute
 
