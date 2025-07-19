@@ -28,7 +28,7 @@
  • FR-2: Must be able to search for basic information about teams, players,
  coaches, and users.
  
-3. **Registered Users (Authenticated)**
+2. **Registered Users (Authenticated)**
  **Functional Requirements**
    
  • FR-3: A user must be able to log in and log out.
@@ -38,7 +38,7 @@
  
  • FR-5: A user must be able to create, edit, and delete their own articles.
  
- • FR-6: Ausermustbeabletofollow other users, like or unlike articles, teams,
+ • FR-6: A user must be able to follow other users, like or unlike articles, teams,
  players and coaches.
  
  • FR-7: A user must be able to search for detailed information about articles,
@@ -53,7 +53,7 @@
  
  • FR-9 : Admins must be able to log in and log out.
  
- • FR-10: Adminsmustbeabletoviewallusers, teams, coaches, players, articles
+ • FR-10: Admins must be able to view all users, teams, coaches, players, articles
  and their full details in batch.
  
  • FR-11: Admins must be able to delete user accounts.
@@ -63,7 +63,7 @@ sary.
 
  • FR-13: Admins must be able to get analytics from the data.
  
- • FR-14: Adminsmustbeabletoaccessauditlogsforalladministrativeactions.
+ • FR-14: Admins must be able to access audit logs for all administrative actions.
  
  • FR-15: Admins must be able to manually sync data between MongoDB and
  Neo4j.
@@ -79,7 +79,7 @@ sary.
 tor write operations. User writes operations will follow an eventual consis
 tency model to improve performance and scalability.
 
- • NFR-2: Databasesmusthandledetails,regardingplayers,teams,andcoaches
+ • NFR-2: Databases must handle details,regarding players,teams,and coaches
  at maximum for 10 years.
  
  • NFR-3: All user passwords must be encrypted using bcrypt.
