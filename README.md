@@ -12,7 +12,7 @@
  **The Football Social Club** project was conceived to address this gap, building
  an integrated, scalable, and extensible platform that unites rich football datasets,
  advanced analytics, and community-driven features. By merging traditional data
- modelingwithstate-of-the-artNoSQLandgraphdatabasetechnologies,thisproject
+ modeling with state-of-the-art NoSQL and graph database technologies,this project
  sets out to redefine how football data is collected, explored, and experienced.
 
 ---
@@ -114,21 +114,29 @@ tency model to improve performance and scalability.
 
  • **Java 17** – Serves as the primary programming language for backend devel
 opment, offering modern language features and long-term support.
+
  • **SpringBoot3.4.4**  – A robust framework used to build and manage the REST
 ful API layer, simplifying dependency management and application configu
 ration.
+
  • **MongoDB** – A NoSQL document-oriented database used for storing core do
 main data with flexible schema design.
+
  • **Neo4j** – A native graph database designed to manage and efficiently query
  complex relationship-based data.
+ 
  • **Swagger UI** – Integrated for generating interactive API documentation, en
 abling testing and exploration of REST endpoints.
+
  • **Maven 4.0** – Used for project build automation and managing dependencies
  across modules.
+ 
  • **Docker** – Employed to containerize application components, ensuring consis
 tent environments across development and production.
+
  • **ApacheKafka 7.4.0** – A distributed event streaming platform used for han
 dling asynchronous communication between services.
+
  • **Apache ZooKeeper 3.8.0** – Provides coordination and configuration man
 agement for Kafka clusters.
 
