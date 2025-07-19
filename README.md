@@ -21,13 +21,16 @@
 
 1. **Unregistered Users (Guests)**
    **Functional Requirements**
+   
  • FR-1:Must be able to create an account, specifying username, email,password
  and nationality.
 
  • FR-2: Must be able to search for basic information about teams, players,
  coaches, and users.
+ 
 3. **Registered Users (Authenticated)**
  **Functional Requirements**
+   
  • FR-3: A user must be able to log in and log out.
  
 • FR-4: A user must be able to update personal information (Password) and to
@@ -46,6 +49,7 @@
  a specific year) available.
    3.  **Administrators**
  **Functional Requirements**
+ 
  • FR-9 : Admins must be able to log in and log out.
  
  • FR-10: Adminsmustbeabletoviewallusers, teams, coaches, players, articles
@@ -68,6 +72,7 @@ sary.
  
  • FR-17: Admins must be able to monitor system health and performance.
  4. **Non-Functional Requirements**
+ 
  • NFR-1: The system must ensure strong intra-db consistency for administra
 tor write operations. User writes operations will follow an eventual consis
 tency model to improve performance and scalability.
