@@ -23,45 +23,63 @@
    **Functional Requirements**
  • FR-1:Must be able to create an account, specifying username, email,password
  and nationality.
+
  • FR-2: Must be able to search for basic information about teams, players,
  coaches, and users.
-2. **Registered Users (Authenticated)**
+3. **Registered Users (Authenticated)**
  **Functional Requirements**
  • FR-3: A user must be able to log in and log out.
+ 
 • FR-4: A user must be able to update personal information (Password) and to
  delete their account.
+ 
  • FR-5: A user must be able to create, edit, and delete their own articles.
+ 
  • FR-6: Ausermustbeabletofollow other users, like or unlike articles, teams,
  players and coaches.
+ 
  • FR-7: A user must be able to search for detailed information about articles,
  teams, players, coaches, and other users and to see its own ones.
- • FR-7: Users must be able to create and manages it’s own female/male team,
+ 
+ • FR-8: Users must be able to create and manages it’s own female/male team,
  by adding or removing players of any fifa version (corresponds to a version in
  a specific year) available.
    3.  **Administrators**
  **Functional Requirements**
- • FR-8 : Admins must be able to log in and log out.
- • FR-9: Adminsmustbeabletoviewallusers, teams, coaches, players, articles
+ • FR-9 : Admins must be able to log in and log out.
+ 
+ • FR-10: Adminsmustbeabletoviewallusers, teams, coaches, players, articles
  and their full details in batch.
- • FR-10: Admins must be able to delete user accounts.
- • FR-11: Admins must be able to moderate articles, by deleting them if neces
+ 
+ • FR-11: Admins must be able to delete user accounts.
+ 
+ • FR-12: Admins must be able to moderate articles, by deleting them if neces
 sary.
- • FR-12: Admins must be able to get analytics from the data.
- • FR-13: Adminsmustbeabletoaccessauditlogsforalladministrativeactions.
- • FR-14: Admins must be able to manually sync data between MongoDB and
+
+ • FR-13: Admins must be able to get analytics from the data.
+ 
+ • FR-14: Adminsmustbeabletoaccessauditlogsforalladministrativeactions.
+ 
+ • FR-15: Admins must be able to manually sync data between MongoDB and
  Neo4j.
- • FR-15: Admins must be able to execute CRUD operations on teams, players,
+ 
+ • FR-16: Admins must be able to execute CRUD operations on teams, players,
  and coaches.
- • FR-16: Admins must be able to monitor system health and performance.
+ 
+ • FR-17: Admins must be able to monitor system health and performance.
  4. **Non-Functional Requirements**
  • NFR-1: The system must ensure strong intra-db consistency for administra
 tor write operations. User writes operations will follow an eventual consis
 tency model to improve performance and scalability.
+
  • NFR-2: Databasesmusthandledetails,regardingplayers,teams,andcoaches
  at maximum for 10 years.
+ 
  • NFR-3: All user passwords must be encrypted using bcrypt.
+ 
  • NFR-4: The application must be fast and return quick responses to its users
  in every query.
+ 
 • NFR-5: The application must be user-friendly for all its users and easy to
  navigate
 
