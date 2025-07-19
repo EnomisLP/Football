@@ -47,7 +47,8 @@
  • FR-8: Users must be able to create and manages it’s own female/male team,
  by adding or removing players of any fifa version (corresponds to a version in
  a specific year) available.
-   3.  **Administrators**
+ 
+ 3.  **Administrators**
  **Functional Requirements**
  
  • FR-9 : Admins must be able to log in and log out.
@@ -71,6 +72,7 @@ sary.
  and coaches.
  
  • FR-17: Admins must be able to monitor system health and performance.
+ 
  4. **Non-Functional Requirements**
  
  • NFR-1: The system must ensure strong intra-db consistency for administra
